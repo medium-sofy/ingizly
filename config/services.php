@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'paymob' => [
+        'api_key' => env('PAYMOB_API_KEY'),
+    ],
+
 ];
