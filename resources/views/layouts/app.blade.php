@@ -18,7 +18,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-indigo-700 text-white">
         <div class="p-6">
-            <h1 class="text-2xl font-semibold">Ingizly Admin</h1>
+            <h1 class="text-2xl font-semibold">Ingizly | Admin</h1>
         </div>
         <nav class="mt-6">
             <a href="#" class="flex items-center px-6 py-3 text-white bg-indigo-800">
