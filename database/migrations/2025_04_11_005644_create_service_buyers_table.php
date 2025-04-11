@@ -12,10 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('service_buyers', function (Blueprint $table) {
-            $table->foreignId('user_id')->primary()->constrained('users')->onDelete('cascade');
-            $table->string('phone_number',11)->unique()->nullable();
+            $table->unsignedBigInteger('user_id')->primary();
             $table->string('location')->nullable();
+            $table->string('phone', 20)->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 

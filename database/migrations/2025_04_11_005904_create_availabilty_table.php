@@ -13,13 +13,19 @@ return new class extends Migration
     {
         Schema::create('availability', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('provider_id')->constrained('service_providers','user_id')->onDelete('cascade');
-            $table->enum('day_of_week', ['Saturday', 'Sunday','Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
+            $table->unsignedBigInteger('provider_id');
+            $table->enum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
             $table->time('start_time');
             $table->time('end_time');
             $table->boolean('is_available')->default(true);
-            $table->unique(['provider_id', 'day_of_week']);
             $table->timestamps();
+
+            $table->foreign('provider_id')
+                ->references('user_id')
+                ->on('service_providers')
+                ->onDelete('cascade');
+
+            $table->unique(['provider_id', 'day_of_week'], 'unique_provider_day');
         });
     }
 

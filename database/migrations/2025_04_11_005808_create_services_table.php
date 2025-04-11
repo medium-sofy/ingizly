@@ -13,16 +13,24 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('provider_id')->constrained('service_providers','user_id')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('categories');
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('provider_id');
             $table->string('title');
-            $table->string('description');
-            $table->decimal('price',10,2);
+            $table->text('description')->nullable();
+            $table->decimal('price', 10, 2);
             $table->integer('view_count')->default(0);
-            $table->enum('status',['pending','active','inactive'])->default('pending');
-            $table->enum('service_type',['on_site','remote','bussiness_based']);
+            $table->enum('status', ['active', 'inactive', 'pending'])->default('pending');
+            $table->enum('service_type', ['on_site', 'shop_based', 'remote']);
             $table->string('location')->nullable();
             $table->timestamps();
+
+            $table->foreign('category_id')
+                ->references('id')
+                ->on('categories');
+
+            $table->foreign('provider_id')
+                ->references('user_id')
+                ->on('service_providers');
         });
     }
 
