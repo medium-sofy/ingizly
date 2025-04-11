@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'is_email_verified',
+        'profile_image',
+        'last_login',
     ];
 
     /**
@@ -43,6 +47,38 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_email_verified' => 'boolean',
+            'created_at' => 'datetime',
+            'last_login' => 'datetime',
         ];
+    }
+    public function admin()
+    {
+        return $this->hasOne(Admin::class);
+    }
+
+    public function serviceBuyer()
+    {
+        return $this->hasOne(ServiceBuyer::class);
+    }
+
+    public function serviceProvider()
+    {
+        return $this->hasOne(ServiceProvider::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function violations()
+    {
+        return $this->hasMany(Violation::class);
     }
 }
