@@ -21,15 +21,15 @@
             <h1 class="text-2xl font-semibold">Ingizly | Admin</h1>
         </div>
         <nav class="mt-6">
-            <a href="#" class="flex items-center px-6 py-3 text-white bg-indigo-800">
+            <a href="{{route('dashboard')}}" class="flex items-center px-6 py-3 text-white bg-indigo-800">
                 <i class="fas fa-chart-bar mr-3"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800">
+            <a href="{{route('admin.users.index')}}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800">
                 <i class="fas fa-users mr-3"></i>
                 <span>Users</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800">
+            <a href="{{route('admin.services.index')}}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800">
                 <i class="fas fa-cogs mr-3"></i>
                 <span>Services</span>
             </a>
