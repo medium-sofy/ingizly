@@ -7,5 +7,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
-Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
