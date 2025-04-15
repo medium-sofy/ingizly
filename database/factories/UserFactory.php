@@ -95,6 +95,7 @@ class UserFactory extends Factory
                 'business_address' => fake()->address(),
                 'avg_rating' => fake()->randomFloat(1, 3, 5),
                 'provider_type' => fake()->randomElement(['handyman', 'bussiness_owner']),
+                'is_verified' => fake()->boolean(20),
             ]);
         });
     }
