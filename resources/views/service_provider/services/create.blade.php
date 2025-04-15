@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    <form action="{{ route('services.store') }}" method="POST" class="space-y-5">
+    <form action="{{ route('services.store') }}" method="POST" class="space-y-5" enctype="multipart/form-data">
         @csrf
 
         <div>
@@ -74,6 +74,18 @@
             </div>
         </div>
 
+
+        <div>
+    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Service Image</label>
+    <input type="file" name="image" id="image" accept="image/*"
+           class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+           onchange="previewImage(event)">
+           <div id="preview-container" class="mt-4 border rounded p-2">
+    <img id="image-preview" src="#" alt="Image Preview" class="hidden w-32 h-32 object-cover rounded">
+</div>
+</div>
+
+
         <div class="flex items-center justify-end gap-4 pt-4">
             <a href="{{ route('services.index') }}"
                class="text-sm text-gray-600 hover:text-gray-900 transition">Cancel</a>
@@ -84,4 +96,22 @@
         </div>
     </form>
 </div>
+@push('scripts')
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('image-preview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+@endpush
+
 @endsection

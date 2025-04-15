@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <form action="{{ route('services.update', $service->id) }}" method="POST" class="space-y-6">
+    <form action="{{ route('services.update', $service->id) }}" method="POST" class="space-y-6" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -73,6 +73,25 @@
                 <option value="bussiness_based" {{ $service->service_type == 'bussiness_based' ? 'selected' : '' }}>Business Based</option>
             </select>
         </div>
+
+        <div>
+    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Update Service Image</label>
+    <input type="file" name="image" id="image" accept="image/*"
+           class="w-full border border-gray-300 rounded-lg px-4 py-2 transition"
+           onchange="previewImage(event)">
+
+    <div id="preview-container" class="mt-2">
+        @if($service->images->first())
+            <img id="image-preview"
+                 src="{{ asset('storage/' . $service->images->first()->image_url) }}"
+                 alt="Current Image"
+                 class="w-32 h-32 object-cover rounded">
+        @else
+            <img id="image-preview" src="#" alt="Image Preview" class="hidden w-32 h-32 object-cover rounded">
+        @endif
+    </div>
+</div>
+
 
         <div class="flex justify-between items-center mt-6">
             <button type="submit"

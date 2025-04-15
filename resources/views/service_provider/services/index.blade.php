@@ -30,7 +30,8 @@
         <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             @foreach($services as $service)
                 <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition border border-gray-100">
-                    <div class="p-5">
+                    <!-- Service clickable area -->
+                    <a href="{{ route('services.show', $service->id) }}" class="block p-5">
                         <h3 class="text-xl font-semibold text-gray-800 mb-1 truncate">{{ $service->title }}</h3>
                         <p class="text-sm text-gray-500 mb-1">
                             Category: <span class="font-medium">{{ $service->category->name ?? 'N/A' }}</span>
@@ -46,17 +47,18 @@
                             </span>
                             <span class="text-sm text-gray-500">{{ $service->view_count }} views</span>
                         </div>
+                    </a>
 
-                        <div class="flex justify-end gap-2">
-                            <a href="{{ route('services.edit', $service->id) }}" class="inline-flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-medium px-3 py-1.5 rounded-full transition">
-                                ✏️ Edit
-                            </a>
-                            <button
-                                @click.prevent="showModal = true; serviceId = {{ $service->id }};"
-                                class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-sm font-medium px-3 py-1.5 rounded-full transition">
-                                🗑️ Delete
-                            </button>
-                        </div>
+                    <!-- Buttons outside the link -->
+                    <div class="flex justify-end gap-2 px-5 pb-4">
+                        <a href="{{ route('services.edit', $service->id) }}" class="inline-flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-medium px-3 py-1.5 rounded-full transition">
+                            ✏️ Edit
+                        </a>
+                        <button
+                            @click.prevent="showModal = true; serviceId = {{ $service->id }};"
+                            class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-600 text-sm font-medium px-3 py-1.5 rounded-full transition">
+                            🗑️ Delete
+                        </button>
                     </div>
                 </div>
             @endforeach

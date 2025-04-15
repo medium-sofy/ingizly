@@ -1,6 +1,8 @@
 @extends('layouts.provider')
 
 @section('content')
+
+
 <style>
     [x-cloak] {
         display: none;
@@ -175,4 +177,5 @@
         @endforelse
     </div>
 </div>
+
 @endsection

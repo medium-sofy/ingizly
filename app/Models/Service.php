@@ -3,6 +3,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ServiceImage;
+
 
 class Service extends Model
 {
@@ -38,5 +40,10 @@ class Service extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ServiceImage::class);
     }
 }
