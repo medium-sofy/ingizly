@@ -45,8 +45,9 @@
                     <select name="location" class="border border-gray-300 rounded p-2">
                         <option value="All Locations">All Locations</option>
                         @foreach($locations as $location)
-                            <option value="{{ $location->location }}" {{ request('location') == $location->location ? 'selected' : '' }}>
-                                {{ $location->location }}
+                            {{-- $location is the location string itself, e.g., "Faiyum" --}}
+                            <option value="{{ $location }}" {{ request('location') == $location ? 'selected' : '' }}>
+                                {{ $location }}
                             </option>
                         @endforeach
                     </select>
@@ -99,8 +100,10 @@
                             </td>
                             <td class="py-4">
                                 <div>
-                                    <p class="font-medium">{{ $service->serviceProvider->user->name }}</p>
-                                    <p class="text-sm text-gray-500">{{ $service->serviceProvider->location }}</p>
+                                    {{-- Use the correct relationship name 'provider' --}}
+                                    {{-- Use nullsafe operator '?->' to prevent errors if provider or user is null --}}
+                                    <p class="font-medium">{{ $service->provider?->user?->name ?? 'Provider missing' }}</p>
+                                    <p class="text-sm text-gray-500">{{ $service->provider?->location ?? 'N/A' }}</p>
                                 </div>
                             </td>
                             <td class="py-4">${{ number_format($service->price) }}</td>

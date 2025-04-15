@@ -60,9 +60,10 @@
                         <select id="provider_id" name="provider_id" required
                                 class="w-full border border-gray-300 rounded p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">Select a Provider</option>
-                            @foreach($providers as $provider)
-                                <option value="{{ $provider->user_id }}" {{ old('provider_id') == $provider->user_id ? 'selected' : '' }}>
-                                    {{ $provider->business_name ?: $provider->user->name }}
+                            {{-- Iterate getting both key ($id) and value ($display) --}}
+                            @foreach($providers as $id => $display_name)
+                                <option value="{{ $id }}" {{ old('provider_id') == $id ? 'selected' : '' }}>
+                                    {{ $display_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -144,9 +145,9 @@
                         <select id="service_type" name="service_type"
                                 class="w-full border border-gray-300 rounded p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">Select Type</option>
-                            <option value="in-person" {{ old('service_type') == 'in-person' ? 'selected' : '' }}>In-Person</option>
+                            <option value="on_site" {{ old('service_type') == 'on_site' ? 'selected' : '' }}>On-Site</option>
+                            <option value="shop_based" {{ old('service_type') == 'shop_based' ? 'selected' : '' }}>Shop Based</option>
                             <option value="remote" {{ old('service_type') == 'remote' ? 'selected' : '' }}>Remote</option>
-                            <option value="hybrid" {{ old('service_type') == 'hybrid' ? 'selected' : '' }}>Hybrid</option>
                         </select>
                         @error('service_type')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

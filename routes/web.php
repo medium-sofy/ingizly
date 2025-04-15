@@ -29,10 +29,10 @@ Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKe
     Route::post('/admin/services/create', [ServiceController::class, 'store'])->name('admin.services.store');
     Route::get('/admin/services/{service}/edit', [ServiceController::class, 'edit'])->name('admin.services.edit');
     Route::put('/admin/services/{service}/edit', [ServiceController::class, 'update'])->name('admin.services.update');
-    Route::delete('/{service}', [ServiceController::class, 'destroy'])->name('admin.services.destroy');
-    Route::get('/{service}', [ServiceController::class, 'show'])->name('admin.services.show');
-    Route::post('/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
-    Route::post('/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+    Route::delete('/admin/services/show/{service}', [ServiceController::class, 'destroy'])->name('admin.services.destroy');
+    Route::get('/admin/services/show/{service}', [ServiceController::class, 'show'])->name('admin.services.show');
+    Route::post('/admin/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
+    Route::post('/admin/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
     //// Show single service details
     //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 

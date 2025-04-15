@@ -90,16 +90,18 @@
                     <div class="p-4 border border-gray-200 rounded-lg">
                         <div class="flex items-center justify-between mb-2">
                             <h4 class="font-medium">{{ $service->title }}</h4>
-                            <span class="text-sm text-gray-500">by {{ $service->serviceProvider->user->name }}</span>
+                            {{-- Corrected line using 'provider' and nullsafe operator '?->' --}}
+                            <span class="text-sm text-gray-500">by {{ $service->provider?->user?->name ?? 'Unknown Provider' }}</span>
                         </div>
+                        {{-- Approval/Rejection Buttons --}}
                         <div class="flex justify-end space-x-2">
-                            <form action="{{ route('admin.approveService', $service->id) }}" method="POST">
+                            <form action="{{ route('services.approve', $service->id) }}" method="POST"> {{-- Adjusted route name assumption --}}
                                 @csrf
                                 <button type="submit" class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600">
                                     Approve
                                 </button>
                             </form>
-                            <form action="{{ route('admin.rejectService', $service->id) }}" method="POST">
+                            <form action="{{ route('services.reject', $service->id) }}" method="POST"> {{-- Adjusted route name assumption --}}
                                 @csrf
                                 <button type="submit" class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">
                                     Reject

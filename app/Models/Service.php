@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany; // <-- Import HasMany
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Service extends Model
 {
@@ -18,7 +20,7 @@ class Service extends Model
         'view_count',
         'status',
         'service_type',
-        'images',
+        // 'images', // <-- REMOVED from fillable
         'location',
     ];
 
@@ -29,38 +31,50 @@ class Service extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function getImagesAttribute($value)
+    // REMOVED getImagesAttribute
+    // REMOVED setImagesAttribute
+
+    /**
+     * Get all of the images for the Service.
+     * Defines the one-to-many relationship with ServiceImage.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function images(): HasMany
     {
-        return $value ? explode(',', $value) : [];
+        // Assumes App\Models\ServiceImage exists and service_images table uses 'service_id'
+        return $this->hasMany(ServiceImage::class);
     }
 
-    public function setImagesAttribute($value)
-    {
-        $this->attributes['images'] = is_array($value) ? implode(',', $value) : $value;
-    }
-
-    public function category()
+    // --- Existing Relationships ---
+    public function category(): BelongsTo // Added BelongsTo type hint
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function serviceprovider()
+    // Renamed for convention, added BelongsTo type hint
+    public function provider(): BelongsTo
     {
+        // Ensure App\Models\ServiceProvider exists
+        // Foreign key 'provider_id' links to 'user_id' on service_providers table
         return $this->belongsTo(ServiceProvider::class, 'provider_id', 'user_id');
     }
 
-    public function orders()
+    public function orders(): HasMany // Added HasMany type hint
     {
+        // Ensure App\Models\Order exists
         return $this->hasMany(Order::class);
     }
 
-    public function reviews()
+    public function reviews(): HasMany // Added HasMany type hint
     {
+        // Ensure App\Models\Review exists
         return $this->hasMany(Review::class);
     }
 
-    public function violations()
+    public function violations(): HasMany // Added HasMany type hint
     {
+        // Ensure App\Models\Violation exists
         return $this->hasMany(Violation::class);
     }
 }

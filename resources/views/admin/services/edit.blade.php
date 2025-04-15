@@ -61,9 +61,12 @@
                         <select id="provider_id" name="provider_id" required
                                 class="w-full border border-gray-300 rounded p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">Select a Provider</option>
-                            @foreach($providers as $provider)
-                                <option value="{{ $provider->user_id }}" {{ old('provider_id', $service->provider_id) == $provider->user_id ? 'selected' : '' }}>
-                                    {{ $provider->business_name ?: $provider->user->name }}
+                            {{-- Iterate using key => value syntax --}}
+                            @foreach($providers as $provider_user_id => $provider_display_name)
+                                {{-- Use the key ($provider_user_id) for the value and comparison --}}
+                                {{-- Use the value ($provider_display_name) for the displayed text --}}
+                                <option value="{{ $provider_user_id }}" {{ old('provider_id', $service->provider_id) == $provider_user_id ? 'selected' : '' }}>
+                                    {{ $provider_display_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -183,22 +186,26 @@
 
                 <!-- Image Upload -->
                 <div class="mb-6">
-                    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">
-                        Update Service Image
+                    <label for="images" class="block text-sm font-medium text-gray-700 mb-1">
+                        Upload New Service Image(s) {{-- Changed label slightly --}}
                     </label>
-                    <input type="file" id="image" name="image"
-                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                    <p class="mt-1 text-xs text-gray-500">Recommended size: 800x600px (Max 2MB)</p>
-                    @error('image')
+                    {{-- Changed id and name, added multiple --}}
+                    <input type="file" id="images" name="images[]" multiple
+                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-200 rounded-md p-1">
+                    <p class="mt-1 text-xs text-gray-500">You can upload multiple images. Max 2MB each (JPG, PNG, GIF).</p>
+                    {{-- Display validation error for the images array --}}
+                    @error('images')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    {{-- Display validation errors for individual files within the array --}}
+                    @foreach ($errors->get('images.*') as $message)
+                        <p class="mt-1 text-sm text-red-600">{{ $message[0] }}</p>
+                    @endforeach
                 </div>
 
                 <!-- Form Actions -->
                 <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
-                    <button type="reset" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
-                        Reset
-                    </button>
+
                     <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

@@ -39,7 +39,7 @@ class AdminController extends Controller
         $recentActivities = $this->getRecentActivities();
 
         // Get pending approvals
-        $pendingServices = Service::with(['serviceProvider.user'])
+        $pendingServices = Service::with(['provider.user'])
             ->where('status', 'pending')
             ->latest()
             ->take(5)
@@ -161,7 +161,7 @@ class AdminController extends Controller
      */
     public function services()
     {
-        $services = Service::with(['category', 'serviceProvider.user'])->latest()->paginate(15);
+        $services = Service::with(['category', 'provider.user'])->latest()->paginate(15);
         return view('admin.services.index', compact('services'));
     }
 

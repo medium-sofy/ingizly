@@ -7,243 +7,335 @@ use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Category;
 use App\Models\ServiceProvider;
+use App\Models\ServiceImage; // <-- Add ServiceImage model
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ServiceController extends Controller
 {
     /**
      * Display a listing of the services.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * (Code remains largely the same - ensure relationships are eager-loaded)
      */
     public function index(Request $request)
     {
-        // Base query with relationships
-        $query = Service::with(['serviceProvider.user', 'category']);
+        // Eager load necessary relationships for display and filtering
+        $query = Service::with(['provider.user', 'category', 'images']); // Eager load images
 
-        // Apply search filter
+        // --- Filtering logic remains the same ---
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%")
                     ->orWhere('description', 'LIKE', "%{$search}%")
-                    ->orWhereHas('serviceProvider.user', function($provider) use ($search) {
-                        $provider->where('name', 'LIKE', "%{$search}%");
+                    ->orWhereHas('provider.user', function($providerUser) use ($search) {
+                        $providerUser->where('name', 'LIKE', "%{$search}%");
                     });
             });
         }
-
-        // Apply price range filter
+        // Price filter
         if ($request->has('min_price') && is_numeric($request->min_price)) {
             $query->where('price', '>=', $request->min_price);
         }
-
         if ($request->has('max_price') && is_numeric($request->max_price)) {
             $query->where('price', '<=', $request->max_price);
         }
-
-        // Apply category filter
-        if ($request->has('category') && $request->category != 'All Categories') {
+        // Category filter
+        if ($request->has('category') && is_numeric($request->category)) { // Ensure category ID is numeric
             $query->where('category_id', $request->category);
         }
-
-        // Apply location filter
-        if ($request->has('location') && $request->location != 'All Locations') {
-            $query->whereHas('serviceProvider', function($provider) use ($request) {
+        // Location filter (uses ServiceProvider location)
+        if ($request->has('location') && !empty($request->location) && $request->location !== 'All Locations') {
+            $query->whereHas('provider', function($provider) use ($request) {
                 $provider->where('location', $request->location);
             });
         }
-
-        // Apply status filter
-        if ($request->has('status') && $request->status != 'All Statuses') {
+        // Status filter
+        if ($request->has('status') && !empty($request->status) && $request->status !== 'All Statuses') {
             $query->where('status', strtolower($request->status));
         }
+        // --- End filtering logic ---
 
         // Get categories for filter dropdown
-        $categories = Category::all();
+        $categories = Category::select('id', 'name')->orderBy('name')->get();
 
-        // Get unique locations for filter dropdown
-        $locations = ServiceProvider::select('location')->distinct()->get();
+        // Get unique locations for filter dropdown (from Service Providers)
+        $locations = ServiceProvider::select('location')
+            ->whereNotNull('location')
+            ->where('location', '!=', '')
+            ->distinct()
+            ->orderBy('location')
+            ->pluck('location'); // Use pluck for simpler array
 
-        // Get paginated results
         $services = $query->latest()->paginate(10);
-
-        // Append query parameters to pagination links
         $services->appends($request->all());
 
         return view('admin.services.index', compact('services', 'categories', 'locations'));
     }
 
+
     /**
      * Show the form for creating a new service.
-     *
-     * @return \Illuminate\View\View
-     */
-    /**
-     * Show the form for creating a new service.
-     *
-     * @return \Illuminate\View\View
      */
     public function create()
     {
-        $categories = Category::all();
-        $providers = ServiceProvider::with('user')->get();
+        $categories = Category::orderBy('name')->get();
+        // Get providers identified by their user name for the dropdown
+        $providers = ServiceProvider::with('user')->get()->mapWithKeys(function ($provider) {
+            return [$provider->user_id => $provider->user->name . ($provider->business_name ? " ({$provider->business_name})" : '')];
+        });
+        $serviceTypes = ['on_site', 'shop_based', 'remote']; // Define service types
 
-        return view('admin.services.create', compact('categories', 'providers'));
+        return view('admin.services.create', compact('categories', 'providers', 'serviceTypes'));
     }
 
     /**
-     * Store a newly created service in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Store a newly created service and its images in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'provider_id' => 'required|exists:service_providers,user_id',
+            'provider_id' => 'required|exists:service_providers,user_id', // Check against user_id in service_providers
             'category_id' => 'required|exists:categories,id',
-            'status' => 'required|in:active,pending,inactive',
-            'service_type' => 'nullable|string|max:50',
-            'location' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'status' => ['required', Rule::in(['active', 'pending', 'inactive'])],
+            'service_type' => ['required', Rule::in(['on_site', 'shop_based', 'remote'])],
+            'location' => 'nullable|string|max:255', // Location specific to the service if different from provider
+
+            // --- Image Validation (allow multiple) ---
+            'images'   => 'nullable|array', // Expect an array of images
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validate each image in the array
+            'primary_image_index' => 'nullable|integer' // Index of the primary image if multiple are uploaded
         ]);
 
-        $serviceData = [
-            'title' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'provider_id' => $request->provider_id,
-            'category_id' => $request->category_id,
-            'status' => $request->status,
-            'service_type' => $request->service_type,
-            'location' => $request->location,
-            'view_count' => 0,
-            'created_at' => now(),
-            'updated_at' => now()
-        ];
+        DB::beginTransaction();
+        try {
+            // Create Service
+            $service = Service::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'price' => $validated['price'],
+                'provider_id' => $validated['provider_id'],
+                'category_id' => $validated['category_id'],
+                'status' => $validated['status'],
+                'service_type' => $validated['service_type'],
+                'location' => $validated['location'], // Service specific location
+                'view_count' => 0,
+            ]);
 
-        // Handle image upload if provided
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/services', $imageName);
-            $serviceData['image'] = 'services/' . $imageName;
+            // Handle image uploads
+            if ($request->hasFile('images')) {
+                $primaryIndex = $request->input('primary_image_index', 0); // Default to first image
+                foreach ($request->file('images') as $index => $image) {
+                    $imageName = $service->id . '_' . time() . '_' . $image->getClientOriginalName();
+                    $path = $image->storeAs('service_images', $imageName, 'public'); // Store in 'public/service_images'
+
+                    ServiceImage::create([
+                        'service_id' => $service->id,
+                        'image_url' => $path, // Store the path relative to the storage disk
+                        'is_primary' => ($index == $primaryIndex),
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.services.index')
+                ->with('success', 'Service created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log::error($e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to create service. Error: ' . $e->getMessage());
         }
-
-        Service::create($serviceData);
-
-        return redirect()->route('admin.services.index')
-            ->with('success', 'Service created successfully.');
-    }
-    /**
-     * Display the specified service.
-     *
-     * @param  int  $id
-     * @return \Illuminate\View\View
-     */
-    public function show($id)
-    {
-        $service = Service::with(['serviceProvider.user', 'category'])->findOrFail($id);
-
-        return view('admin.services.show', compact('service'));
     }
 
     /**
      * Show the form for editing the specified service.
-     *
-     * @param  int  $id
-     * @return \Illuminate\View\View
      */
     public function edit($id)
     {
-        $service = Service::findOrFail($id);
-        $categories = Category::all();
-        $providers = ServiceProvider::with('user')->get();
+        $service = Service::with('images')->findOrFail($id); // Eager load images
+        $categories = Category::orderBy('name')->get();
+        $providers = ServiceProvider::with('user')->get()->mapWithKeys(function ($provider) {
+            return [$provider->user_id => $provider->user->name . ($provider->business_name ? " ({$provider->business_name})" : '')];
+        });
+        $serviceTypes = ['on_site', 'shop_based', 'remote'];
 
-        return view('admin.services.edit', compact('service', 'categories', 'providers'));
+        return view('admin.services.edit', compact('service', 'categories', 'providers', 'serviceTypes'));
     }
 
     /**
-     * Update the specified service in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * Update the specified service and its images in storage.
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $service = Service::findOrFail($id);
+
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id',
             'provider_id' => 'required|exists:service_providers,user_id',
-            'status' => 'required|in:active,pending,inactive'
+            'category_id' => 'required|exists:categories,id',
+            'status' => ['required', Rule::in(['active', 'pending', 'inactive'])],
+            'service_type' => ['required', Rule::in(['on_site', 'shop_based', 'remote'])],
+            'location' => 'nullable|string|max:255',
+
+            // --- Image Handling ---
+            'images'   => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'primary_image_id' => 'nullable|integer|exists:service_images,id', // ID of existing/new primary image
+            'deleted_images' => 'nullable|array', // Array of image IDs to delete
+            'deleted_images.*' => 'integer|exists:service_images,id',
         ]);
 
-        $service = Service::findOrFail($id);
+        DB::beginTransaction();
+        try {
+            // Update Service Details
+            $service->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'price' => $validated['price'],
+                'provider_id' => $validated['provider_id'],
+                'category_id' => $validated['category_id'],
+                'status' => $validated['status'],
+                'service_type' => $validated['service_type'],
+                'location' => $validated['location'],
+            ]);
 
-        $service->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'category_id' => $request->category_id,
-            'provider_id' => $request->provider_id,
-            'status' => $request->status
-        ]);
+            // --- Handle Image Deletions ---
+            if ($request->has('deleted_images')) {
+                $imagesToDelete = ServiceImage::where('service_id', $service->id)
+                    ->whereIn('id', $validated['deleted_images'])
+                    ->get();
+                foreach ($imagesToDelete as $img) {
+                    Storage::disk('public')->delete($img->image_url);
+                    $img->delete();
+                }
+            }
 
-        return redirect()->route('admin.services.index')
-            ->with('success', 'Service updated successfully.');
+            // --- Handle New Image Uploads ---
+            $newPrimaryImageId = $request->input('primary_image_id'); // Could be an existing ID or null if new image is primary
+            $newImageIsPrimary = false;
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $index => $image) {
+                    $imageName = $service->id . '_' . time() . '_' . $image->getClientOriginalName();
+                    $path = $image->storeAs('service_images', $imageName, 'public');
+
+                    // Check if this new image should be primary
+                    // You'll need logic in your form to indicate if a *new* upload is primary
+                    // For simplicity, let's assume only existing images can be primary for now,
+                    // unless you add specific form input for "make this new upload primary".
+                    $isPrimary = false; // Modify this based on form input if needed
+
+                    $newImage = ServiceImage::create([
+                        'service_id' => $service->id,
+                        'image_url' => $path,
+                        'is_primary' => $isPrimary,
+                    ]);
+                    // If this newly uploaded image IS designated as primary:
+                    // if ($isPrimary) { $newPrimaryImageId = $newImage->id; }
+                }
+            }
+
+            // --- Set Primary Image ---
+            // Reset all images for this service to not primary
+            ServiceImage::where('service_id', $service->id)->update(['is_primary' => false]);
+            // Set the selected one as primary (if an ID was provided)
+            if ($newPrimaryImageId) {
+                ServiceImage::where('id', $newPrimaryImageId)
+                    ->where('service_id', $service->id) // Ensure it belongs to this service
+                    ->update(['is_primary' => true]);
+            } elseif (ServiceImage::where('service_id', $service->id)->count() > 0) {
+                // If no primary was selected and images exist, make the first one primary
+                ServiceImage::where('service_id', $service->id)->orderBy('id', 'asc')->first()->update(['is_primary' => true]);
+            }
+
+
+            DB::commit();
+
+            return redirect()->route('admin.services.index')
+                ->with('success', 'Service updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log::error($e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update service. Error: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Remove the specified service from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * Remove the specified service and its images from storage.
      */
     public function destroy($id)
     {
-        $service = Service::findOrFail($id);
-        $service->delete();
+        // Note: ON DELETE CASCADE on service_images table handles image record deletion.
+        // We need to manually delete the image *files*.
+        $service = Service::with('images')->findOrFail($id);
 
-        return redirect()->route('admin.services.index')
-            ->with('success', 'Service deleted successfully.');
+        DB::beginTransaction();
+        try {
+            // Delete associated image files
+            foreach ($service->images as $image) {
+                Storage::disk('public')->delete($image->image_url);
+            }
+
+            // Deleting the service record will trigger cascade delete for ServiceImage records
+            // due to the foreign key constraint in the schema.
+            $service->delete();
+
+            DB::commit();
+
+            return redirect()->route('admin.services.index')
+                ->with('success', 'Service deleted successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log::error($e->getMessage());
+            return redirect()->route('admin.services.index')
+                ->with('error', 'Failed to delete service. Error: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Approve a pending service.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // --- approve() and reject() methods remain the same ---
     public function approve($id)
     {
         $service = Service::findOrFail($id);
-        $service->status = 'active';
-        $service->save();
-
-
-        return redirect()->back()->with('success', 'Service has been approved');
+        if ($service->status == 'pending') { // Only approve if pending
+            $service->status = 'active';
+            $service->save();
+            // TODO: Optionally send notification to provider
+            return redirect()->back()->with('success', 'Service has been approved.');
+        }
+        return redirect()->back()->with('warning', 'Service is not pending approval.');
     }
 
-    /**
-     * Reject a pending service.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function reject($id)
     {
         $service = Service::findOrFail($id);
-        $service->status = 'inactive';
-        $service->save();
+        if ($service->status == 'pending') { // Only reject if pending
+            $service->status = 'inactive'; // Or maybe a 'rejected' status if you add one
+            $service->save();
+            // TODO: Optionally send notification to provider with reason
+            return redirect()->back()->with('success', 'Service has been rejected.');
+        }
+        return redirect()->back()->with('warning', 'Service is not pending rejection.');
+    }
 
-        return redirect()->back()->with('success', 'Service has been rejected');
+    // --- show() method remains the same, eager load relationships ---
+    public function show($id)
+    {
+        $service = Service::with(['provider.user', 'category', 'images'])->findOrFail($id);
+        // Potentially load reviews, orders etc. if needed for the show view
+        // $service->load(['reviews.buyer', 'orders']);
+        return view('admin.services.show', compact('service'));
     }
 }
