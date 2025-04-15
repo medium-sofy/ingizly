@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('content');
-            $table->json('embedding')->nullable();
+            $table->json('embedding');
             $table->timestamps();
         });
     }

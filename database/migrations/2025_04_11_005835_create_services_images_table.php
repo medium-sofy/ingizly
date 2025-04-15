@@ -13,16 +13,11 @@ return new class extends Migration
     {
         Schema::create('service_images', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('service_id');
+            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
             $table->string('image_url');
-            $table->boolean('is_primary')->default(false);
             $table->timestamp('uploaded_at')->useCurrent();
+            $table->boolean('is_primary')->default(false);
             $table->timestamps();
-
-            $table->foreign('service_id')
-                ->references('id')
-                ->on('services')
-                ->onDelete('cascade');
         });
     }
 

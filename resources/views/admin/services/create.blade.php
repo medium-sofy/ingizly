@@ -146,7 +146,7 @@
                                 class="w-full border border-gray-300 rounded p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">Select Type</option>
                             <option value="on_site" {{ old('service_type') == 'on_site' ? 'selected' : '' }}>On-Site</option>
-                            <option value="shop_based" {{ old('service_type') == 'shop_based' ? 'selected' : '' }}>Shop Based</option>
+                            <option value="bussiness_based" {{ old('service_type') == 'bussiness_based' ? 'selected' : '' }}>bussiness Based</option>
                             <option value="remote" {{ old('service_type') == 'remote' ? 'selected' : '' }}>Remote</option>
                         </select>
                         @error('service_type')
@@ -173,15 +173,21 @@
 
                 <!-- Image Upload -->
                 <div class="mb-6">
-                    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">
-                        Service Image
+                    <label for="images" class="block text-sm font-medium text-gray-700 mb-1">
+                        Service Images {{-- Changed Label --}}
                     </label>
-                    <input type="file" id="image" name="image"
-                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                    <p class="mt-1 text-xs text-gray-500">Recommended size: 800x600px (Max 2MB)</p>
-                    @error('image')
+                    {{-- CORRECTED id, name, added multiple --}}
+                    <input type="file" id="images" name="images[]" multiple
+                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-200 rounded-md p-1">
+                    <p class="mt-1 text-xs text-gray-500">You can upload multiple images. Max 2MB each (JPG, PNG, GIF).</p>
+                    @error('images')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    @foreach ($errors->get('images.*') as $message)
+                        <p class="mt-1 text-sm text-red-600">{{ $message[0] }}</p>
+                    @endforeach
+                    {{-- Optional: Add hidden input for primary_image_index if needed --}}
+                    {{-- <input type="hidden" name="primary_image_index" value="0"> --}}
                 </div>
 
                 <!-- Form Actions -->

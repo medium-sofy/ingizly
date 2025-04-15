@@ -143,14 +143,18 @@
                     <!-- Service Type -->
                     <div>
                         <label for="service_type" class="block text-sm font-medium text-gray-700 mb-1">
-                            Service Type
+                            Service Type <span class="text-red-600">*</span> {{-- Assuming it's required based on controller --}}
                         </label>
-                        <select id="service_type" name="service_type"
-                                class="w-full border border-gray-300 rounded p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <select id="service_type" name="service_type" required {{-- Assuming it's required --}}
+                        class="w-full border border-gray-300 rounded p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">Select Type</option>
-                            <option value="in-person" {{ old('service_type', $service->service_type) == 'in-person' ? 'selected' : '' }}>In-Person</option>
+
+                            {{-- Compare against old('service_type', $service->service_type) --}}
+                            {{-- Corrected value and text for 'shop_based' --}}
+                            <option value="on_site" {{ old('service_type', $service->service_type) == 'on_site' ? 'selected' : '' }}>On-Site</option>
+                            <option value="bussiness_based" {{ old('service_type', $service->service_type) == 'bussiness_based' ? 'selected' : '' }}>Bussiness Based</option>
                             <option value="remote" {{ old('service_type', $service->service_type) == 'remote' ? 'selected' : '' }}>Remote</option>
-                            <option value="hybrid" {{ old('service_type', $service->service_type) == 'hybrid' ? 'selected' : '' }}>Hybrid</option>
+
                         </select>
                         @error('service_type')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -174,30 +178,63 @@
                     @enderror
                 </div>
 
-                <!-- Current Image Preview -->
-                @if($service->image)
-                    <div class="mb-4">
-                        <p class="block text-sm font-medium text-gray-700 mb-1">Current Image</p>
-                        <div class="mt-1">
-                            <img src="{{ asset('storage/'.$service->image) }}" alt="{{ $service->title }}" class="h-32 w-auto object-cover rounded-md">
-                        </div>
-                    </div>
-                @endif
+                {{-- START: Revised Image Management Section --}}
+                <div class="mb-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Manage Service Images</h3>
 
-                <!-- Image Upload -->
+                    {{-- Hidden input to track which image is selected as primary --}}
+                    {{-- We will update this using JavaScript if needed, or rely on controller default --}}
+                    <input type="hidden" name="primary_image_id" id="primary_image_id_input" value="{{ $service->images->firstWhere('is_primary', true)?->id ?? '' }}">
+
+                    @if($service->images && $service->images->count() > 0)
+                        <p class="block text-sm font-medium text-gray-700 mb-2">Current Images:</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            @foreach($service->images as $image)
+                                <div class="relative border rounded-md p-2 text-center">
+                                    <img src="{{ asset('storage/' . $image->image_url) }}" alt="Service Image {{ $loop->iteration }}" class="w-full h-24 object-cover rounded-md mb-2">
+
+                                    {{-- Radio button to select primary image --}}
+                                    <div class="mb-2 text-xs">
+                                        <input type="radio" name="primary_image_selector" id="primary_{{ $image->id }}" value="{{ $image->id }}"
+                                               {{ (old('primary_image_id', $service->images->firstWhere('is_primary', true)?->id) == $image->id) ? 'checked' : '' }}
+                                               onchange="document.getElementById('primary_image_id_input').value = this.value;">
+                                        <label for="primary_{{ $image->id }}" class="ml-1 text-gray-600">Set as Primary</label>
+                                    </div>
+
+                                    {{-- Checkbox to mark for deletion --}}
+                                    <div class="text-xs">
+                                        <input type="checkbox" name="deleted_images[]" id="delete_{{ $image->id }}" value="{{ $image->id }}">
+                                        <label for="delete_{{ $image->id }}" class="ml-1 text-red-600">Mark for Deletion</label>
+                                    </div>
+                                    @error('deleted_images.' . $loop->index) {{-- Display specific errors if needed --}}
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @endforeach
+                        </div>
+                        @error('primary_image_id') {{-- Error for the hidden primary ID input --}}
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        @error('deleted_images') {{-- General error for the deleted images array --}}
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    @else
+                        <p class="text-gray-500">No images currently uploaded for this service.</p>
+                    @endif
+                </div>
+                {{-- END: Revised Image Management Section --}}
+
+                {{-- The new file upload input goes here (from step 1 above) --}}
                 <div class="mb-6">
                     <label for="images" class="block text-sm font-medium text-gray-700 mb-1">
-                        Upload New Service Image(s) {{-- Changed label slightly --}}
+                        Upload New Service Image(s)
                     </label>
-                    {{-- Changed id and name, added multiple --}}
                     <input type="file" id="images" name="images[]" multiple
                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-200 rounded-md p-1">
                     <p class="mt-1 text-xs text-gray-500">You can upload multiple images. Max 2MB each (JPG, PNG, GIF).</p>
-                    {{-- Display validation error for the images array --}}
                     @error('images')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    {{-- Display validation errors for individual files within the array --}}
                     @foreach ($errors->get('images.*') as $message)
                         <p class="mt-1 text-sm text-red-600">{{ $message[0] }}</p>
                     @endforeach

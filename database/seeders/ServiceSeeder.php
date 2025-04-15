@@ -17,10 +17,10 @@ class ServiceSeeder extends Seeder
     {
         // Get all service providers
         $providers = ServiceProvider::all();
-        
+
         // Get all categories
         $categories = Category::whereNotNull('parent_category_id')->get();
-        
+
         if ($categories->isEmpty()) {
             $this->command->error('No subcategories found. Make sure CategorySeeder has been run.');
             return;
@@ -31,7 +31,7 @@ class ServiceSeeder extends Seeder
             for ($i = 0; $i < rand(2, 5); $i++) {
                 // Randomly select a category
                 $category = $categories->random();
-                
+
                 $service = Service::create([
                     'provider_id' => $provider->user_id,
                     'category_id' => $category->id,

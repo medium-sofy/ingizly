@@ -13,17 +13,12 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('content');
             $table->boolean('is_read')->default(false);
-            $table->enum('notification_type', ['order_update', 'payment', 'system', 'message', 'review']);
+            $table->enum('notification_type',['order_update','system','payment','message','review']);
             $table->timestamps();
-
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
         });
     }
 

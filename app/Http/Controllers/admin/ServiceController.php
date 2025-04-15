@@ -85,7 +85,7 @@ class ServiceController extends Controller
         $providers = ServiceProvider::with('user')->get()->mapWithKeys(function ($provider) {
             return [$provider->user_id => $provider->user->name . ($provider->business_name ? " ({$provider->business_name})" : '')];
         });
-        $serviceTypes = ['on_site', 'shop_based', 'remote']; // Define service types
+        $serviceTypes = ['on_site', 'bussiness_based', 'remote']; // Define service types
 
         return view('admin.services.create', compact('categories', 'providers', 'serviceTypes'));
     }
@@ -102,7 +102,7 @@ class ServiceController extends Controller
             'provider_id' => 'required|exists:service_providers,user_id', // Check against user_id in service_providers
             'category_id' => 'required|exists:categories,id',
             'status' => ['required', Rule::in(['active', 'pending', 'inactive'])],
-            'service_type' => ['required', Rule::in(['on_site', 'shop_based', 'remote'])],
+            'service_type' => ['required', Rule::in(['on_site', 'bussiness_based', 'remote'])],
             'location' => 'nullable|string|max:255', // Location specific to the service if different from provider
 
             // --- Image Validation (allow multiple) ---
@@ -164,7 +164,7 @@ class ServiceController extends Controller
         $providers = ServiceProvider::with('user')->get()->mapWithKeys(function ($provider) {
             return [$provider->user_id => $provider->user->name . ($provider->business_name ? " ({$provider->business_name})" : '')];
         });
-        $serviceTypes = ['on_site', 'shop_based', 'remote'];
+        $serviceTypes = ['on_site', 'bussiness_based', 'remote'];
 
         return view('admin.services.edit', compact('service', 'categories', 'providers', 'serviceTypes'));
     }
@@ -183,7 +183,7 @@ class ServiceController extends Controller
             'provider_id' => 'required|exists:service_providers,user_id',
             'category_id' => 'required|exists:categories,id',
             'status' => ['required', Rule::in(['active', 'pending', 'inactive'])],
-            'service_type' => ['required', Rule::in(['on_site', 'shop_based', 'remote'])],
+            'service_type' => ['required', Rule::in(['on_site', 'bussiness_based', 'remote'])],
             'location' => 'nullable|string|max:255',
 
             // --- Image Handling ---

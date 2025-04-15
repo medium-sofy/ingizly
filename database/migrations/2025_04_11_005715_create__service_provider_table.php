@@ -12,21 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('service_providers', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->primary();
-            $table->string('phone', 20);
+            $table->foreignId('user_id')->primary()->constrained()->onDelete('cascade');
+            $table->string('phone_number',11)->unique()->nullable();
             $table->text('bio')->nullable();
-            $table->string('location');
+            $table->string('location')->nullable();
             $table->string('business_name')->nullable();
             $table->string('business_address')->nullable();
             $table->float('avg_rating')->default(0);
-            $table->enum('provider_type', ['handyman', 'shop_owner']);
+            $table->enum('provider_type',['handyman','bussiness_owner']);
             $table->boolean('is_verified')->default(false);
             $table->timestamps();
-
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
         });
     }
 
