@@ -11,12 +11,23 @@ class ServiceBuyer extends Model
 
     protected $primaryKey = 'user_id';
 
+    public $incrementing = false;
+
     protected $fillable = [
-        'user_id', 'location', 'phone'
+        'user_id',
+        'phone_number',
+        'location',
+        'name',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'buyer_id', 'user_id');
     }
 }

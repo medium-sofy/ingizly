@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,16 +9,17 @@ class ServiceProvider extends Model
     use HasFactory;
 
     protected $primaryKey = 'user_id';
+    public $incrementing = false;
 
     protected $fillable = [
         'user_id',
-        'phone_number',
         'bio',
+        'availability',
         'location',
         'business_name',
         'business_address',
+        'avg_rating',
         'provider_type',
-        'is_verified'
     ];
 
     public function user()

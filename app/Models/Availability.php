@@ -8,22 +8,31 @@ use Illuminate\Database\Eloquent\Model;
 class Availability extends Model
 {
     use HasFactory;
-
+    
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'availability';
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'provider_id',
         'day_of_week',
         'start_time',
         'end_time',
-        'is_available'
+        'is_available',
     ];
 
-    protected $casts = [
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
-        'is_available' => 'boolean'
-    ];
-
-    public function provider()
+    /**
+     * Get the service provider that owns the availability.
+     */
+    public function serviceProvider()
     {
         return $this->belongsTo(ServiceProvider::class, 'provider_id', 'user_id');
     }

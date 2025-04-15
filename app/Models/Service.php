@@ -1,74 +1,49 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ServiceImage;
+
 
 class Service extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'category_id',
         'provider_id',
+        'category_id',
         'title',
         'description',
         'price',
         'view_count',
         'status',
         'service_type',
-        'location'
+        'location',
     ];
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
 
     public function provider()
     {
         return $this->belongsTo(ServiceProvider::class, 'provider_id', 'user_id');
     }
 
-    public function images()
+    public function category()
     {
-        return $this->hasMany(ServiceImage::class);
+        return $this->belongsTo(Category::class);
     }
 
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
-    
+
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
 
-    public function primaryImage()
+    public function images()
     {
-        return $this->hasOne(ServiceImage::class)->where('is_primary', true);
-    }
-
-    public function averageRating()
-    {
-        return $this->reviews()->avg('rating');
-    }
-
-    public function totalReviews()
-    {
-        return $this->reviews()->count();
-    }
-
-    public function updateAverageRating()
-    {
-        $avgRating = $this->reviews()->avg('rating');
-        $this->provider()->update(['avg_rating' => $avgRating]);
-    }
-
-    public function getPrimaryImageUrlAttribute()
-    {
-        return $this->primaryImage ? $this->primaryImage->image_url : asset('images/default-service.jpg');
+        return $this->hasMany(ServiceImage::class);
     }
 }
