@@ -16,18 +16,20 @@ class ServicedetailsController extends Controller
             'provider.user',
             'category',
             'images',
-            'reviews.user',
-            'primaryImage',
-            'orders' // Load orders relationship
+            'reviews.buyer.user',
+            'orders' => function($query) {
+                $query->where('buyer_id', 16); // Only show orders for hardcoded buyer
+            }
         ])->findOrFail($id);
+    
+        $averageRating = $service->reviews->avg('rating') ?? 0;
+        $totalReviews = $service->reviews->count();
     
         return view('service_buyer.service_details.show', [
             'service' => $service,
-            'averageRating' => $service->averageRating(),
-            'totalReviews' => $service->totalReviews(),
-            'primaryImage' => $service->primaryImage,
+            'averageRating' => $averageRating,
+            'totalReviews' => $totalReviews,
             'images' => $service->images
-            // Orders will be checked in the view with temporary buyer_id
         ]);
     }
     public function submitReview(Request $request, $serviceId)
@@ -35,20 +37,18 @@ class ServicedetailsController extends Controller
         $request->validate([
             'rating' => 'required|integer|between:1,5',
             'comment' => 'required|string|max:500',
-            'order_id' => 'required|exists:orders,id'
+            'order_id' => 'required|exists:orders,id',
+            'buyer_id' => 'required|exists:service_buyers,user_id'
+
         ]);
 
-        $review = Review::create([
+        Review::create([
             'service_id' => $serviceId,
-            'buyer_id' => 15, 
+            'buyer_id' => 15,
             'order_id' => $request->order_id,
             'rating' => $request->rating,
             'comment' => $request->comment
         ]);
-
-
-        $service = Service::find($serviceId);
-        $service->updateAverageRating();
 
         return back()->with('success', 'Review submitted successfully!');
     }

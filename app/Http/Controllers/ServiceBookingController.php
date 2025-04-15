@@ -9,23 +9,29 @@ use Illuminate\Http\Request;
 
 class ServiceBookingController extends Controller
 {
+    // Hardcoded buyer ID for temporary development
+    protected $tempBuyerId = 16;
+
     public function bookService(Request $request, Service $service)
     {
         $request->validate([
+            'scheduled_date' => 'required|date|after:today',
+            'scheduled_time' => 'required|string',
             'special_instructions' => 'nullable|string|max:1000',
-            'buyer_id' => 'required|integer' // Temporary until auth is implemented
         ]);
 
-        // Create the order
+        // Create order using Order model directly
         $order = Order::create([
             'service_id' => $service->id,
-            'buyer_id' => $request->buyer_id, // Temporary
+            'buyer_id' => $this->tempBuyerId,
             'status' => 'pending',
             'total_amount' => $service->price,
-            'special_instructions' => $request->special_instructions
+            'scheduled_date' => $request->scheduled_date,
+            'scheduled_time' => $request->scheduled_time,
+            'special_instructions' => $request->special_instructions,
         ]);
 
-        // Notify provider
+        // Create notification
         Notification::create([
             'user_id' => $service->provider->user_id,
             'title' => 'New Booking Request',
@@ -41,10 +47,10 @@ class ServiceBookingController extends Controller
                          ->with('success', 'Booking request sent successfully!');
     }
 
-    public function confirmOrder(Request $request, Order $order)
+    public function confirmOrder(Order $order)
     {
-        // Temporary buyer_id check (replace with auth later)
-        if ($order->buyer_id != $request->buyer_id) {
+        // Verify the hardcoded buyer owns this order
+        if ($order->buyer_id != $this->tempBuyerId) {
             return back()->with('error', 'Unauthorized action');
         }
 
@@ -55,7 +61,7 @@ class ServiceBookingController extends Controller
 
         $order->update(['status' => 'confirmed']);
 
-        // Notify provider
+        // Create notification
         Notification::create([
             'user_id' => $order->service->provider->user_id,
             'title' => 'Order Confirmed',

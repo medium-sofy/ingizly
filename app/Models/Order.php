@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +19,6 @@ class Order extends Model
         'special_instructions',
     ];
 
-
     public function service()
     {
         return $this->belongsTo(Service::class);
@@ -30,16 +28,4 @@ class Order extends Model
     {
         return $this->belongsTo(ServiceBuyer::class, 'buyer_id', 'user_id');
     }
-
-public function isReviewable()
-{
-    return $this->status === 'completed' && !$this->review;
 }
-
-public function scopeReviewable($query)
-{
-    return $query->where('status', 'completed')
-                ->whereDoesntHave('review');
-}
-}
-

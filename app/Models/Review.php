@@ -25,4 +25,9 @@ class Review extends Model
     {
         return $this->belongsTo(ServiceBuyer::class, 'buyer_id', 'user_id');
     }
+
+       public function user()
+    {
+        return $this->belongsTo(User::class, 'buyer_id', 'id');
+    }
 }

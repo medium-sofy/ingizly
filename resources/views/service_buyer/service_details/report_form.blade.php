@@ -1,67 +1,81 @@
-@extends('layouts.app')
+@extends('layouts.service')
 
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="h5 font-weight-bold mb-0">Report Service: {{ $service->title }}</h3>
-                        <a href="{{ route('service.details', $service->id) }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back
-                        </a>
-                    </div>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Card Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-semibold text-gray-800">Report Service: {{ $service->title }}</h3>
+                    <a href="{{ route('service.details', $service->id) }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </a>
                 </div>
-                <div class="card-body">
-                    <form action="{{ route('service.report.submit', $service->id) }}" method="POST">
-                        @csrf
-                        <div class="form-group">
-                            <label for="reason_type" class="font-weight-bold">Reason for Reporting</label>
-                            <select class="form-control" id="reason_type" name="reason_type" required>
-                                <option value="">Select a reason</option>
-                                <option value="Inappropriate Content">Inappropriate Content</option>
-                                <option value="False Information">False Information</option>
-                                <option value="Spam or Scam">Spam or Scam</option>
-                                <option value="Not as Described">Not as Described</option>
-                                <option value="Other">Other</option>
-                            </select>
-                            @error('reason_type')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="reason" class="font-weight-bold">Detailed Explanation</label>
-                            <textarea class="form-control" id="reason" name="reason" rows="5" 
-                                      placeholder="Please provide detailed information about your report" required></textarea>
-                            <small class="form-text text-muted">
-                                Your report will be reviewed by our team. Please provide as much detail as possible.
-                            </small>
-                            @error('reason')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="agree_terms" name="agree_terms" required>
-                                <label class="form-check-label" for="agree_terms">
-                                    I confirm that this report is accurate and submitted in good faith
-                                </label>
-                                @error('agree_terms')
-                                    <span class="text-danger d-block">{{ $message }}</span>
-                                @enderror
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-6">
+                <form action="{{ route('service.report.submit', $service->id) }}" method="POST">
+                    @csrf
+                    <!-- Reason Type Select -->
+                    <div class="mb-6">
+                        <label for="reason_type" class="block text-sm font-medium text-gray-700 mb-2">Reason for Reporting</label>
+                        <select id="reason_type" name="reason_type" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="">Select a reason</option>
+                            <option value="Inappropriate Content">Inappropriate Content</option>
+                            <option value="False Information">False Information</option>
+                            <option value="Spam or Scam">Spam or Scam</option>
+                            <option value="Not as Described">Not as Described</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @error('reason_type')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Detailed Explanation -->
+                    <div class="mb-6">
+                        <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Detailed Explanation</label>
+                        <textarea id="reason" name="reason" rows="5" required
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md p-3"
+                            placeholder="Please provide detailed information about your report"></textarea>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Your report will be reviewed by our team. Please provide as much detail as possible.
+                        </p>
+                        @error('reason')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Terms Agreement -->
+                    <div class="mb-8">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="agree_terms" name="agree_terms" type="checkbox" required
+                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="agree_terms" class="font-medium text-gray-700">I confirm that this report is accurate and submitted in good faith</label>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('service.details', $service->id) }}" class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-flag mr-2"></i> Submit Report
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                        @error('agree_terms')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-between pt-4 border-t border-gray-200">
+                        <a href="{{ route('service.details', $service->id) }}" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            <i class="fas fa-flag mr-2"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
