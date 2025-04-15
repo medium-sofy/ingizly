@@ -18,10 +18,13 @@ Route::middleware('auth')->group(function () {
 });
 
 
-use App\Http\Controllers\ServiceProviderDashboardController;
 
-// Dashboard route
+
+Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class);
+
+
+use App\Http\Controllers\Provider\ServiceProviderDashboardController;
+
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
-
 require __DIR__.'/auth.php';
 

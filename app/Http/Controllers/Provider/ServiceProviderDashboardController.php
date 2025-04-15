@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Provider;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Order;
 use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
+
 
 class ServiceProviderDashboardController extends Controller
 {
@@ -15,21 +16,15 @@ class ServiceProviderDashboardController extends Controller
      */
     public function index()
     {
-        $providerId = Auth::id();
-
-        // Get all services provided by this user
-        $services = Service::with('orders')->where('provider_id', $providerId)->get();
+        $providerId = 1; // Replace with Auth::id() in production
+        $services = Service::where('provider_id', $providerId)->with('orders')->get();
 
         // Basic statistics
         $totalServices = $services->count();
         $totalViews = $services->sum('view_count');
-
-        // Active bookings (orders with 'accepted' status)
-        $activeBookings = Order::whereIn('service_id', $services->pluck('id'))
-            ->where('status', 'accepted')
-            ->count();
-
-        // Average Rating from reviews
+        $pendingBookings = \App\Models\Order::whereIn('service_id', $services->pluck('id'))
+        ->whereIn('status', ['pending', 'accepted']) // adjust based on your app logic
+        ->count();
         $averageRating = Review::whereIn('service_id', $services->pluck('id'))->avg('rating');
 
         // Recent Bookings
@@ -49,8 +44,8 @@ class ServiceProviderDashboardController extends Controller
         return view('service_provider.dashboard.index', compact(
             'services',
             'totalServices',
-            'activeBookings',
             'totalViews',
+            'pendingBookings',
             'averageRating',
             'recentOrders',
             'recentReviews'
