@@ -47,7 +47,6 @@ class Order extends Model
     {
         return $this->hasOne(Review::class);
     }
-    // In app/Models/Order.php
 
 public function isReviewable()
 {

@@ -11,25 +11,25 @@ class ServicedetailsController extends Controller
 {
 
     public function show($id)
-{
-    $service = Service::with([
-        'provider.user',
-        'category',
-        'images',
-        'reviews.user',
-        'primaryImage' 
-    ])->findOrFail($id);
-
-    $service->increment('view_count');
-
-    return view('service_buyer.service_details.show', [
-        'service' => $service,
-        'averageRating' => $service->averageRating(),
-        'totalReviews' => $service->totalReviews(),
-        'primaryImage' => $service->primaryImage, 
-        'images' => $service->images 
-    ]);
-}
+    {
+        $service = Service::with([
+            'provider.user',
+            'category',
+            'images',
+            'reviews.user',
+            'primaryImage',
+            'orders' // Load orders relationship
+        ])->findOrFail($id);
+    
+        return view('service_buyer.service_details.show', [
+            'service' => $service,
+            'averageRating' => $service->averageRating(),
+            'totalReviews' => $service->totalReviews(),
+            'primaryImage' => $service->primaryImage,
+            'images' => $service->images
+            // Orders will be checked in the view with temporary buyer_id
+        ]);
+    }
     public function submitReview(Request $request, $serviceId)
     {
         $request->validate([
@@ -40,7 +40,7 @@ class ServicedetailsController extends Controller
 
         $review = Review::create([
             'service_id' => $serviceId,
-            'buyer_id' => 14, 
+            'buyer_id' => 15, 
             'order_id' => $request->order_id,
             'rating' => $request->rating,
             'comment' => $request->comment

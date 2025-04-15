@@ -21,7 +21,6 @@ class Service extends Model
         'location'
     ];
 
-    // Relationships matching your schema
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -37,6 +36,11 @@ class Service extends Model
         return $this->hasMany(ServiceImage::class);
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+    
     public function reviews()
     {
         return $this->hasMany(Review::class);
@@ -47,7 +51,6 @@ class Service extends Model
         return $this->hasOne(ServiceImage::class)->where('is_primary', true);
     }
 
-    // Business logic methods
     public function averageRating()
     {
         return $this->reviews()->avg('rating');
@@ -64,7 +67,6 @@ class Service extends Model
         $this->provider()->update(['avg_rating' => $avgRating]);
     }
 
-    // Accessor for primary image URL
     public function getPrimaryImageUrlAttribute()
     {
         return $this->primaryImage ? $this->primaryImage->image_url : asset('images/default-service.jpg');

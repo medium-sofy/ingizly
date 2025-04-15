@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container py-4">
     <div class="row">
@@ -83,9 +82,38 @@
 
 
                     <div class="d-flex mt-4">
-                        <button class="btn btn-success me-3 px-4">
-                            <i class="fas fa-shopping-cart me-2"></i> Book Now
-                        </button>
+                    @php
+    // Temporary buyer ID (remove when auth is implemented)
+    $currentBuyerId = 1; 
+    
+    $pendingOrder = $service->orders()
+        ->where('buyer_id', $currentBuyerId)
+        ->where('status', 'pending')
+        ->first();
+        
+    $acceptedOrder = $service->orders()
+        ->where('buyer_id', $currentBuyerId)
+        ->where('status', 'accepted')
+        ->first();
+@endphp
+
+@if($acceptedOrder)
+    <form action="{{ route('orders.confirm', $acceptedOrder->id) }}" method="POST" class="d-inline">
+        @csrf
+        <input type="hidden" name="buyer_id" value="{{ $currentBuyerId }}">
+        <button type="submit" class="btn btn-primary me-3 px-4">
+            <i class="fas fa-check-circle me-2"></i> Confirm Order
+        </button>
+    </form>
+@elseif(!$pendingOrder)
+    <button class="btn btn-success me-3 px-4" data-bs-toggle="modal" data-bs-target="#bookingModal">
+        <i class="fas fa-shopping-cart me-2"></i> Book Now
+    </button>
+@else
+    <button class="btn btn-secondary me-3 px-4" disabled>
+        <i class="fas fa-clock me-2"></i> Pending Approval
+    </button>
+@endif
                         <a href="{{ route('service.report.form', $service->id) }}" class="btn btn-outline-danger">
                             <i class="fas fa-flag me-2"></i> Report
                         </a>
@@ -201,7 +229,8 @@
                 </div>
                 <div class="card-body">
                     <form action="{{ route('service.review.submit', $service->id) }}" method="POST" id="reviewForm">
-                        @csrf
+    @csrf
+    <input type="hidden" name="order_id" value="15"> <!-- Use your valid order ID -->
                         <div class="mb-4">
                             <label class="form-label font-weight-bold">Your Name</label>
                             <input type="text" class="form-control" name="buyer_name" required>
@@ -320,11 +349,86 @@
         </div>
     </div>
 </div>
+
+
+<!-- Booking Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookingModalLabel">Confirm Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="bookingForm" action="{{ route('service.book', $service->id) }}" method="POST">
+                @csrf
+                <!-- Temporary buyer_id input (remove when auth is implemented) -->
+                <input type="hidden" name="buyer_id" value="1"> <!-- Replace with actual buyer ID -->
+           
+                <div class="modal-body">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Service Summary</h5>
+                            <div class="d-flex mb-3">
+                                <img src="{{ $service->primaryImageUrl }}" 
+                                     class="rounded me-3" 
+                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-1">{{ $service->title }}</h6>
+                                    <div class="text-muted small">
+                                        ${{ number_format($service->price, 2) }} • 
+                                        {{ $service->category->name }}
+                                    </div>
+                                    <div class="star-rating small">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fas fa-star{{ $i <= $averageRating ? '' : '-empty' }} text-warning"></i>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Service Provider</label>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-light me-2" style="width: 40px; height: 40px; overflow: hidden;">
+                                @if($service->provider->user->profile_image)
+                                    <img src="{{ asset($service->provider->user->profile_image) }}" 
+                                         class="w-100 h-100 object-fit-cover">
+                                @else
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white">
+                                        {{ substr($service->provider->user->name, 0, 1) }}
+                                    </div>
+                                @endif
+                            </div>
+                            <div>
+                                {{ $service->provider->user->name }}
+                                @if($service->provider->is_verified)
+                                    <span class="badge bg-success ms-2">Verified</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="special_instructions" class="form-label">Special Instructions (Optional)</label>
+                        <textarea class="form-control" id="special_instructions" name="special_instructions" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <!-- <button type="submit" class="btn btn-primary" id="submitBookingBtn">
+                        Send Booking Request
+                    </button> -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
-    // Change main service image
     function changeMainImage(src) {
         document.getElementById('mainServiceImage').src = src;
     }
@@ -347,5 +451,26 @@
             $(this).html('★');
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Handle booking modal
+    const bookingModal = document.getElementById('bookingModal');
+    if (bookingModal) {
+        bookingModal.addEventListener('show.bs.modal', function() {
+            // Any initialization code if needed
+        });
+    }
+
+    // Disable booking if service is not active
+    const serviceStatus = "{{ $service->status }}";
+    if(serviceStatus !== 'active') {
+        const bookBtn = document.querySelector('[data-bs-target="#bookingModal"]');
+        if (bookBtn) {
+            bookBtn.disabled = true;
+            bookBtn.classList.add('disabled');
+            bookBtn.title = 'This service is not currently available for booking';
+        }
+    }
+});
 </script>
-@endsection
+@endsection  

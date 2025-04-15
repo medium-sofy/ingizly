@@ -12,11 +12,11 @@ class ServiceImage extends Model
 
     protected $fillable = [
         'service_id',
-        'image_url', // matches your schema
+        'image_url', 
         'is_primary'
     ];
 
-    public $timestamps = true; // matches your created_at/updated_at columns
+    public $timestamps = true; 
 
     public function service()
     {
@@ -29,7 +29,6 @@ class ServiceImage extends Model
             return asset('images/default-service.jpg');
         }
         
-        // Simplify the logic to directly use the asset helper
         return asset('storage/services/images/' . $this->attributes['image_url']);
     }
 }
