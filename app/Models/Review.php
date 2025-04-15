@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,15 +10,10 @@ class Review extends Model
 
     protected $fillable = [
         'service_id',
-        'user_id',
-        'order_id',
+        'buyer_id',
         'rating',
         'comment',
-    ];
-
-    protected $casts = [
-        'rating' => 'integer',
-        'created_at' => 'datetime',
+        'order_id',
     ];
 
     public function service()
@@ -27,13 +21,8 @@ class Review extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function user()
+    public function buyer()
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(ServiceBuyer::class, 'buyer_id', 'user_id');
     }
 }
