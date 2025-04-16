@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,14 @@ class Order extends Model
         'special_instructions',
     ];
 
+    protected $casts = [
+        'total_amount' => 'decimal:2',
+        'scheduled_date' => 'date',
+        'scheduled_time' => 'datetime:H:i',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function service()
     {
         return $this->belongsTo(Service::class);
@@ -27,5 +36,16 @@ class Order extends Model
     public function buyer()
     {
         return $this->belongsTo(ServiceBuyer::class, 'buyer_id', 'user_id');
+    }
+
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class);
     }
 }
