@@ -33,18 +33,54 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // Max 2MB
+
+
         ]);
+        // Handle Image Upload
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('user_images', 'public');
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'profile_image' => $imagePath,
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        Auth::login($user); //==> this is to test how to make auth after chossing role
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('choose.role');
+    }
+    /**
+     * Show the role selection page.
+     */
+    public function showRoleSelection(): View
+    {
+        return view('auth.choose-role');
+    }
+
+    /**
+     * Handle role selection after registration.
+     */
+    public function selectRole(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'role' => ['required', 'in:service_buyer,service_provider'],
+        ]);
+
+        $user = Auth::user();
+        $user->update(['role' => $request->role]);
+
+        // Redirect based on role
+        if ($user->role == 'service_buyer') {
+            return redirect()->route('service_buyer.form');
+        } else {
+            return redirect()->route('service_provider.form');
+        }
     }
 }
