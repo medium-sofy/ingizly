@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Violation;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ServicedetailsController extends Controller
 {
-
     public function show($id)
     {
         $service = Service::with([
@@ -18,38 +19,60 @@ class ServicedetailsController extends Controller
             'images',
             'reviews.buyer.user',
             'orders' => function($query) {
-                $query->where('buyer_id', 16); // Only show orders for hardcoded buyer
+                $query->where('buyer_id', Auth::id());
             }
         ])->findOrFail($id);
     
         $averageRating = $service->reviews->avg('rating') ?? 0;
         $totalReviews = $service->reviews->count();
+        $hasReviewed = Auth::check() ? $service->reviews->where('buyer_id', Auth::id())->count() > 0 : false;
     
         return view('service_buyer.service_details.show', [
             'service' => $service,
             'averageRating' => $averageRating,
             'totalReviews' => $totalReviews,
-            'images' => $service->images
+            'images' => $service->images,
+            'hasReviewed' => $hasReviewed
         ]);
     }
+
     public function submitReview(Request $request, $serviceId)
     {
-        $request->validate([
+        $validated = $request->validate([
             'rating' => 'required|integer|between:1,5',
             'comment' => 'required|string|max:500',
-            'order_id' => 'required|exists:orders,id',
-            'buyer_id' => 'required|exists:service_buyers,user_id'
-
         ]);
-
+    
+        // Find the first completed order for this service by current user
+        $order = Order::where('buyer_id', auth()->id())
+                    ->where('service_id', $serviceId)
+                    ->where('status', 'completed')
+                    ->first();
+    
+        if (!$order) {
+            return back()->with('error', 'You need to complete an order before reviewing');
+        }
+    
+        // Check for existing review
+        if (Review::where('order_id', $order->id)->exists()) {
+            return back()->with('error', 'You have already reviewed this service');
+        }
+    
+        // Create review
         Review::create([
             'service_id' => $serviceId,
-            'buyer_id' => 15,
-            'order_id' => $request->order_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment
+            'buyer_id' => auth()->id(),
+            'order_id' => $order->id,
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'],
         ]);
-
+    
+        // Update service rating
+        $service = Service::find($serviceId);
+        $service->update([
+            'avg_rating' => $service->reviews()->avg('rating')
+        ]);
+    
         return back()->with('success', 'Review submitted successfully!');
     }
 
@@ -66,7 +89,7 @@ class ServicedetailsController extends Controller
         ]);
 
         Violation::create([
-            'user_id' => 1, 
+            'user_id' => Auth::id(),
             'service_id' => $serviceId,
             'reason' => $request->reason,
             'status' => 'pending'

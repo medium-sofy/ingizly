@@ -17,7 +17,7 @@ class ServiceFactory extends Factory
             'provider_id' => ServiceProvider::factory(),
             'category_id' => Category::factory(),
             'title' => fake()->sentence(3),
-            'description' => fake()->paragraph(),
+            'description' => fake()->text(200), 
             'price' => fake()->randomFloat(2, 10, 500),
             'view_count' => fake()->numberBetween(0, 1000),
             'status' => fake()->randomElement(['pending', 'active', 'inactive']),

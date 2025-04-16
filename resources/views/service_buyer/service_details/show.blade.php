@@ -144,39 +144,46 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap gap-4">
-                        @php
-                            $currentBuyerId = 1; // Temporary - replace with auth()->id() later
-                            $pendingOrder = $service->orders->where('buyer_id', $currentBuyerId)
-                                                    ->where('status', 'pending')
-                                                    ->first();
-                            $acceptedOrder = $service->orders->where('buyer_id', $currentBuyerId)
-                                                     ->where('status', 'accepted')
-                                                     ->first();
-                        @endphp
+                    @auth
+                        @if(auth()->user()->role === 'service_buyer')
+                            <div class="flex flex-wrap gap-4">
+                                @php
+                                    $currentBuyerId = auth()->id();
+                                    $pendingOrder = $service->orders->where('buyer_id', $currentBuyerId)
+                                                            ->where('status', 'pending')
+                                                            ->first();
+                                    $acceptedOrder = $service->orders->where('buyer_id', $currentBuyerId)
+                                                             ->where('status', 'accepted')
+                                                             ->first();
+                                @endphp
 
-                        @if($acceptedOrder)
-                            <form action="{{ route('orders.confirm', $acceptedOrder->id) }}" method="POST" class="inline">
-                                @csrf
-                                <input type="hidden" name="buyer_id" value="{{ $currentBuyerId }}">
-                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center transition duration-300">
-                                    <i class="fas fa-check-circle mr-2"></i> Confirm Order
-                                </button>
-                            </form>
-                        @elseif(!$pendingOrder && $service->status === 'active')
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center transition duration-300" onclick="openModal('bookingModal')">
-                                <i class="fas fa-shopping-cart mr-2"></i> Book Now
-                            </button>
-                        @elseif($pendingOrder)
-                            <button class="bg-gray-400 text-white px-6 py-3 rounded-lg flex items-center cursor-not-allowed" disabled>
-                                <i class="fas fa-clock mr-2"></i> Pending Approval
-                            </button>
+                                @if($acceptedOrder)
+                                    <form action="{{ route('orders.confirm', $acceptedOrder->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center transition duration-300">
+                                            <i class="fas fa-check-circle mr-2"></i> Confirm Order
+                                        </button>
+                                    </form>
+                                @elseif(!$pendingOrder && $service->status === 'active')
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center transition duration-300" onclick="openModal('bookingModal')">
+                                        <i class="fas fa-shopping-cart mr-2"></i> Book Now
+                                    </button>
+                                @elseif($pendingOrder)
+                                    <button class="bg-gray-400 text-white px-6 py-3 rounded-lg flex items-center cursor-not-allowed" disabled>
+                                        <i class="fas fa-clock mr-2"></i> Pending Approval
+                                    </button>
+                                @endif
+
+                                <a href="{{ route('service.report.form', $service->id) }}" class="border border-red-500 text-red-500 hover:bg-red-50 px-6 py-3 rounded-lg flex items-center transition duration-300">
+                                    <i class="fas fa-flag mr-2"></i> Report
+                                </a>
+                            </div>
                         @endif
-
-                        <a href="{{ route('service.report.form', $service->id) }}" class="border border-red-500 text-red-500 hover:bg-red-50 px-6 py-3 rounded-lg flex items-center transition duration-300">
-                            <i class="fas fa-flag mr-2"></i> Report
-                        </a>
-                    </div>
+                    @else
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p class="text-blue-800">You need to <a href="{{ route('login') }}" class="text-blue-600 font-semibold hover:underline">login</a> as a service buyer to book this service.</p>
+                        </div>
+                    @endauth
                 </div>
             </div>
 
@@ -269,49 +276,65 @@
             </div>
             @endif
 
-            <!-- Add Review Form -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <div class="border-b border-gray-200 px-6 py-4">
-                    <h3 class="text-xl font-semibold text-gray-900">Write a Review</h3>
-                </div>
-                <div class="p-6">
-                    <form action="{{ route('service.review.submit', $service->id) }}" method="POST" id="reviewForm">
-                        @csrf
-                        <input type="hidden" name="order_id" value="15"> <!-- Use your valid order ID -->
-                        <div class="mb-6">
-                            <label class="block text-gray-700 font-medium mb-3">Your Rating</label>
-                            <div class="rating-input">
-                                <input type="radio" id="star5" name="rating" value="5" required/>
-                                <label for="star5" title="5 stars">★</label>
-                                <input type="radio" id="star4" name="rating" value="4"/>
-                                <label for="star4" title="4 stars">★</label>
-                                <input type="radio" id="star3" name="rating" value="3"/>
-                                <label for="star3" title="3 stars">★</label>
-                                <input type="radio" id="star2" name="rating" value="2"/>
-                                <label for="star2" title="2 stars">★</label>
-                                <input type="radio" id="star1" name="rating" value="1"/>
-                                <label for="star1" title="1 star">★</label>
+            <!-- Add Review Form - Only for authenticated buyers who have completed an order -->
+            @auth
+                @if(auth()->user()->role === 'service_buyer')
+                    @php
+                        $hasCompletedOrder = $service->orders
+                            ->where('buyer_id', auth()->id())
+                            ->where('status', 'completed')
+                            ->count() > 0;
+                        $hasReviewed = $service->reviews
+                            ->where('buyer_id', auth()->id())
+                            ->count() > 0;
+                    @endphp
+
+                    @if($hasCompletedOrder && !$hasReviewed)
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                            <div class="border-b border-gray-200 px-6 py-4">
+                                <h3 class="text-xl font-semibold text-gray-900">Write a Review</h3>
                             </div>
-                            @error('rating')
-                                <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
-                            @enderror
+                            <div class="p-6">
+                                <form action="{{ route('service.review.submit', $service->id) }}" method="POST" id="reviewForm">
+                                    @csrf
+                                    <input type="hidden" name="order_id" value="{{ $service->orders->where('buyer_id', auth()->id())->where('status', 'completed')->first()->id }}">
+                                    <div class="mb-6">
+                                        <label class="block text-gray-700 font-medium mb-3">Your Rating</label>
+                                        <div class="rating-input">
+                                            <input type="radio" id="star5" name="rating" value="5" required/>
+                                            <label for="star5" title="5 stars">★</label>
+                                            <input type="radio" id="star4" name="rating" value="4"/>
+                                            <label for="star4" title="4 stars">★</label>
+                                            <input type="radio" id="star3" name="rating" value="3"/>
+                                            <label for="star3" title="3 stars">★</label>
+                                            <input type="radio" id="star2" name="rating" value="2"/>
+                                            <label for="star2" title="2 stars">★</label>
+                                            <input type="radio" id="star1" name="rating" value="1"/>
+                                            <label for="star1" title="1 star">★</label>
+                                        </div>
+                                        @error('rating')
+                                            <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    
+                                    <div class="mb-6">
+                                        <label class="block text-gray-700 font-medium mb-3">Your Review</label>
+                                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                                  name="comment" 
+                                                  rows="5" 
+                                                  placeholder="Share your experience with this service..." 
+                                                  required></textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-300 w-full">
+                                        Submit Review
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        
-                        <div class="mb-6">
-                            <label class="block text-gray-700 font-medium mb-3">Your Review</label>
-                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                      name="comment" 
-                                      rows="5" 
-                                      placeholder="Share your experience with this service..." 
-                                      required></textarea>
-                        </div>
-                        
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-300 w-full">
-                            Submit Review
-                        </button>
-                    </form>
-                </div>
-            </div>
+                    @endif
+                @endif
+            @endauth
         </div>
 
         <!-- Sidebar -->
@@ -398,12 +421,18 @@
                     </div>
                     @endif
 
-                    <button type="button" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center contact-provider-btn transition duration-300"
-                            onclick="openModal('contactProviderModal')"
-                            data-phone="{{ $service->provider->phone_number }}">
-                        <i class="fas fa-phone-alt mr-2"></i> Contact Provider
-                    </button>
+                    @auth
+                        <button type="button" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center contact-provider-btn transition duration-300"
+                                onclick="openModal('contactProviderModal')"
+                                data-phone="{{ $service->provider->phone_number }}">
+                            <i class="fas fa-phone-alt mr-2"></i> Contact Provider
+                        </button>
+                    @else
+                        <a href="{{ route('login') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center transition duration-300">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Login to Contact
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -437,118 +466,121 @@
     </div>
 
     <!-- Booking Modal -->
-    <div class="modal" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header flex items-center justify-between p-4 border-b">
-                    <h5 class="text-xl font-medium text-gray-900">Service Booking Summary</h5>
-                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal('bookingModal')">
-                        <span class="sr-only">Close</span>
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <form id="bookingForm" action="{{ route('service.book', $service->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="buyer_id" value="16"> <!-- Temporary buyer_id -->
-                    
-                    <div class="modal-body p-4">
-                        <!-- Service Summary -->
-                        <div class="bg-gray-50 rounded-lg p-4 mb-6">
-                            <div class="flex items-start mb-4">
-                                <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-200 mr-4 flex-shrink-0">
-                                    @if($service->images && count($service->images) > 0)
-                                        <img src="{{ asset('storage/services/images/' . $service->images[0]->image_url) }}" 
-                                             class="w-full h-full object-cover" 
-                                             alt="{{ $service->title }}">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center bg-gray-300">
-                                            <i class="fas fa-image text-gray-400"></i>
+    @auth
+        @if(auth()->user()->role === 'service_buyer')
+            <div class="modal" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header flex items-center justify-between p-4 border-b">
+                            <h5 class="text-xl font-medium text-gray-900">Service Booking Summary</h5>
+                            <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal('bookingModal')">
+                                <span class="sr-only">Close</span>
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="bookingForm" action="{{ route('service.book', $service->id) }}" method="POST">
+                            @csrf
+                            
+                            <div class="modal-body p-4">
+                                <!-- Service Summary -->
+                                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                    <div class="flex items-start mb-4">
+                                        <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-200 mr-4 flex-shrink-0">
+                                            @if($service->images && count($service->images) > 0)
+                                                <img src="{{ asset('storage/services/images/' . $service->images[0]->image_url) }}" 
+                                                     class="w-full h-full object-cover" 
+                                                     alt="{{ $service->title }}">
+                                            @else
+                                                <div class="w-full h-full flex items-center justify-center bg-gray-300">
+                                                    <i class="fas fa-image text-gray-400"></i>
+                                                </div>
+                                            @endif
                                         </div>
-                                    @endif
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-gray-900">{{ $service->title }}</h4>
-                                    @if($service->reviews && $service->reviews->count() > 0)
-                                    @php $avgRating = $service->reviews->avg('rating'); @endphp
-                                    <div class="flex items-center mt-1">
-                                        <div class="star-rating text-xs mr-2">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                @if($i <= floor($avgRating))
-                                                    <i class="fas fa-star text-yellow-400"></i>
-                                                @elseif($i - 0.5 <= $avgRating)
-                                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
-                                                @else
-                                                    <i class="far fa-star text-yellow-400"></i>
-                                                @endif
-                                            @endfor
+                                        <div>
+                                            <h4 class="font-semibold text-gray-900">{{ $service->title }}</h4>
+                                            @if($service->reviews && $service->reviews->count() > 0)
+                                            @php $avgRating = $service->reviews->avg('rating'); @endphp
+                                            <div class="flex items-center mt-1">
+                                                <div class="star-rating text-xs mr-2">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        @if($i <= floor($avgRating))
+                                                            <i class="fas fa-star text-yellow-400"></i>
+                                                        @elseif($i - 0.5 <= $avgRating)
+                                                            <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                                        @else
+                                                            <i class="far fa-star text-yellow-400"></i>
+                                                        @endif
+                                                    @endfor
+                                                </div>
+                                                <span class="text-gray-600 text-xs">({{ $service->reviews->count() }})</span>
+                                            </div>
+                                            @endif
+                                            <p class="text-blue-600 font-semibold text-sm mt-1">${{ number_format($service->price, 2) }}</p>
                                         </div>
-                                        <span class="text-gray-600 text-xs">({{ $service->reviews->count() }})</span>
                                     </div>
-                                    @endif
-                                    <p class="text-blue-600 font-semibold text-sm mt-1">${{ number_format($service->price, 2) }}</p>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <p class="text-gray-500">Category</p>
+                                            <p class="text-gray-900">{{ $service->category->name }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500">Service Type</p>
+                                            <p class="text-gray-900">{{ ucfirst(str_replace('_', ' ', $service->service_type)) }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500">Provider</p>
+                                            <p class="text-gray-900">{{ $service->provider->user->name }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500">Location</p>
+                                            <p class="text-gray-900">{{ $service->location ?? $service->provider->location }}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <p class="text-gray-500">Category</p>
-                                    <p class="text-gray-900">{{ $service->category->name }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500">Service Type</p>
-                                    <p class="text-gray-900">{{ ucfirst(str_replace('_', ' ', $service->service_type)) }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500">Provider</p>
-                                    <p class="text-gray-900">{{ $service->provider->user->name }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500">Location</p>
-                                    <p class="text-gray-900">{{ $service->location ?? $service->provider->location }}</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Booking Details -->
-                        <div class="space-y-4">
-                            <div>
-                                <label for="scheduled_date" class="block text-gray-700 font-medium mb-2">Service Date</label>
-                                <input type="date" 
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                       id="scheduled_date" 
-                                       name="scheduled_date" 
-                                       min="{{ date('Y-m-d') }}" 
-                                       required>
+                                <!-- Booking Details -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="scheduled_date" class="block text-gray-700 font-medium mb-2">Service Date</label>
+                                        <input type="date" 
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                               id="scheduled_date" 
+                                               name="scheduled_date" 
+                                               min="{{ date('Y-m-d') }}" 
+                                               required>
+                                    </div>
+                                    <div>
+                                        <label for="scheduled_time" class="block text-gray-700 font-medium mb-2">Preferred Time</label>
+                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                                id="scheduled_time" 
+                                                name="scheduled_time">
+                                            <option value="08:00:00">Morning (8AM - 12PM)</option>
+                                            <option value="12:00:00">Afternoon (12PM - 5PM)</option>
+                                            <option value="17:00:00">Evening (5PM - 9PM)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="special_instructions" class="block text-gray-700 font-medium mb-2">Special Instructions</label>
+                                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                                  id="special_instructions" 
+                                                  name="special_instructions" 
+                                                  rows="3" 
+                                                  placeholder="Any specific requirements or details..."></textarea>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label for="scheduled_time" class="block text-gray-700 font-medium mb-2">Preferred Time</label>
-                                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        id="scheduled_time" 
-                                        name="scheduled_time">
-                                        <option value="08:00:00">Morning (8AM - 12PM)</option>
-    <option value="12:00:00">Afternoon (12PM - 5PM)</option>
-    <option value="17:00:00">Evening (5PM - 9PM)</option>
-</select>
+                            <div class="modal-footer flex justify-end p-4 border-t">
+                                <button type="button" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 mr-3 transition duration-300" onclick="closeModal('bookingModal')">Cancel</button>
+                                <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                                    <i class="fas fa-paper-plane mr-2"></i> Send Booking Request
+                                </button>
                             </div>
-                            <div>
-                                <label for="special_instructions" class="block text-gray-700 font-medium mb-2">Special Instructions</label>
-                                <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                          id="special_instructions" 
-                                          name="special_instructions" 
-                                          rows="3" 
-                                          placeholder="Any specific requirements or details..."></textarea>
-                            </div>
-                        </div>
+                        </form>
                     </div>
-                    <div class="modal-footer flex justify-end p-4 border-t">
-                        <button type="button" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 mr-3 transition duration-300" onclick="closeModal('bookingModal')">Cancel</button>
-                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
-                            <i class="fas fa-paper-plane mr-2"></i> Send Booking Request
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
-    </div>
+        @endif
+    @endauth
 </div>
 @endsection
 

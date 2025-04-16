@@ -4,14 +4,13 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ServiceDetailsController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -26,7 +25,7 @@ Route::middleware('auth')->group(function () {
 
 
 
-Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class);
+// Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class);
 
 
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
@@ -39,28 +38,28 @@ Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKe
 
 
 
-// Service Details Routes
-// Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
-//      ->name('service.details');
+Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
+     ->name('service.details');
 
-Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
-     ->name('service.review.submit');
+// Protected routes for authenticated users
+Route::middleware(['auth'])->group(function () {
+    // Review routes
+    Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
+         ->name('service.review.submit');
+         
+    Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
+         ->name('service.book');
+         
+    Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
+         ->name('orders.confirm');
 
-Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'showReportForm'])
-     ->name('service.report.form');
-
-Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
-     ->name('service.report.submit');
-
-
-
-     // Booking routes (temporary - remove buyer_id when auth is implemented)
-Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
-->name('service.book');
-
-Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
-->name('orders.confirm');
-
+    // Report routes
+    Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'showReportForm'])
+         ->name('service.report.form');
+         
+    Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
+         ->name('service.report.submit');
+});
 // Notification routes
 Route::get('/notifications', [NotificationController::class, 'index'])
 ->name('notifications.index');

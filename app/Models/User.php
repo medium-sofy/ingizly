@@ -94,4 +94,9 @@ class User extends Authenticatable
     {
         return $this->role === 'service_provider';
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id'); // Specify the foreign key
+    }
 }
