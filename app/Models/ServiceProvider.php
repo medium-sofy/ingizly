@@ -15,6 +15,7 @@ class ServiceProvider extends Model
         'user_id',
         'bio',
         'availability',
+        'phone_number',
         'location',
         'business_name',
         'business_address',

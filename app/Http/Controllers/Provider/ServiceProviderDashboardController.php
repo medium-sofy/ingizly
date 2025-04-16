@@ -16,7 +16,7 @@ class ServiceProviderDashboardController extends Controller
      */
     public function index()
     {
-        $providerId = 1; // Replace with Auth::id() in production
+        $providerId =  Auth::id();
         $services = Service::where('provider_id', $providerId)->with('orders')->get();
 
         // Basic statistics
