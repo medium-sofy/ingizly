@@ -38,6 +38,7 @@ class Order extends Model
         return $this->belongsTo(ServiceBuyer::class, 'buyer_id', 'user_id');
     }
 
+
     public function payment()
     {
         return $this->hasOne(Payment::class);

@@ -9,11 +9,22 @@
         </p>
     </header>
 
+    <!-- Profile Image -->
+    <div class="mt-4">
+        @if(auth()->user()->profile_image)
+            <div class="mb-4">
+                <img src="{{ Storage::url(auth()->user()->profile_image) }}" 
+                     alt="{{ auth()->user()->name }}" 
+                     class="w-32 h-32 rounded-full object-cover">
+            </div>
+        @endif
+    </div>
+
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
 
@@ -45,6 +56,12 @@
                     @endif
                 </div>
             @endif
+        </div>
+
+        <div>
+            <x-input-label for="profile_image" :value="__('Profile Image')" />
+            <input id="profile_image" name="profile_image" type="file" class="mt-1 block w-full" accept="image/*" />
+            <x-input-error class="mt-2" :messages="$errors->get('profile_image')" />
         </div>
 
         <div class="flex items-center gap-4">
