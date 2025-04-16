@@ -29,7 +29,11 @@
 
             <!-- Page Content -->
             <main>
-            @yield('content')
+                @hasSection('content')
+                    @yield('content')
+                @else
+                    {{ $slot ?? '' }}
+                @endif
             </main>
         </div>
     </body>
