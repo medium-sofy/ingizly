@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>Talent Hub</title>
+    <title>Ingizly</title>
     @vite(['resources/js/app.js'])
     @vite(['resources/css/app.css'])
 </head>
@@ -18,7 +18,7 @@
         <nav class="flex items-center justify-between py-4 border-b border-gray-200">
             <div>
                 <a href="/">
-                    Talent Hub
+                    Ingizly
                 </a>
             </div>
             <div class="space-x-6 font-bold">
