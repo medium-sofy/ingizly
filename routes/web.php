@@ -3,6 +3,10 @@
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\ServiceBuyerController;
 use App\Http\Controllers\Auth\ServiceProviderController;
+use App\Http\Controllers\Buyer\CheckoutController;
+use App\Http\Controllers\Buyer\OrderController;
+use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
+use App\Http\Controllers\Buyer\ServiceController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -51,4 +55,25 @@ use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
+
+
+
+
+// Service Buyer Routes
+Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.')->group(function () {
+    Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('orders', OrderController::class);
+
+    // Service browsing routes
+    Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+    Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+    Route::get('/services/{service}/order', [ServiceController::class, 'order'])->name('services.order');
+
+});
+
+// Checkout Routes
+Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
+    Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
+});
 
