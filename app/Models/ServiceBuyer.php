@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ class ServiceBuyer extends Model
     use HasFactory;
 
     protected $primaryKey = 'user_id';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -22,6 +24,7 @@ class ServiceBuyer extends Model
     {
         return $this->belongsTo(User::class);
     }
+
 
     public function orders()
     {
