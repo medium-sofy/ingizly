@@ -157,7 +157,7 @@
                                             class="w-full border @error('provider_type') border-red-500 @else border-gray-300 @enderror rounded p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                         <option value="">Select type</option>
                                         <option value="handyman" {{ old('provider_type', $user->serviceProvider?->provider_type) == 'handyman' ? 'selected' : '' }}>Handyman</option>
-                                        <option value="shop_owner" {{ old('provider_type', $user->serviceProvider?->provider_type) == 'shop_owner' ? 'selected' : '' }}>Shop Owner</option>
+                                        <option value="bussiness_owner" {{ old('provider_type', $user->serviceProvider?->provider_type) == 'bussiness_owner' ? 'selected' : '' }}>Bussiness Owner</option>
                                     </select>
                                     @error('provider_type') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 </div>

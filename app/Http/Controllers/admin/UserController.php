@@ -83,7 +83,7 @@ class UserController extends Controller
             // --- Service Provider Fields (Conditional) ---
             'provider_phone' => ['nullable', 'string', 'max:20', Rule::requiredIf($request->role == 'service_provider')],
             'provider_location' => ['nullable', 'string', 'max:255', Rule::requiredIf($request->role == 'service_provider')],
-            'provider_type' => ['nullable', Rule::in(['handyman', 'shop_owner']), Rule::requiredIf($request->role == 'service_provider')],
+            'provider_type' => ['nullable', Rule::in(['handyman', 'bussiness_owner']), Rule::requiredIf($request->role == 'service_provider')],
             'bio' => 'nullable|string',
             'business_name' => 'nullable|string|max:255',
             'business_address' => 'nullable|string|max:255',
@@ -122,14 +122,14 @@ class UserController extends Controller
                     ServiceBuyer::create([
                         'user_id' => $user->id,
                         'location' => $validated['buyer_location'] ?? null,
-                        'phone' => $validated['buyer_phone'] ?? null,
+                        'phone_number' => $validated['buyer_phone'] ?? null,
                     ]);
                     break;
 
                 case 'service_provider':
                     ServiceProvider::create([
                         'user_id' => $user->id,
-                        'phone' => $validated['provider_phone'],
+                        'phone_number' => $validated['provider_phone'],
                         'location' => $validated['provider_location'],
                         'provider_type' => $validated['provider_type'],
                         'bio' => $validated['bio'] ?? null,
@@ -196,7 +196,7 @@ class UserController extends Controller
             // --- Service Provider Fields (Conditional) ---
             'provider_phone' => ['nullable', 'string', 'max:20', Rule::requiredIf($request->role == 'service_provider')],
             'provider_location' => ['nullable', 'string', 'max:255', Rule::requiredIf($request->role == 'service_provider')],
-            'provider_type' => ['nullable', Rule::in(['handyman', 'shop_owner']), Rule::requiredIf($request->role == 'service_provider')],
+            'provider_type' => ['nullable', Rule::in(['handyman', 'bussiness_owner']), Rule::requiredIf($request->role == 'service_provider')],
             'bio' => 'nullable|string',
             'business_name' => 'nullable|string|max:255',
             'business_address' => 'nullable|string|max:255',
@@ -238,7 +238,7 @@ class UserController extends Controller
                             ['user_id' => $user->id],
                             [
                                 'location' => $validated['buyer_location'] ?? null,
-                                'phone' => $validated['buyer_phone'] ?? null,
+                                'phone_number' => $validated['buyer_phone'] ?? null,
                             ]
                         );
                         break;
@@ -246,7 +246,7 @@ class UserController extends Controller
                         $user->serviceProvider()->updateOrCreate( // Update or create if somehow missing
                             ['user_id' => $user->id],
                             [
-                                'phone' => $validated['provider_phone'],
+                                'phone_number' => $validated['provider_phone'],
                                 'location' => $validated['provider_location'],
                                 'provider_type' => $validated['provider_type'],
                                 'bio' => $validated['bio'] ?? null,
@@ -282,13 +282,13 @@ class UserController extends Controller
                         ServiceBuyer::create([
                             'user_id' => $user->id,
                             'location' => $validated['buyer_location'] ?? null,
-                            'phone' => $validated['buyer_phone'] ?? null,
+                            'phone_number' => $validated['buyer_phone'] ?? null,
                         ]);
                         break;
                     case 'service_provider':
                         ServiceProvider::create([
                             'user_id' => $user->id,
-                            'phone' => $validated['provider_phone'],
+                            'phone_number' => $validated['provider_phone'],
                             'location' => $validated['provider_location'],
                             'provider_type' => $validated['provider_type'],
                             'bio' => $validated['bio'] ?? null,

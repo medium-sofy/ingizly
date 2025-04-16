@@ -120,11 +120,11 @@
                             <td class="p-3 text-sm text-gray-600 align-top text-center">{{ $user->services_count ?? 0 }}</td> {{-- Center count --}}
                             <td class="p-3 align-top whitespace-nowrap"> {{-- Prevent actions wrapping --}}
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded">
                                         Edit
                                     </a>
                                     {{-- Use a button triggering JS for delete --}}
-                                    <button onclick="confirmDelete('{{ $user->id }}', '{{ $user->name }}')" class="text-red-600 hover:text-red-900 text-sm font-medium">
+                                    <button onclick="confirmDelete('{{ $user->id }}', '{{ $user->name }}')" class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded">
                                         Delete
                                     </button>
                                     {{-- Hidden delete form remains the same --}}
