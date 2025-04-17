@@ -1,11 +1,114 @@
 <?php
 
+use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\ServiceController;
+use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\ServiceBuyerController;
+use App\Http\Controllers\Auth\ServiceProviderController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ServiceDetailsController;
+use App\Http\Controllers\ServiceBookingController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+     ->name('service.details');
+
+Route::get('/register',[RegisteredUserController::class]);
+Route::post('/register',[RegisteredUserController::class]);
+
+Route::middleware('auth')->group(function () {
+    Route::get('/choose-role', [RegisteredUserController::class, 'showRoleSelection'])->name('choose.role');
+    Route::post('/select-role', [RegisteredUserController::class, 'selectRole'])->name('select.role');
+
+    // Service Provider routes
+    Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
+    Route::post('/service-provider/store', [ServiceProviderController::class, 'store'])->name('service_provider.store');
+
+    // Service Buyer routes
+    Route::get('/service-buyer/form', [ServiceBuyerController::class, 'create'])->name('service_buyer.form');
+    Route::post('/service-buyer/store', [ServiceBuyerController::class, 'store'])->name('service_buyer.store');
+});
+
+//Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {});
+    // admin routes
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/admin/users/create', [UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/admin/users/{users}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{users}/edit', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{users}/destroy', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    // admin services list route
+    Route::get('/admin/services', [ServiceController::class, 'index'])->name('admin.services.index');
+    Route::get('admin/services/create', [ServiceController::class, 'create'])->name('admin.services.create');
+    Route::post('/admin/services/create', [ServiceController::class, 'store'])->name('admin.services.store');
+    Route::get('/admin/services/{service}/edit', [ServiceController::class, 'edit'])->name('admin.services.edit');
+    Route::put('/admin/services/{service}/edit', [ServiceController::class, 'update'])->name('admin.services.update');
+    Route::delete('/admin/services/show/{service}', [ServiceController::class, 'destroy'])->name('admin.services.destroy');
+    Route::get('/admin/services/show/{service}', [ServiceController::class, 'show'])->name('admin.services.show');
+    Route::post('/admin/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
+    Route::post('/admin/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+    //// Show single service details
+    //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
+
+
+Route::get('/dashboard', function () {
+    if (Auth::check()) {
+        return match (Auth::user()->role) {
+            'service_buyer' => redirect()->route('buyer.dashboard'),
+            'service_provider' => redirect()->route('provider.dashboard'),
+            'admin' => redirect()->route('admin.dashboard'),
+            default => redirect('/login'),
+        };
+    }
+    return redirect('/login');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class);
+
+use App\Http\Controllers\Provider\ServiceProviderDashboardController;
+Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
+require __DIR__.'/auth.php';
 
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
+
+// Service Details Routes
+// Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
+//      ->name('service.details');
+
+Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
+     ->name('service.review.submit');
+
+Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'showReportForm'])
+     ->name('service.report.form');
+
+Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
+     ->name('service.report.submit');
+
+     // Booking routes (temporary - remove buyer_id when auth is implemented)
+Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
+->name('service.book');
+
+Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
+->name('orders.confirm');
+
+// Notification routes
+Route::get('/notifications', [NotificationController::class, 'index'])
+->name('notifications.index');
+
+Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
+->name('notifications.mark-read');
