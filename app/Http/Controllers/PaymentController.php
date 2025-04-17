@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Interfaces\PaymentGatewayInterface;
 use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 
 class PaymentController extends Controller
 {
@@ -16,7 +20,20 @@ class PaymentController extends Controller
 
     public function paymentProcess(Request $request)
     {
-        $data = $request->only(['amount_cents', 'currency', 'first_name', 'last_name', 'phone_number', 'email']);
+        $data = $request->only(['amount_cents', 'currency', 'first_name', 'last_name', 'phone_number', 'email','order_id']);
+
+        $order = Order::findOrFail($data['order_id']);
+
+        // Insert a payment record with 'pending' status
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'payment_gateway' => 'Paymob', // Assuming Paymob
+            'amount' => $order->total_amount,
+            'currency' => $data['currency'],
+            'payment_status' => 'pending',
+            // You might not have a transaction ID yet
+        ]);
+        Cookie::queue('pending_payment_id', $payment->id, 60); // Cookie will expire in 60 minutes
 
         $response = $this->paymentGateway->sendPayment($data);
 
@@ -30,12 +47,28 @@ class PaymentController extends Controller
     public function callBack(Request $request): \Illuminate\Http\RedirectResponse
     {
         $response = $this->paymentGateway->callBack($request);
+        if ($response) {
 
-        return $response
-            ? redirect()->route('payment.success')
-            : redirect()->route('payment.failed');
+
+            $pendingPaymentId = Cookie::get('pending_payment_id'); // Retrieve from cookie
+            $payment = Payment::findOrFail($pendingPaymentId);
+            $payment->update([
+                'payment_status' => 'successful',
+                'transaction_id' => $request->get('id'),
+            ]);
+            Cookie::forget('pending_payment_id');
+            return redirect()->route('payment.success');
+        } else {
+            $pendingPaymentId = Cookie::get('pending_payment_id'); // Retrieve from cookie
+            if ($pendingPaymentId) {
+                $payment = Payment::findOrFail($pendingPaymentId);
+                $payment->update(['payment_status' => 'failed']);
+
+            }
+        }
+        return redirect()->route('payment.failed');
+
     }
-
     public function success()
     {
         return view('paymob.payment-success');

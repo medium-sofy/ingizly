@@ -106,9 +106,9 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
     Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
     Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
 });
-
-Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
-Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+//
+//Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
+//Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
 
 // Service Details Routes
 // Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
