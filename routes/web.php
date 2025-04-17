@@ -125,7 +125,7 @@ Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookS
 ->name('service.book');
 
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details');
+     ->name('service.details')->prefix('catalog');
 
 Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
 ->name('orders.confirm');
