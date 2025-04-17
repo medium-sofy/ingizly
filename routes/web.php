@@ -17,8 +17,6 @@ use App\Http\Controllers\NotificationController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details');
 
 Route::get('/register',[RegisteredUserController::class]);
 Route::post('/register',[RegisteredUserController::class]);
@@ -102,6 +100,9 @@ Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 's
      // Booking routes (temporary - remove buyer_id when auth is implemented)
 Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
 ->name('service.book');
+
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+     ->name('service.details');
 
 Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
 ->name('orders.confirm');
