@@ -22,7 +22,6 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'profile_image',
     ];
 
     /**
@@ -96,8 +95,8 @@ class User extends Authenticatable
         return $this->role === 'service_provider';
     }
 
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class, 'user_id'); // Specify the foreign key
-    }
+ public function notifications()
+{
+    return $this->hasMany(Notification::class, 'user_id'); 
+}
 }

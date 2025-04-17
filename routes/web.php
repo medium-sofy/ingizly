@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/dashboard', function () {
     if (Auth::check()) {
         return match (Auth::user()->role) {
-            'service_buyer' => redirect()->route('buyer.dashboard'),
+            'service_buyer' => redirect()->route('dashboard'),
             'service_provider' => redirect()->route('provider.dashboard'),
             'admin' => redirect()->route('admin.dashboard'),
             default => redirect('/login'),
@@ -50,7 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class);
+// Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class);
 
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 
@@ -64,31 +64,46 @@ Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKe
 
 
 
-// Protected routes for authenticated users
 Route::middleware(['auth'])->group(function () {
+    // Service details routes
+    Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
+         ->name('service.details');
+
+    // Booking routes
+    Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
+         ->name('service.book');
+
     // Review routes
     Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
          ->name('service.review.submit');
-         
-         
-         Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
-         ->name('service.details');
-    Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
-         ->name('service.book');
-         
+
+    // Order confirmation
     Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
          ->name('orders.confirm');
 
     // Report routes
     Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'showReportForm'])
          ->name('service.report.form');
-         
+
     Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
          ->name('service.report.submit');
-});
 // Notification routes
-Route::get('/notifications', [NotificationController::class, 'index'])
-->name('notifications.index');
+});
 
-Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
-->name('notifications.mark-read');
+// Notification route
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])
+         ->name('notifications.index');
+
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])
+         ->name('notifications.unread-count');
+
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetchNotifications'])
+         ->name('notifications.fetch');
+
+    Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
+         ->name('notifications.mark-read');
+
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])
+         ->name('notifications.mark-all-read');
+});

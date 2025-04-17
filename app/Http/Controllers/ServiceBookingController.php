@@ -12,16 +12,6 @@ class ServiceBookingController extends Controller
 {
     public function bookService(Request $request, Service $service)
     {
-        // Check if user is authenticated
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Please login to book a service.');
-        }
-
-        // Check if user has the correct role
-        if (Auth::user()->role !== 'service_buyer') {
-            return back()->with('error', 'Only service buyers can book services.');
-        }
-
         $request->validate([
             'scheduled_date' => 'required|date|after:today',
             'scheduled_time' => 'required|string',
@@ -30,7 +20,7 @@ class ServiceBookingController extends Controller
 
         $order = Order::create([
             'service_id' => $service->id,
-            'buyer_id' => Auth::id(),
+            'buyer_id' => Auth::user()->serviceBuyer->user_id,
             'status' => 'pending',
             'total_amount' => $service->price,
             'scheduled_date' => $request->scheduled_date,
@@ -66,11 +56,18 @@ class ServiceBookingController extends Controller
 
         $order->update(['status' => 'confirmed']);
 
+        $service = $order->service;
+
+        // Create notification for the buyer
         Notification::create([
-            'user_id' => $order->service->provider->user_id,
+            'user_id' => $order->buyer_id,
             'title' => 'Order Confirmed',
-            'content' => 'Order #'.$order->id.' has been confirmed',
-            'notification_type' => 'order_update'
+            'content' => 'Your order for "'.$service->title.'" has been confirmed',
+            'notification_type' => 'order_update',
+            'data' => [
+                'order_id' => $order->id,
+                'service_id' => $service->id
+            ]
         ]);
 
         return back()->with('success', 'Order confirmed successfully!');
