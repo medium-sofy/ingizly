@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\AdminController;
-use App\Http\Controllers\admin\ServiceController;
+use App\Http\Controllers\admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\ServiceBuyerController;
@@ -9,7 +9,8 @@ use App\Http\Controllers\Auth\ServiceProviderController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
-use App\Http\Controllers\Buyer\ServiceController;
+use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogController;
+use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -48,13 +49,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/users/{users}/edit', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{users}/destroy', [UserController::class, 'destroy'])->name('admin.users.destroy');
     // admin services list route
-    Route::get('/admin/services', [ServiceController::class, 'index'])->name('admin.services.index');
-    Route::get('admin/services/create', [ServiceController::class, 'create'])->name('admin.services.create');
-    Route::post('/admin/services/create', [ServiceController::class, 'store'])->name('admin.services.store');
-    Route::get('/admin/services/{service}/edit', [ServiceController::class, 'edit'])->name('admin.services.edit');
-    Route::put('/admin/services/{service}/edit', [ServiceController::class, 'update'])->name('admin.services.update');
-    Route::delete('/admin/services/show/{service}', [ServiceController::class, 'destroy'])->name('admin.services.destroy');
-    Route::get('/admin/services/show/{service}', [ServiceController::class, 'show'])->name('admin.services.show');
+    Route::get('/admin/services', [AdminServiceController::class, 'index'])->name('admin.services.index');
+    Route::get('admin/services/create', [AdminServiceController::class, 'create'])->name('admin.services.create');
+    Route::post('/admin/services/create', [AdminServiceController::class, 'store'])->name('admin.services.store');
+    Route::get('/admin/services/{service}/edit', [AdminServiceController::class, 'edit'])->name('admin.services.edit');
+    Route::put('/admin/services/{service}/edit', [AdminServiceController::class, 'update'])->name('admin.services.update');
+    Route::delete('/admin/services/show/{service}', [AdminServiceController::class, 'destroy'])->name('admin.services.destroy');
+    Route::get('/admin/services/show/{service}', [AdminServiceController::class, 'show'])->name('admin.services.show');
     Route::post('/admin/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
     Route::post('/admin/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
     //// Show single service details
@@ -79,7 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('services', \App\Http\Controllers\Provider\ServiceController::class);
+Route::resource('services', ServiceProviderCatalogController::class);
 
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
@@ -91,9 +92,9 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.
     Route::resource('orders', OrderController::class);
 
     // Service browsing routes
-    Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
-    Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
-    Route::get('/services/{service}/order', [ServiceController::class, 'order'])->name('services.order');
+    Route::get('/services', [ServiceBuyerCatalogController::class, 'index'])->name('services.index');
+    Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
+    Route::get('/services/{service}/order', [ServiceBuyerCatalogController::class, 'order'])->name('services.order');
 
 });
 
