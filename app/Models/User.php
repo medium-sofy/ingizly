@@ -22,7 +22,9 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'is_email_verified',
         'profile_image',
+        'last_login',
     ];
 
     /**
@@ -45,54 +47,38 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_email_verified' => 'boolean',
+            'created_at' => 'datetime',
+            'last_login' => 'datetime',
         ];
     }
-
-    /**
-     * Get the admin record associated with the user.
-     */
     public function admin()
     {
         return $this->hasOne(Admin::class);
     }
 
-    /**
-     * Get the service buyer record associated with the user.
-     */
     public function serviceBuyer()
     {
         return $this->hasOne(ServiceBuyer::class);
     }
 
-    /**
-     * Get the service provider record associated with the user.
-     */
     public function serviceProvider()
     {
         return $this->hasOne(ServiceProvider::class);
     }
 
-    /**
-     * Check if the user is an admin.
-     */
-    public function isAdmin()
+    public function reviews()
     {
-        return $this->role === 'admin';
+        return $this->hasMany(Review::class);
     }
 
-    /**
-     * Check if the user is a service buyer.
-     */
-    public function isServiceBuyer()
+    public function notifications()
     {
-        return $this->role === 'service_buyer';
+        return $this->hasMany(Notification::class);
     }
 
-    /**
-     * Check if the user is a service provider.
-     */
-    public function isServiceProvider()
+    public function violations()
     {
-        return $this->role === 'service_provider';
+        return $this->hasMany(Violation::class);
     }
 }
