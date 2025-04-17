@@ -87,6 +87,7 @@ use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
 
+
 // Service Buyer Routes
 Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.')->group(function () {
     Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
@@ -105,8 +106,9 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
     Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
 });
 
-Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
-Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+
+Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
 
 // Service Details Routes
 // Route::get('/services/{id}', [ServicedetailsController::class, 'show'])

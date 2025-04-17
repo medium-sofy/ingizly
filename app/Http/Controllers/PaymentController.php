@@ -2,44 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PaymobService;
+use App\Interfaces\PaymentGatewayInterface;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    private $paymobService;
+    protected PaymentGatewayInterface $paymentGateway;
 
-    public function __construct(PaymobService $paymobService)
+    public function __construct(PaymentGatewayInterface $paymentGateway)
     {
-        $this->paymobService = $paymobService;
+
+        $this->paymentGateway = $paymentGateway;
     }
 
-    public function createOrder(Request $request)
+
+    public function paymentProcess(Request $request)
     {
-        $orderData = [
-            'merchant_order_id' => $request->input('order_id'),
-            'amount_cents' => $request->input('amount') * 100, // Convert to cents
-            'currency' => 'EGP',
-            'items' => $request->input('items', []),
-        ];
 
-        $order = $this->paymobService->createOrder($orderData);
-
-        return response()->json($order);
+        return $this->paymentGateway->sendPayment($request);
     }
 
-    public function generatePaymentKey(Request $request)
+    public function callBack(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $paymentData = [
-            'amount_cents' => $request->input('amount') * 100,
-            'currency' => 'EGP',
-            'order_id' => $request->input('order_id'),
-            'billing_data' => $request->input('billing_data'),
-            'integration_id' => env('PAYMOB_INTEGRATION_ID'),
-        ];
+        $response = $this->paymentGateway->callBack($request);
+        if ($response) {
 
-        $paymentKey = $this->paymobService->generatePaymentKey($paymentData);
+            return redirect()->route('payment.success');
+        }
+        return redirect()->route('payment.failed');
+    }
 
-        return response()->json(['payment_key' => $paymentKey]);
+
+    public function success()
+    {
+
+        return view('paymob.payment-success');
+    }
+    public function failed()
+    {
+
+        return view('paymob.payment-failed');
     }
 }
