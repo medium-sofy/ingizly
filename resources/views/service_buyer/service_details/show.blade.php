@@ -73,7 +73,7 @@
             <!-- Service Image -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
                 @if($service->images && count($service->images) > 0)
-                    <img src="{{ asset('storage/services/images/' . $service->images[0]->image_url) }}" 
+                    <img src="{{ asset('storage/' . $service->images[0]->image_url) }}" 
                          alt="Service Image" 
                          class="service-image rounded-t-xl w-full">
                 @else
