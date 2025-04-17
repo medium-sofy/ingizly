@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymobPaymentService extends BasePaymentService implements PaymentGatewayInterface
 {
-    /**
-     * Create a new class instance.
-     */
     protected mixed $api_key;
     protected array $integrations_id;
 
@@ -22,48 +19,56 @@ class PaymobPaymentService extends BasePaymentService implements PaymentGatewayI
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ];
-
-        $this->integrations_id = [5034939,5043624];
+        $this->integrations_id = [5034939, 5043624];
     }
 
-//first generate token to access api
     protected function generateToken()
     {
-        $response = $this->buildRequest('POST', '/api/auth/tokens', ['api_key' => $this->api_key]);
+        $response = $this->buildRequest('POST', '/api/auth/tokens', [
+            'api_key' => $this->api_key
+        ]);
+
         return $response->getData(true)['data']['token'];
     }
 
-    public function sendPayment(Request $request):array
+    public function sendPayment(array|Request $data): array
     {
         $this->header['Authorization'] = 'Bearer ' . $this->generateToken();
-        //validate data before sending it
-        $data = $request->all();
-        $data['api_source'] = "INVOICE";
-        $data['integrations'] = $this->integrations_id;
 
-        $response = $this->buildRequest('POST', '/api/ecommerce/orders', $data);
-        //handel payment response data and return it
+        // Prepare full payload
+        $payload = [
+            'amount_cents' => (int) $data['amount_cents'],
+            'currency' => $data['currency'],
+            'shipping_data' => [
+                'first_name' => $data['first_name'],
+                'last_name' => empty($data['last_name']) ? $data['first_name'] : $data['last_name'],
+                'phone_number' => $data['phone_number'],
+                'email' => $data['email'],
+            ],
+            'api_source' => 'INVOICE',
+            'integrations' => $this->integrations_id,
+        ];
+
+        $response = $this->buildRequest('POST', '/api/ecommerce/orders', $payload);
+
         if ($response->getData(true)['success']) {
-
-
-            return ['success' => true, 'url' => $response->getData(true)['data']['url']];
+            return [
+                'success' => true,
+                'url' => $response->getData(true)['data']['url']
+            ];
         }
 
-        return ['success' => false, 'url' => route('payment.failed')];
+        return [
+            'success' => false,
+            'url' => route('payment.failed')
+        ];
     }
 
     public function callBack(Request $request): bool
     {
         $response = $request->all();
-        Storage::put('paymob_response.json', json_encode($request->all()));
+        Storage::put('paymob_response.json', json_encode($response));
 
-        if (isset($response['success']) && $response['success'] === 'true') {
-
-            return true;
-        }
-        return false;
-
+        return isset($response['success']) && $response['success'] === 'true';
     }
-
-
 }

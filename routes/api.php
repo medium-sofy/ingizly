@@ -9,4 +9,5 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/payment/process', [PaymentController::class, 'paymentProcess']);
+// API Payment Routes
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);

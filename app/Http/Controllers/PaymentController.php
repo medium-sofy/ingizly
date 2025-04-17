@@ -11,36 +11,38 @@ class PaymentController extends Controller
 
     public function __construct(PaymentGatewayInterface $paymentGateway)
     {
-
         $this->paymentGateway = $paymentGateway;
     }
 
-
     public function paymentProcess(Request $request)
     {
+        $data = $request->only(['amount_cents', 'currency', 'first_name', 'last_name', 'phone_number', 'email']);
 
-        return $this->paymentGateway->sendPayment($request);
+        $response = $this->paymentGateway->sendPayment($data);
+
+        if ($response['success']) {
+            return redirect()->away($response['url']);
+        }
+
+        return redirect()->route('payment.failed');
     }
 
     public function callBack(Request $request): \Illuminate\Http\RedirectResponse
     {
         $response = $this->paymentGateway->callBack($request);
-        if ($response) {
 
-            return redirect()->route('payment.success');
-        }
-        return redirect()->route('payment.failed');
+        return $response
+            ? redirect()->route('payment.success')
+            : redirect()->route('payment.failed');
     }
-
 
     public function success()
     {
-
         return view('paymob.payment-success');
     }
+
     public function failed()
     {
-
         return view('paymob.payment-failed');
     }
 }

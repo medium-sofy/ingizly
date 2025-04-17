@@ -9,7 +9,6 @@ use App\Http\Controllers\Auth\ServiceProviderController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
-use App\Http\Controllers\Buyer\ServiceController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -86,7 +85,8 @@ Route::resource('services', \App\Http\Controllers\Provider\ServiceController::cl
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
-
+Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');;
+Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
 // Service Buyer Routes
@@ -95,9 +95,9 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.
     Route::resource('orders', OrderController::class);
 
     // Service browsing routes
-    Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
-    Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
-    Route::get('/services/{service}/order', [ServiceController::class, 'order'])->name('services.order');
+    Route::get('/services', [App\Http\Controllers\Buyer\ServiceController::class, 'index'])->name('services.index');
+    Route::get('/services/{service}', [App\Http\Controllers\Buyer\ServiceController::class, 'show'])->name('services.show');
+    Route::get('/services/{service}/order', [App\Http\Controllers\Buyer\ServiceController::class, 'order'])->name('services.order');
 
 });
 

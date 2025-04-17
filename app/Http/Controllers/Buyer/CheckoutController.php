@@ -20,7 +20,19 @@ class CheckoutController extends Controller
         }
 
         $order->load('service', 'service.provider.user');
-        return view('service_buyer.checkout.show', compact('order'));
+        $data = [
+            "amount_cents" => $order->total_amount * 100, // assuming `total` is in EGP
+            "currency" => "EGP",
+            "shipping_data" => [
+                "first_name" => Auth::user()->name,
+                "last_name" => "", // or split name if needed
+                "phone_number" => Auth::user()->serviceBuyer->phone_number ?? '01010101010', // default if null
+                "email" => Auth::user()->email,
+            ]
+
+
+        ];
+        return view('paymob.payment', compact('order', 'data'));
     }
 
     /**
