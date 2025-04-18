@@ -2,7 +2,7 @@
 @php use Illuminate\Support\Str; @endphp
 
 @if (!Str::contains(request()->path(), 'admin'))
-    
+
     <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
@@ -44,10 +44,7 @@
          </div>
     </body>
 </html>
-    
     @else
-    
-    
     <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -74,7 +71,7 @@
         </div>
         <nav class="mt-6 flex-1">
             {{-- Added check for active route for better UX --}}
-            <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
                 <i class="fas fa-chart-bar mr-3"></i>
                 <span>Dashboard</span>
             </a>
@@ -181,6 +178,6 @@
 </script>
 @stack('scripts')
 </body>
-</html>   
-    
+</html>
+
 @endif

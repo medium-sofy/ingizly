@@ -154,197 +154,290 @@
                     </div>
 
                     @auth
-                        @if(auth()->user()->role === 'service_buyer')
-                            <div class="flex flex-wrap gap-4">
-                                @php
-                                    $currentBuyerId = auth()->id();
-                                    $pendingOrder = $service->orders->where('buyer_id', $currentBuyerId)
-                                                            ->where('status', 'pending')
-                                                            ->first();
-                                    $acceptedOrder = $service->orders->where('buyer_id', $currentBuyerId)
-                                                             ->where('status', 'accepted')
-                                                             ->first();
-                                @endphp
+    @if(auth()->user()->role === 'service_buyer')
+        @php
+            $currentUser = auth()->user();
+            $hasBuyerProfile = $currentUser->serviceBuyer;
+            $userOrders = $hasBuyerProfile 
+                ? $service->orders->where('buyer_id', $currentUser->serviceBuyer->user_id)
+                : collect();
+            
+            $currentOrder = $userOrders->first();
+            
+            $hasReported = $currentUser->violations()
+                ->where('service_id', $service->id)
+                ->exists();
 
-                                @if($acceptedOrder)
-                                    <form action="{{ route('orders.confirm', $acceptedOrder->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center transition duration-300">
-                                            <i class="fas fa-check-circle mr-2"></i> Confirm Order
-                                        </button>
-                                    </form>
-                                @elseif(!$pendingOrder && $service->status === 'active')
-                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center transition duration-300" onclick="openModal('bookingModal')">
-                                        <i class="fas fa-shopping-cart mr-2"></i> Book Now
-                                    </button>
-                                @elseif($pendingOrder)
-                                    <button class="bg-gray-400 text-white px-6 py-3 rounded-lg flex items-center cursor-not-allowed" disabled>
-                                        <i class="fas fa-clock mr-2"></i> Pending Approval
-                                    </button>
-                                @endif
+            $canCancel = $currentOrder && $currentOrder->status === 'pending';
+        @endphp
 
-                                <a href="{{ route('service.report.form', $service->id) }}" class="border border-red-500 text-red-500 hover:bg-red-50 px-6 py-3 rounded-lg flex items-center transition duration-300">
-                                    <i class="fas fa-flag mr-2"></i> Report
-                                </a>
-                            </div>
-                        @endif
-                    @else
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <p class="text-blue-800">You need to <a href="{{ route('login') }}" class="text-blue-600 font-semibold hover:underline">login</a> as a service buyer to book this service.</p>
-                        </div>
-                    @endauth
-                </div>
-            </div>
-
-            <!-- Reviews Section -->
-            @if($service->reviews && $service->reviews->count() > 0)
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-                <div class="border-b border-gray-200 px-6 py-4">
-                    <h3 class="text-xl font-semibold text-gray-900">Customer Reviews</h3>
-                </div>
-                <div class="p-6">
-                    <!-- Rating Summary -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 pb-8 md:pb-0 pr-0 md:pr-8">
-                            @php $avgRating = $service->reviews->avg('rating'); @endphp
-                            <div class="text-5xl font-bold text-blue-600 mb-3">
-                                {{ number_format($avgRating, 1) }}
-                            </div>
-                            <div class="star-rating mb-4 text-2xl">
-                                @for($i = 1; $i <= 5; $i++)
-                                    @if($i <= floor($avgRating))
-                                        <i class="fas fa-star text-yellow-400"></i>
-                                    @elseif($i - 0.5 <= $avgRating)
-                                        <i class="fas fa-star-half-alt text-yellow-400"></i>
-                                    @else
-                                        <i class="far fa-star text-yellow-400"></i>
-                                    @endif
-                                @endfor
-                            </div>
-                            <div class="text-gray-600">{{ $service->reviews->count() }} reviews</div>
-                        </div>
-                        <div class="space-y-3">
-                            @for($i = 5; $i >= 1; $i--)
-                                <div class="flex items-center">
-                                    <div class="w-10 text-right mr-3">
-                                        {{ $i }} <i class="fas fa-star text-yellow-400 ml-1"></i>
-                                    </div>
-                                    <div class="flex-1 bg-gray-200 rounded-full h-2.5">
-                                        @php
-                                            $count = $service->reviews->where('rating', $i)->count();
-                                            $percentage = $service->reviews->count() > 0 ? ($count / $service->reviews->count()) * 100 : 0;
-                                        @endphp
-                                        <div class="bg-yellow-400 h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
-                                    </div>
-                                    <div class="w-12 text-right ml-3 text-sm text-gray-600">
-                                        {{ $count }} ({{ round($percentage) }}%)
-                                    </div>
-                                </div>
-                            @endfor
-                        </div>
-                    </div>
-
-                    <div class="space-y-6">
-                        @foreach($service->reviews as $review)
-                        <div class="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center">
-                                    <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 mr-4">
-                                        @if($review->buyer->user->profile_image)
-                                            <img src="{{ asset($review->buyer->user->profile_image) }}" 
-                                                 class="w-full h-full object-cover" 
-                                                 alt="{{ $review->buyer->user->name }}">
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center bg-gray-400 text-white">
-                                                {{ substr($review->buyer->user->name, 0, 1) }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <h6 class="font-semibold text-gray-900">{{ $review->buyer->user->name }}</h6>
-                                        <p class="text-sm text-gray-500">{{ $review->created_at->format('M d, Y') }}</p>
-                                    </div>
-                                </div>
-                                <div class="star-rating text-lg">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        @if($i <= $review->rating)
-                                            <i class="fas fa-star text-yellow-400"></i>
-                                        @else
-                                            <i class="far fa-star text-yellow-400"></i>
-                                        @endif
-                                    @endfor
-                                </div>
-                            </div>
-                            <div class="pl-16">
-                                <p class="text-gray-700">{{ $review->comment }}</p>
-                            </div>
-                        </div>
-                        @endforeach
+        <div class="space-y-4">
+            @if(!$hasBuyerProfile)
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-yellow-400 mr-3"></i>
+                        <span class="text-sm text-yellow-700">
+                            Complete your <a href="{{ route('service_buyer.form') }}" class="font-medium underline">buyer profile</a> to book services.
+                        </span>
                     </div>
                 </div>
-            </div>
+            @elseif(!$currentOrder && $service->status === 'active')
+                <!-- Book Now Button -->
+                <button onclick="openModal('bookingModal')" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition duration-300">
+                    <i class="fas fa-calendar-plus mr-2"></i> Book This Service
+                </button>
+            @elseif($currentOrder)
+                <!-- Status-specific messages -->
+                <div class="@switch($currentOrder->status)
+                        @case('pending') bg-blue-50 border-l-4 border-blue-400 @break
+                        @case('accepted') bg-green-50 border-l-4 border-green-400 @break
+                        @case('in_progress') bg-purple-50 border-l-4 border-purple-400 @break
+                        @case('completed') bg-gray-50 border-l-4 border-gray-400 @break
+                        @case('cancelled') bg-red-50 border-l-4 border-red-400 @break
+                    @endswitch p-4 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="@switch($currentOrder->status)
+                                @case('pending') fas fa-clock text-blue-400 @break
+                                @case('accepted') fas fa-check-circle text-green-400 @break
+                                @case('in_progress') fas fa-tasks text-purple-400 @break
+                                @case('completed') fas fa-check-double text-gray-400 @break
+                                @case('cancelled') fas fa-times-circle text-red-400 @break
+                            @endswitch mr-3"></i>
+                        <span class="text-sm @switch($currentOrder->status)
+                                @case('pending') text-blue-700 @break
+                                @case('accepted') text-green-700 @break
+                                @case('in_progress') text-purple-700 @break
+                                @case('completed') text-gray-700 @break
+                                @case('cancelled') text-red-700 @break
+                            @endswitch">
+                            @switch($currentOrder->status)
+                                @case('pending')
+                                    Your booking request is pending approval.
+                                    @break
+                                @case('accepted')
+                                    Your booking has been accepted! Please confirm to proceed.
+                                    @break
+                                @case('in_progress')
+                                    Your service is in progress. Scheduled for {{ $currentOrder->scheduled_date->format('M j') }} at {{ date('g:i A', strtotime($currentOrder->scheduled_time)) }}.
+                                    @break
+                                @case('completed')
+                                    Service completed on {{ $currentOrder->updated_at->format('M j, Y') }}.
+                                    @break
+                                @case('cancelled')
+                                    This booking was cancelled.
+                                    @break
+                            @endswitch
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Action buttons based on status -->
+                @switch($currentOrder->status)
+                    @case('pending')
+                        <form action="{{ route('orders.cancel', $currentOrder->id) }}" method="POST" class="mt-4">
+                            @csrf
+                            <button type="submit" 
+                                    class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition duration-300">
+                                <i class="fas fa-times mr-2"></i> Cancel Booking
+                            </button>
+                        </form>
+                        @break
+                    
+                    @case('accepted')
+                        <div class="space-y-3 mt-4">
+                            <form action="{{ route('order.payment', $currentOrder->id) }}" method="GET">
+                                <button type="submit" 
+                                        class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition duration-300">
+                                    <i class="fas fa-check-double mr-2"></i> Confirm & Pay Now
+                                </button>
+                            </form>
+                            <div class="bg-gray-100 p-3 rounded-lg text-center text-sm text-gray-600">
+                                <i class="fas fa-info-circle mr-1"></i> Cancellation not available after acceptance
+                            </div>
+                        </div>
+                        @break
+                @endswitch
             @endif
 
-            <!-- Add Review Form - Only for authenticated buyers who have completed an order -->
-            @auth
-                @if(auth()->user()->role === 'service_buyer')
-                    @php
-                        $hasCompletedOrder = $service->orders
-                            ->where('buyer_id', auth()->id())
-                            ->where('status', 'completed')
-                            ->count() > 0;
-                        $hasReviewed = $service->reviews
-                            ->where('buyer_id', auth()->id())
-                            ->count() > 0;
-                    @endphp
+            <!-- Report button -->
+            @if(!$hasReported)
+                <a href="{{ route('service.report.form', $service->id) }}" 
+                   class="border border-red-500 text-red-500 hover:bg-red-50 px-6 py-3 rounded-lg flex items-center justify-center transition duration-300">
+                    <i class="fas fa-flag mr-2"></i> Report Service
+                </a>
+            @else
+                <div class="border border-gray-300 text-gray-500 px-6 py-3 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-flag mr-2"></i> You've already reported this service
+                </div>
+            @endif
+        </div>
+    @endif
+@else
+    <!-- Existing login prompt -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+        <div class="flex items-center">
+            <i class="fas fa-info-circle text-blue-400 mr-3"></i>
+            <span class="text-sm text-blue-700">
+                <a href="{{ route('login') }}" class="font-medium underline">Login</a> as a service buyer to book this service.
+            </span>
+        </div>
+    </div>
+@endauth
+                </div>
+            </div>
 
-                    @if($hasCompletedOrder && !$hasReviewed)
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                            <div class="border-b border-gray-200 px-6 py-4">
-                                <h3 class="text-xl font-semibold text-gray-900">Write a Review</h3>
-                            </div>
-                            <div class="p-6">
-                                <form action="{{ route('service.review.submit', $service->id) }}" method="POST" id="reviewForm">
-                                    @csrf
-                                    <input type="hidden" name="order_id" value="{{ $service->orders->where('buyer_id', auth()->id())->where('status', 'completed')->first()->id }}">
-                                    <div class="mb-6">
-                                        <label class="block text-gray-700 font-medium mb-3">Your Rating</label>
-                                        <div class="rating-input">
-                                            <input type="radio" id="star5" name="rating" value="5" required/>
-                                            <label for="star5" title="5 stars">★</label>
-                                            <input type="radio" id="star4" name="rating" value="4"/>
-                                            <label for="star4" title="4 stars">★</label>
-                                            <input type="radio" id="star3" name="rating" value="3"/>
-                                            <label for="star3" title="3 stars">★</label>
-                                            <input type="radio" id="star2" name="rating" value="2"/>
-                                            <label for="star2" title="2 stars">★</label>
-                                            <input type="radio" id="star1" name="rating" value="1"/>
-                                            <label for="star1" title="1 star">★</label>
-                                        </div>
-                                        @error('rating')
-                                            <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="mb-6">
-                                        <label class="block text-gray-700 font-medium mb-3">Your Review</label>
-                                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                                  name="comment" 
-                                                  rows="5" 
-                                                  placeholder="Share your experience with this service..." 
-                                                  required></textarea>
-                                    </div>
-                                    
-                                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-300 w-full">
-                                        Submit Review
-                                    </button>
-                                </form>
+           <!-- Reviews Section -->
+@if($service->reviews && $service->reviews->count() > 0)
+<div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+    <div class="border-b border-gray-200 px-6 py-4">
+        <h3 class="text-xl font-semibold text-gray-900">Customer Reviews</h3>
+    </div>
+    <div class="p-6">
+        <!-- Rating Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 pb-8 md:pb-0 pr-0 md:pr-8">
+                @php $avgRating = $service->reviews->avg('rating'); @endphp
+                <div class="text-5xl font-bold text-blue-600 mb-3">
+                    {{ number_format($avgRating, 1) }}
+                </div>
+                <div class="star-rating mb-4 text-2xl">
+                    @for($i = 1; $i <= 5; $i++)
+                        @if($i <= floor($avgRating))
+                            <i class="fas fa-star text-yellow-400"></i>
+                        @elseif($i - 0.5 <= $avgRating)
+                            <i class="fas fa-star-half-alt text-yellow-400"></i>
+                        @else
+                            <i class="far fa-star text-yellow-400"></i>
+                        @endif
+                    @endfor
+                </div>
+                <div class="text-gray-600">{{ $service->reviews->count() }} reviews</div>
+            </div>
+            <div class="space-y-3">
+                @for($i = 5; $i >= 1; $i--)
+                    <div class="flex items-center">
+                        <div class="w-10 text-right mr-3">
+                            {{ $i }} <i class="fas fa-star text-yellow-400 ml-1"></i>
+                        </div>
+                        <div class="flex-1 bg-gray-200 rounded-full h-2.5">
+                            @php
+                                $count = $service->reviews->where('rating', $i)->count();
+                                $percentage = $service->reviews->count() > 0 ? ($count / $service->reviews->count()) * 100 : 0;
+                            @endphp
+                            <div class="bg-yellow-400 h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
+                        </div>
+                        <div class="w-12 text-right ml-3 text-sm text-gray-600">
+                            {{ $count }} ({{ round($percentage) }}%)
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            @foreach($service->reviews as $review)
+            <div class="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 mr-4">
+                            @if($review->buyer->user->profile_image)
+                                <img src="{{ asset($review->buyer->user->profile_image) }}" 
+                                     class="w-full h-full object-cover" 
+                                     alt="{{ $review->buyer->user->name }}">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-gray-400 text-white">
+                                    {{ substr($review->buyer->user->name, 0, 1) }}
+                                </div>
+                            @endif
+                        </div>
+                        <div>
+                            <h6 class="font-semibold text-gray-900">{{ $review->buyer->user->name }}</h6>
+                            <p class="text-sm text-gray-500">
+                                @if($review->created_at)
+                                    {{ $review->created_at->format('M d, Y') }}
+                                @else
+                                    Date not available
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="star-rating text-lg">
+                        @for($i = 1; $i <= 5; $i++)
+                            @if($i <= $review->rating)
+                                <i class="fas fa-star text-yellow-400"></i>
+                            @else
+                                <i class="far fa-star text-yellow-400"></i>
+                            @endif
+                        @endfor
+                    </div>
+                </div>
+                <div class="pl-16">
+                    <p class="text-gray-700">{{ $review->comment }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Add Review Form -->
+@auth
+    @if(auth()->user()->role === 'service_buyer')
+        @php
+            // Check if user has any completed orders for this service
+            $hasCompletedOrder = $service->orders()
+                ->where('buyer_id', auth()->id())
+                ->where('status', 'completed')
+                ->exists();
+        @endphp
+
+        @if($hasCompletedOrder)
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="border-b border-gray-200 px-6 py-4">
+                    <h3 class="text-xl font-semibold text-gray-900">Write a Review</h3>
+                </div>
+                <div class="p-6">
+                    <form action="{{ route('service.review.submit', $service->id) }}" method="POST" id="reviewForm">
+                        @csrf
+                        <input type="hidden" name="service_id" value="{{ $service->id }}">
+                        
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-3">Your Rating</label>
+                            <div class="rating-input">
+                                <input type="radio" id="star5" name="rating" value="5" required/>
+                                <label for="star5" title="5 stars">★</label>
+                                <input type="radio" id="star4" name="rating" value="4"/>
+                                <label for="star4" title="4 stars">★</label>
+                                <input type="radio" id="star3" name="rating" value="3"/>
+                                <label for="star3" title="3 stars">★</label>
+                                <input type="radio" id="star2" name="rating" value="2"/>
+                                <label for="star2" title="2 stars">★</label>
+                                <input type="radio" id="star1" name="rating" value="1"/>
+                                <label for="star1" title="1 star">★</label>
                             </div>
                         </div>
-                    @endif
-                @endif
-            @endauth
-        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-3">Your Review</label>
+                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                      name="comment" 
+                                      rows="5" 
+                                      placeholder="Share your experience with this service..." 
+                                      required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-300 w-full">
+                            Submit Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endif
+    @endif
+@endauth
+</div>
 
         <!-- Sidebar -->
         <div class="lg:w-1/3">

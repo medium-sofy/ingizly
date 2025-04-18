@@ -12,30 +12,45 @@ use Illuminate\Support\Facades\Auth;
 class ServicedetailsController extends Controller
 {
     public function show($id)
-    {
-        $service = Service::with([
-            'provider.user',
-            'category',
-            'images',
-            'reviews.buyer.user',
-            'orders' => function($query) {
-                $query->where('buyer_id', Auth::id());
-            }
-        ])->findOrFail($id);
-    
-        $averageRating = $service->reviews->avg('rating') ?? 0;
-        $totalReviews = $service->reviews->count();
-        $hasReviewed = Auth::check() ? $service->reviews->where('buyer_id', Auth::id())->count() > 0 : false;
-    
-        return view('service_buyer.service_details.show', [
-            'service' => $service,
-            'averageRating' => $averageRating,
-            'totalReviews' => $totalReviews,
-            'images' => $service->images,
-            'hasReviewed' => $hasReviewed
-        ]);
-    }
+{
+    $service = Service::with([
+        'provider.user',
+        'category',
+        'images',
+        'reviews.buyer.user',
+        'orders' => function($query) {
+            $query->where('buyer_id', Auth::id())
+                  ->whereIn('status', ['pending', 'accepted', 'in_progress', 'completed']);
+        },
+        'cancelledOrders' => function($query) {
+            $query->where('buyer_id', Auth::id())
+                  ->where('status', 'cancelled')
+                  ->latest();
+        },
+        'violations' => function($query) {
+            $query->where('user_id', Auth::id());
+        }
+    ])->findOrFail($id);
 
+    $averageRating = $service->reviews->avg('rating') ?? 0;
+    $totalReviews = $service->reviews->count();
+    $hasReviewed = Auth::check() ? $service->reviews->where('buyer_id', Auth::id())->count() > 0 : false;
+    $hasReported = Auth::check() ? $service->violations->count() > 0 : false;
+    
+    $currentOrder = $service->orders->first();
+    $cancelledOrder = $service->cancelledOrders->first();
+
+    return view('service_buyer.service_details.show', [
+        'service' => $service,
+        'currentOrder' => $currentOrder,
+        'cancelledOrder' => $cancelledOrder,
+        'averageRating' => $averageRating,
+        'totalReviews' => $totalReviews,
+        'images' => $service->images,
+        'hasReviewed' => $hasReviewed,
+        'hasReported' => $hasReported
+    ]);
+}
     public function submitReview(Request $request, $serviceId)
     {
         $validated = $request->validate([
@@ -78,19 +93,42 @@ class ServicedetailsController extends Controller
 
     public function showReportForm($serviceId)
     {
-        $service = Service::findOrFail($serviceId);
+        $service = Service::with(['violations' => function($query) {
+            $query->where('user_id', Auth::id());
+        }])->findOrFail($serviceId);
+
+        // Check if user has already reported this service
+        if ($service->violations->count() > 0) {
+            return redirect()->route('service.details', $serviceId)
+                            ->with('error', 'You have already reported this service.');
+        }
+
         return view('service_buyer.service_details.report_form', compact('service'));
     }
 
+
     public function submitReport(Request $request, $serviceId)
     {
+        // Check if user has already reported this service
+        $existingReport = Violation::where('user_id', Auth::id())
+                                ->where('service_id', $serviceId)
+                                ->first();
+
+        if ($existingReport) {
+            return redirect()->route('service.details', $serviceId)
+                            ->with('error', 'You have already reported this service.');
+        }
+
         $request->validate([
-            'reason' => 'required|string|max:1000'
+            'reason_type' => 'required|string|max:255',
+            'reason' => 'required|string|max:1000',
+            'agree_terms' => 'required|accepted'
         ]);
 
         Violation::create([
             'user_id' => Auth::id(),
             'service_id' => $serviceId,
+            'reason_type' => $request->reason_type,
             'reason' => $request->reason,
             'status' => 'pending'
         ]);
@@ -98,4 +136,6 @@ class ServicedetailsController extends Controller
         return redirect()->route('service.details', $serviceId)
                          ->with('success', 'Service reported successfully. Our team will review it shortly.');
     }
+
+
 }

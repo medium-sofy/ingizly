@@ -81,8 +81,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Violation::class);
     }
-    public function unreadNotifications()
-{
-    return $this->notifications()->where('is_read', false);
-}
 }

@@ -2,44 +2,80 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PaymobService;
+use App\Interfaces\PaymentGatewayInterface;
 use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 
 class PaymentController extends Controller
 {
-    private $paymobService;
+    protected PaymentGatewayInterface $paymentGateway;
 
-    public function __construct(PaymobService $paymobService)
+    public function __construct(PaymentGatewayInterface $paymentGateway)
     {
-        $this->paymobService = $paymobService;
+        $this->paymentGateway = $paymentGateway;
     }
 
-    public function createOrder(Request $request)
+    public function paymentProcess(Request $request)
     {
-        $orderData = [
-            'merchant_order_id' => $request->input('order_id'),
-            'amount_cents' => $request->input('amount') * 100, // Convert to cents
-            'currency' => 'EGP',
-            'items' => $request->input('items', []),
-        ];
+        $data = $request->only(['amount_cents', 'currency', 'first_name', 'last_name', 'phone_number', 'email','order_id']);
 
-        $order = $this->paymobService->createOrder($orderData);
+        $order = Order::findOrFail($data['order_id']);
 
-        return response()->json($order);
+        // Insert a payment record with 'pending' status
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'payment_gateway' => 'Paymob', // Assuming Paymob
+            'amount' => $order->total_amount,
+            'currency' => $data['currency'],
+            'payment_status' => 'pending',
+            // You might not have a transaction ID yet
+        ]);
+        Cookie::queue('pending_payment_id', $payment->id, 60); // Cookie will expire in 60 minutes
+
+        $response = $this->paymentGateway->sendPayment($data);
+
+        if ($response['success']) {
+            return redirect()->away($response['url']);
+        }
+
+        return redirect()->route('payment.failed');
     }
 
-    public function generatePaymentKey(Request $request)
+    public function callBack(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $paymentData = [
-            'amount_cents' => $request->input('amount') * 100,
-            'currency' => 'EGP',
-            'order_id' => $request->input('order_id'),
-            'billing_data' => $request->input('billing_data'),
-            'integration_id' => env('PAYMOB_INTEGRATION_ID'),
-        ];
+        $response = $this->paymentGateway->callBack($request);
+        if ($response) {
 
-        $paymentKey = $this->paymobService->generatePaymentKey($paymentData);
 
-        return response()->json(['payment_key' => $paymentKey]);
+            $pendingPaymentId = Cookie::get('pending_payment_id'); // Retrieve from cookie
+            $payment = Payment::findOrFail($pendingPaymentId);
+            $payment->update([
+                'payment_status' => 'successful',
+                'transaction_id' => $request->get('id'),
+            ]);
+            Cookie::forget('pending_payment_id');
+            return redirect()->route('payment.success');
+        } else {
+            $pendingPaymentId = Cookie::get('pending_payment_id'); // Retrieve from cookie
+            if ($pendingPaymentId) {
+                $payment = Payment::findOrFail($pendingPaymentId);
+                $payment->update(['payment_status' => 'failed']);
+
+            }
+        }
+        return redirect()->route('payment.failed');
+
+    }
+    public function success()
+    {
+        return view('paymob.payment-success');
+    }
+
+    public function failed()
+    {
+        return view('paymob.payment-failed');
     }
 }
