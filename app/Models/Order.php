@@ -39,9 +39,9 @@ class Order extends Model
     }
 
 
-    public function payment()
+    public function payments()
     {
-        return $this->hasOne(Payment::class);
+        return $this->hasMany(Payment::class);
     }
 
     public function review()
