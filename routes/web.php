@@ -9,8 +9,10 @@ use App\Http\Controllers\Auth\ServiceProviderController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
+
 use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogController;
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
+
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -85,13 +87,17 @@ Route::resource('services', ServiceProviderCatalogController::class);
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
-
+Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');;
+Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
+Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
 // Service Buyer Routes
 Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.')->group(function () {
     Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
     Route::resource('orders', OrderController::class);
 
     // Service browsing routes
+
     Route::get('/services', [ServiceBuyerCatalogController::class, 'index'])->name('services.index');
     Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
     Route::get('/services/{service}/order', [ServiceBuyerCatalogController::class, 'order'])->name('services.order');
@@ -103,9 +109,9 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
     Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
     Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
 });
-
-Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
-Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+//
+//Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
+//Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
 
 // Service Details Routes
 // Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
