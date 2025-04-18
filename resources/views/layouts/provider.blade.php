@@ -71,9 +71,12 @@
 
             <!-- Logout Button -->
             <div class="p-4 border-t border-blue-700">
-                <a href="#" class="flex items-center justify-center px-4 py-3 rounded bg-red-600 hover:bg-red-700">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                </a>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button class="flex items-center w-full justify-center px-4 py-3 rounded bg-red-600 hover:bg-red-700">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </button>
+                </form>
             </div>
         </aside>
 

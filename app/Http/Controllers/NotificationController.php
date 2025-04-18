@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         $notifications = Auth::user()->notifications()
@@ -34,7 +29,7 @@ class NotificationController extends Controller
 
     public function getUnreadCount()
     {
-        $count = Auth::user()->notifications()->where('is_read', false)->count();
+        $count = Auth::user()->unreadNotifications()->count();
         return response()->json(['count' => $count]);
     }
 
@@ -51,8 +46,7 @@ class NotificationController extends Controller
                                       'content' => $notification->content,
                                       'is_read' => (bool)$notification->is_read,
                                       'created_at' => $notification->created_at->toDateTimeString(),
-                                      'notification_type' => $notification->notification_type,
-                                      'data' => $notification->data
+                                      'notification_type' => $notification->notification_type
                                   ];
                               });
 
@@ -61,7 +55,7 @@ class NotificationController extends Controller
 
     public function markAllAsRead()
     {
-        Auth::user()->notifications()->update(['is_read' => true]);
+        Auth::user()->unreadNotifications()->update(['is_read' => true]);
         return response()->json(['success' => true]);
     }
 }
