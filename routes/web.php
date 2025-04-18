@@ -121,22 +121,26 @@ Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 's
      ->name('service.report.submit');
 
      // Booking routes (temporary - remove buyer_id when auth is implemented)
-// Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
-// ->name('service.book');
+Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
+->name('service.book');
 
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      ->name('service.details');
 
-     Route::middleware('auth')->group(function () {
-        // Notification routes
-        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-        Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
-        Route::get('/notifications/fetch', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
-        Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
-        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
-        
-        // Booking routes
-        Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])->name('service.book');
-        Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])->name('orders.accept');
-        Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])->name('orders.confirm');
-    });
+     Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
+     ->name('orders.accept')
+     ->middleware('auth');
+     
+ Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
+     ->name('orders.confirm');
+
+// Notification routes
+
+// Update these routes in web.php
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
+    Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+
+
