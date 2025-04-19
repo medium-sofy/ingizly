@@ -35,6 +35,11 @@ Route::middleware('auth')->group(function () {
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
     Route::post('/service-provider/store', [ServiceProviderController::class, 'store'])->name('service_provider.store');
+    Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
+
+
+    Route::resource('services',\Provider\ServiceController::class);
+
 
     // Service Buyer routes
     Route::get('/service-buyer/form', [ServiceBuyerController::class, 'create'])->name('service_buyer.form');

@@ -18,6 +18,7 @@
         @csrf
         @method('PUT')
 
+        {{-- Title --}}
         <div>
             <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
             <input type="text" name="title" id="title"
@@ -25,6 +26,7 @@
                 value="{{ old('title', $service->title) }}" required>
         </div>
 
+        {{-- Category --}}
         <div>
             <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select name="category_id" id="category_id"
@@ -39,6 +41,7 @@
             </select>
         </div>
 
+        {{-- Description --}}
         <div>
             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea name="description" id="description" rows="4"
@@ -46,6 +49,7 @@
                 required>{{ old('description', $service->description) }}</textarea>
         </div>
 
+        {{-- Price & Location --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price (EGP)</label>
@@ -62,6 +66,7 @@
             </div>
         </div>
 
+        {{-- Service Type --}}
         <div>
             <label for="service_type" class="block text-sm font-medium text-gray-700 mb-1">Service Type</label>
             <select name="service_type" id="service_type"
@@ -74,34 +79,67 @@
             </select>
         </div>
 
-        <div>
-    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Update Service Image</label>
-    <input type="file" name="image" id="image" accept="image/*"
-           class="w-full border border-gray-300 rounded-lg px-4 py-2 transition"
-           onchange="previewImage(event)">
+        {{-- Existing Images --}}
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Existing Images</label>
+            <div class="flex flex-wrap gap-4">
+                @foreach ($service->images as $image)
+                    <div class="relative w-32 h-32 border rounded overflow-hidden">
+                        <img src="{{ asset('storage/' . $image->image_url) }}" alt="Service Image"
+                             class="w-full h-full object-cover rounded">
+                        <button type="button"
+                                onclick="deleteImage({{ $image->id }})"
+                                class="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full px-2 py-1 hover:bg-red-700">
+                            ✕
+                        </button>
+                    </div>
+                @endforeach
+            </div>
+        </div>
 
-    <div id="preview-container" class="mt-2">
-        @if($service->images->first())
-            <img id="image-preview"
-                 src="{{ asset('storage/' . $service->images->first()->image_url) }}"
-                 alt="Current Image"
-                 class="w-32 h-32 object-cover rounded">
-        @else
-            <img id="image-preview" src="#" alt="Image Preview" class="hidden w-32 h-32 object-cover rounded">
-        @endif
-    </div>
-</div>
+        {{-- Upload New Images --}}
+        <div class="mb-6">
+            <label for="images" class="block text-sm font-medium text-gray-700 mb-1">Add New Images</label>
+            <input type="file" name="images[]" id="images" multiple accept="image/*"
+                   class="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-indigo-200">
+        </div>
 
-
+        {{-- Submit Buttons --}}
         <div class="flex justify-between items-center mt-6">
             <button type="submit"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
                 Update Service
             </button>
-
             <a href="{{ route('services.index') }}"
                 class="text-gray-500 hover:text-blue-600 underline text-sm transition duration-200">Cancel</a>
         </div>
     </form>
 </div>
+
+{{-- JavaScript Delete Form --}}
+<script>
+    function deleteImage(imageId) {
+        if (confirm('Are you sure you want to delete this image?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/services/image/${imageId}`;
+            form.style.display = 'none';
+
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_token';
+            csrf.value = '{{ csrf_token() }}';
+
+            const method = document.createElement('input');
+            method.type = 'hidden';
+            method.name = '_method';
+            method.value = 'DELETE';
+
+            form.appendChild(csrf);
+            form.appendChild(method);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
 @endsection
