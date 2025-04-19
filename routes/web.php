@@ -131,8 +131,10 @@ Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 's
 Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
 ->name('service.book');
 
+
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      ->name('service.details');
+     
 
      Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
      ->name('orders.accept');
@@ -142,7 +144,7 @@ Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
 
      Route::post('/orders/{order}/cancel', [ServiceBookingController::class, 'cancelOrder'])
     ->name('orders.cancel');
-    
+
      Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
      ->name('order.payment');
 

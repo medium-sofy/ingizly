@@ -19,9 +19,7 @@ class NotificationController extends Controller
 
     public function markAsRead(Notification $notification)
     {
-        if ($notification->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $notification);
 
         $notification->update(['is_read' => true]);
         return response()->json(['success' => true]);
@@ -46,7 +44,8 @@ class NotificationController extends Controller
                                       'content' => $notification->content,
                                       'is_read' => (bool)$notification->is_read,
                                       'created_at' => $notification->created_at->toDateTimeString(),
-                                      'notification_type' => $notification->notification_type
+                                      'notification_type' => $notification->notification_type,
+                                      'link' => $this->getNotificationLink($notification)
                                   ];
                               });
 
@@ -57,5 +56,16 @@ class NotificationController extends Controller
     {
         Auth::user()->unreadNotifications()->update(['is_read' => true]);
         return response()->json(['success' => true]);
+    }
+
+    protected function getNotificationLink($notification)
+    {
+        // Customize this based on your notification types
+        switch ($notification->notification_type) {
+            case 'order_update':
+                return route('orders.show', ['order' => $notification->id]);
+            default:
+                return '#';
+        }
     }
 }

@@ -39,7 +39,7 @@
     <!-- Notification Dropdown -->
     <div class="fixed top-4 right-4 z-50" x-data="notificationDropdown()" x-init="init()">
     <div class="relative">
-        <button @click="toggleDropdown()"
+        <button @click="console.log('Bell clicked'); toggleDropdown()"
                 class="notification-bell focus:outline-none">
             <i class="fas fa-bell text-2xl text-gray-700 hover:text-blue-600 transition"></i>
             <span x-show="unreadCount > 0" x-text="unreadCount" class="unread-count"></span>
@@ -48,14 +48,14 @@
         <div x-show="isOpen" x-cloak @click.away="isOpen = false"
              class="absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg overflow-hidden z-50">
             <div class="py-1">
-                <div class="px-4 py-2 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                    <span class="text-sm font-semibold">Notifications</span>
-                    <button @click="markAllAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
-                        Mark all as read
-                    </button>
-                </div>
+                    <div class="px-4 py-2 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                        <span class="text-sm font-semibold">Notifications</span>
+                        <button @click="markAllAsRead()" class="text-xs text-blue-600 hover:text-blue-800">
+                            Mark all as read
+                        </button>
+                    </div>
 
-                <template x-if="!isLoading && notifications.length === 0">
+                    <template x-if="!isLoading && notifications.length === 0">
                     <div class="px-4 py-3 text-sm text-gray-500">No new notifications</div>
                 </template>
 
@@ -86,7 +86,6 @@
     @stack('scripts')
 
     <script>
-// In your layout/service.blade.php
 function notificationDropdown() {
     return {
         isOpen: false,
@@ -96,7 +95,7 @@ function notificationDropdown() {
 
         init() {
             this.fetchUnreadCount();
-            setInterval(() => this.fetchUnreadCount(), 30000); // Poll every 30 seconds
+            setInterval(() => this.fetchUnreadCount(), 30000);
         },
 
         toggleDropdown() {
@@ -129,23 +128,27 @@ function notificationDropdown() {
             }
         },
 
-        async markAsRead(notification) {
+        async markAsRead(notif) {
+            if (notif.is_read) return;
+
             try {
-                await fetch(`/notifications/${notification.id}/mark-read`, {
+                await fetch(`/notifications/${notif.id}/mark-read`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Content-Type': 'application/json'
                     }
                 });
-                notification.is_read = true;
-                this.unreadCount = Math.max(0, this.unreadCount - 1);
+                notif.is_read = true;
+                this.unreadCount--;
             } catch (error) {
                 console.error('Error marking notification as read:', error);
             }
         },
 
         async markAllAsRead() {
+            if (this.unreadCount === 0) return;
+
             try {
                 await fetch('{{ route("notifications.mark-all-read") }}', {
                     method: 'POST',
@@ -154,34 +157,22 @@ function notificationDropdown() {
                         'Content-Type': 'application/json'
                     }
                 });
-                this.notifications.forEach(n => n.is_read = true);
+                this.notifications = this.notifications.map(notif => ({
+                    ...notif,
+                    is_read: true
+                }));
                 this.unreadCount = 0;
             } catch (error) {
-                console.error('Error marking all as read:', error);
+                console.error('Error marking all notifications as read:', error);
             }
         },
 
-    // Update the getNotificationLink function in your service.blade.php file
-
-function getNotificationLink(notification) {
-    if (notification.notification_type === 'order_update') {
-        // Extract order ID from content using regex if it exists
-        const orderIdMatch = notification.content.match(/#(\d+)/);
-        if (orderIdMatch && orderIdMatch[1]) {
-            return `/orders/${orderIdMatch[1]}`;
+        getNotificationLink(notif) {
+            if (notif.notification_type === 'order_update') {
+                return `/orders/${notif.id}`;
+            }
+            return '#';
         }
-        // Default orders page if no specific ID found
-        return '/buyer/orders';
-    } else if (notification.notification_type === 'payment') {
-        return '/payments';
-    } else if (notification.notification_type === 'message') {
-        return '/messages';
-    } else if (notification.notification_type === 'review') {
-        return '/reviews';
-    } else {
-        return '#';
-    }
-}
     }
 }
 </script>
