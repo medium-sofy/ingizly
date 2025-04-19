@@ -92,7 +92,7 @@ Route::resource('services', ServiceProviderCatalogController::class);
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
-Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');;
+Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
@@ -147,3 +147,4 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 
 Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
 ->name('notifications.mark-read');
+
