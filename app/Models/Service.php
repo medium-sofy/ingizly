@@ -78,7 +78,6 @@ class Service extends Model
         return $this->hasMany(Violation::class);
     }
 
-    // In app/Models/Service.php
 public function cancelledOrders()
 {
     return $this->hasMany(Order::class)->where('status', 'cancelled');

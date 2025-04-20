@@ -36,7 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
 
 
-    // Route::resource('services',\Provider\ServiceController::class);
+    Route::resource('services',\Provider\ServiceController::class);
 
 
     // Service Buyer routes
@@ -85,7 +85,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Route::resource('services', ServiceProviderCatalogController::class);
+Route::resource('services', ServiceProviderCatalogController::class);
 
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
@@ -125,7 +125,7 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      ->name('service.details');
 
-     
+
 Route::middleware(['auth', 'role:service_buyer'])->group(function () {
 Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
      ->name('service.review.submit');
@@ -140,9 +140,6 @@ Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 's
 Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
 ->name('service.book');
 
-
-
-     
 
      Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
      ->name('orders.accept');
