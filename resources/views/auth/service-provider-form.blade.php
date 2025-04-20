@@ -1,82 +1,97 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h2 class="fw-bold mb-0">Complete Your Service Provider Profile</h2>
-                    <p class="mb-0">Tell us more about your business</p>
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Title Section -->
+    <div class="text-center mb-8">
+        <h2 class="text-4xl font-extrabold text-blue-600">Complete Your Service Provider Profile</h2>
+        <p class="text-lg text-gray-500 mt-2">Tell us more about your business to get started</p>
+    </div>
+
+    <!-- Form Container -->
+    <div class="max-w-2xl w-full bg-white shadow-2xl rounded-lg overflow-hidden">
+        <!-- Form -->
+        <div class="p-8">
+            <form method="POST" action="{{ route('service_provider.store') }}" class="space-y-6">
+                @csrf
+
+                <!-- Phone Number -->
+                <div>
+                    <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input type="text" id="phone_number" name="phone_number" 
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('phone_number') border-red-500 @enderror" 
+                        value="{{ old('phone_number') }}" required>
+                    @error('phone_number')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
-                <div class="card-body p-5">
-                    <form method="POST" action="{{ route('service_provider.store') }}">
-                        @csrf
-                        
-                        <div class="mb-3">
-                            <label for="phone_number" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control @error('phone_number') is-invalid @enderror" 
-                                id="phone_number" name="phone_number" value="{{ old('phone_number') }}" required>
-                            @error('phone_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="location" class="form-label">Location</label>
-                            <input type="text" class="form-control @error('location') is-invalid @enderror" 
-                                id="location" name="location" value="{{ old('location') }}" required>
-                            @error('location')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="business_name" class="form-label">Business Name</label>
-                            <input type="text" class="form-control @error('business_name') is-invalid @enderror" 
-                                id="business_name" name="business_name" value="{{ old('business_name') }}">
-                            @error('business_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="business_address" class="form-label">Business Address</label>
-                            <input type="text" class="form-control @error('business_address') is-invalid @enderror" 
-                                id="business_address" name="business_address" value="{{ old('business_address') }}">
-                            @error('business_address')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="provider_type" class="form-label">Provider Type</label>
-                            <select class="form-select @error('provider_type') is-invalid @enderror" 
-                                id="provider_type" name="provider_type" required>
-                                <option value="">Select provider type</option>
-                                <option value="handyman" {{ old('provider_type') == 'handyman' ? 'selected' : '' }}>Handyman</option>
-                                <option value="bussiness_owner" {{ old('provider_type') == 'bussiness_owner' ? 'selected' : '' }}>Business Owner</option>
-                            </select>
-                            @error('provider_type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="bio" class="form-label">Bio</label>
-                            <textarea class="form-control @error('bio') is-invalid @enderror" 
-                                id="bio" name="bio" rows="4">{{ old('bio') }}</textarea>
-                            @error('bio')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary py-3">Complete Registration</button>
-                        </div>
-                    </form>
+
+                <!-- Location -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+                    <input type="text" id="location" name="location" 
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('location') border-red-500 @enderror" 
+                        value="{{ old('location') }}" required>
+                    @error('location')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
-            </div>
+
+                <!-- Business Name -->
+                <div>
+                    <label for="business_name" class="block text-sm font-medium text-gray-700">Business Name</label>
+                    <input type="text" id="business_name" name="business_name" 
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('business_name') border-red-500 @enderror" 
+                        value="{{ old('business_name') }}">
+                    @error('business_name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Business Address -->
+                <div>
+                    <label for="business_address" class="block text-sm font-medium text-gray-700">Business Address</label>
+                    <input type="text" id="business_address" name="business_address" 
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('business_address') border-red-500 @enderror" 
+                        value="{{ old('business_address') }}">
+                    @error('business_address')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Provider Type -->
+                <div>
+                    <label for="provider_type" class="block text-sm font-medium text-gray-700">Provider Type</label>
+                    <select id="provider_type" name="provider_type" 
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('provider_type') border-red-500 @enderror" 
+                        required>
+                        <option value="">Select provider type</option>
+                        <option value="handyman" {{ old('provider_type') == 'handyman' ? 'selected' : '' }}>Handyman</option>
+                        <option value="business_owner" {{ old('provider_type') == 'business_owner' ? 'selected' : '' }}>Business Owner</option>
+                    </select>
+                    @error('provider_type')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Bio -->
+                <div>
+                    <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+                    <textarea id="bio" name="bio" rows="4" 
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('bio') border-red-500 @enderror">{{ old('bio') }}</textarea>
+                    @error('bio')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                        Complete Registration
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
