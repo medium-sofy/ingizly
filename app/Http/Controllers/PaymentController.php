@@ -24,15 +24,28 @@ class PaymentController extends Controller
 
         $order = Order::findOrFail($data['order_id']);
 
-        // Insert a payment record with 'pending' status
-        $payment = Payment::create([
-            'order_id' => $order->id,
-            'payment_gateway' => 'Paymob', // Assuming Paymob
-            'amount' => $order->total_amount,
-            'currency' => $data['currency'],
-            'payment_status' => 'pending',
-            // You might not have a transaction ID yet
-        ]);
+        $payment = Payment::where('order_id', $order->id)
+            ->where('payment_status', 'pending')
+            ->first();
+
+        if ($payment) {
+            // If a pending payment exists, update its details if necessary
+            $payment->update([
+                'amount' => $order->total_amount, // Ensure amount is correct
+                'currency' => $data['currency'], // Ensure currency is correct
+            ]);
+        } else {
+            // If no pending payment exists, create a new one
+            $payment = Payment::create([
+                'order_id' => $order->id,
+                'payment_gateway' => 'Paymob',
+                'amount' => $order->total_amount,
+                'currency' => $data['currency'],
+                'payment_status' => 'pending',
+                // transaction_id will be added in the callback
+            ]);
+        }
+
         Cookie::queue('pending_payment_id', $payment->id, 60); // Cookie will expire in 60 minutes
 
         $response = $this->paymentGateway->sendPayment($data);

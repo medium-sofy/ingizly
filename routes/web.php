@@ -33,6 +33,11 @@ Route::middleware('auth')->group(function () {
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
     Route::post('/service-provider/store', [ServiceProviderController::class, 'store'])->name('service_provider.store');
+    Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
+
+
+    // Route::resource('services',\Provider\ServiceController::class);
+
 
     // Service Buyer routes
     Route::get('/service-buyer/form', [ServiceBuyerController::class, 'create'])->name('service_buyer.form');
@@ -85,7 +90,7 @@ Route::middleware('auth')->group(function () {
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
-Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');;
+Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
@@ -112,12 +117,16 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
 // Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
 // Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
 
+
+
+
 // Service Details Routes
-// Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
-//      ->name('service.details');
 
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+     ->name('service.details');
+
+     
 Route::middleware(['auth', 'role:service_buyer'])->group(function () {
-
 Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
      ->name('service.review.submit');
 
@@ -132,8 +141,7 @@ Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookS
 ->name('service.book');
 
 
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details');
+
      
 
      Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
@@ -148,13 +156,11 @@ Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
      ->name('order.payment');
 
+
 // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
-    Route::get('/notifications/fetch', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
     Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
-
-
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
 });
-

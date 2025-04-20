@@ -1,70 +1,80 @@
-// resources/views/notifications/index.blade.php
 @extends('layouts.service')
 
 @section('title', 'Notifications')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-            <h2 class="text-xl font-semibold">Your Notifications</h2>
-            <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800">
-                Mark all as read
-            </button>
+<div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 bg-white flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-gray-800">
+                <i class='bx bx-bell mr-2 text-purple-600'></i> Your Notifications
+            </h2>
+            <form method="POST" action="{{ route('notifications.mark-all-read') }}">
+    @csrf
+    <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-700">
+        Mark all as read
+    </button>
+</form>
         </div>
         
         <div class="divide-y divide-gray-200">
-            @forelse($notifications as $notification)
-                <a href="{{ $notification->notification_type === 'order_update' ? route('orders.show', $notification->id) : '#' }}"
-                   class="block px-6 py-4 hover:bg-gray-50 transition {{ !$notification->is_read ? 'bg-blue-50' : '' }}"
-                   onclick="markAsRead('{{ $notification->id }}')">
-                    <div class="flex justify-between">
-                        <h3 class="font-medium">{{ $notification->title }}</h3>
-                        <span class="text-xs text-gray-500">{{ $notification->created_at->diffForHumans() }}</span>
+            @forelse ($notifications as $notification)
+                @php
+                    $link = $notification->notification_type === 'order_update' && $notification->order?->service_id 
+                            ? route('service.details', $notification->order->service_id)
+                            : '#';
+                @endphp
+                <a href="{{ $link }}" class="block px-6 py-4 hover:bg-gray-50 transition {{ $notification->is_read ? 'bg-white' : 'bg-purple-50' }}">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                @switch($notification->notification_type)
+                                    @case('order_update')
+                                        <i class='bx bx-cart text-xl'></i>
+                                        @break
+                                    @case('payment')
+                                        <i class='bx bx-credit-card text-xl'></i>
+                                        @break
+                                    @case('message')
+                                        <i class='bx bx-message-detail text-xl'></i>
+                                        @break
+                                    @default
+                                        <i class='bx bx-bell text-xl'></i>
+                                @endswitch
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <p class="text-lg font-medium text-gray-900">
+                                    {{ $notification->title }}
+                                </p>
+                                @if(!$notification->is_read)
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        New
+                                    </span>
+                                @endif
+                            </div>
+                            <p class="text-gray-600 mt-1">{{ $notification->content }}</p>
+                            <p class="text-sm text-gray-400 mt-2">
+                                <i class='bx bx-time-five mr-1'></i> {{ $notification->created_at->diffForHumans() }}
+                            </p>
+                        </div>
                     </div>
-                    <p class="text-gray-600 mt-1">{{ $notification->content }}</p>
-                    <span class="inline-block mt-2 px-2 py-1 text-xs rounded-full 
-                              {{ $notification->notification_type === 'order_update' ? 'bg-blue-100 text-blue-800' : '' }}
-                              {{ $notification->notification_type === 'payment' ? 'bg-green-100 text-green-800' : '' }}
-                              {{ $notification->notification_type === 'review' ? 'bg-yellow-100 text-yellow-800' : '' }}">
-                        {{ str_replace('_', ' ', $notification->notification_type) }}
-                    </span>
                 </a>
             @empty
-                <div class="px-6 py-8 text-center text-gray-500">
-                    You don't have any notifications yet.
+                <div class="px-6 py-12 text-center">
+                    <i class='bx bx-bell-off text-4xl text-gray-400 mb-4'></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">No notifications yet</h3>
+                    <p class="text-gray-500">We'll notify you when something new arrives</p>
                 </div>
             @endforelse
         </div>
         
-        {{ $notifications->links() }}
+        @if($notifications->hasPages())
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                {{ $notifications->links() }}
+            </div>
+        @endif
     </div>
 </div>
-
-@push('scripts')
-<script>
-function markAsRead(notificationId) {
-    fetch(`/notifications/${notificationId}/mark-read`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json'
-        }
-    }).then(() => {
-        document.querySelector(`a[onclick="markAsRead('${notificationId}')"]`)
-            ?.classList.remove('bg-blue-50');
-    });
-}
-
-function markAllAsRead() {
-    fetch('/notifications/mark-all-read', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json'
-        }
-    }).then(() => window.location.reload());
-}
-</script>
-@endpush
 @endsection

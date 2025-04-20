@@ -28,7 +28,7 @@ class ServiceBookingController extends Controller
                 return back()->with('error', 'You need to complete your buyer profile first.');
             }
 
-            // Create order using the service buyer's user_id
+            // Create order
             $order = Order::create([
                 'service_id' => $service->id,
                 'buyer_id' => $user->serviceBuyer->user_id,
@@ -43,7 +43,7 @@ class ServiceBookingController extends Controller
             Notification::create([
                 'user_id' => $service->provider->user_id,
                 'title' => 'New Booking Request',
-                'content' => 'New booking #'.$order->id.' for '.$service->title,
+                'content' => 'New booking for '.$service->title,
                 'is_read' => false,
                 'notification_type' => 'order_update'
             ]);
@@ -62,17 +62,26 @@ class ServiceBookingController extends Controller
 
     public function acceptOrder(Order $order)
     {
-        // Update the order status
+        // Allow manual updates or provider acceptance
+        $isManualUpdate = request()->has('manual_update') && request('manual_update') === 'true';
+        $isProvider = $order->service->provider->user_id == Auth::id();
+        
+        if (!$isManualUpdate && !$isProvider) {
+            return back()->with('error', 'Unauthorized action');
+        }
+    
         $order->update(['status' => 'accepted']);
     
-        // Create notification for buyer
-        Notification::create([
-            'user_id' => $order->buyer_id,
-            'title' => 'Booking Accepted',
-            'content' => "Your booking #{$order->id} was accepted",
-            'notification_type' => 'order_update',
-            'is_read' => false
-        ]);
+        // Only notify buyer if the provider accepted (not for manual updates by buyer)
+        if ($isProvider) {
+            Notification::create([
+                'user_id' => $order->buyer_id,
+                'title' => 'Booking Accepted',
+                'content' => "Your booking for '{$order->service->title}' was accepted",
+                'notification_type' => 'order_update',
+                'is_read' => false
+            ]);
+        }
     
         return back()->with('success', 'Order accepted!');
     }
@@ -89,7 +98,7 @@ class ServiceBookingController extends Controller
         Notification::create([
             'user_id' => $order->buyer_id,
             'title' => 'Service Started',
-            'content' => "Provider has started working on your order #{$order->id}",
+            'content' => "Provider has started working on your order {$order->service->title}",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -110,7 +119,7 @@ class ServiceBookingController extends Controller
         Notification::create([
             'user_id' => $order->buyer_id,
             'title' => 'Service Completed',
-            'content' => "Your order #{$order->id} has been completed",
+            'content' => "Your order {$order->service->title} has been completed",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -135,7 +144,7 @@ class ServiceBookingController extends Controller
         Notification::create([
             'user_id' => $notificationTo,
             'title' => 'Order Cancelled',
-            'content' => "Order #{$order->id} has been cancelled",
+            'content' => "Order {$order->service->title} has been cancelled",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
