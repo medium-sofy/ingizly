@@ -2,7 +2,7 @@
 @php use Illuminate\Support\Str; @endphp
 
 @if (!Str::contains(request()->path(), 'admin'))
-    
+
     <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
@@ -44,10 +44,10 @@
          </div>
     </body>
 </html>
-    
+
     @else
-    
-    
+
+
     <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -85,6 +85,10 @@
             <a href="{{ route('admin.services.index') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('admin.services.*') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
                 <i class="fas fa-cogs mr-3"></i>
                 <span>Services</span>
+            </a>
+            <a href="{{ route('admin.payments') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('admin.payments.*') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
+                <i class="fas fa-money-bill mr-3"></i>
+                <span>Payments</span>
             </a>
             <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
                 <i class="fas fa-folder mr-3"></i>
@@ -181,6 +185,6 @@
 </script>
 @stack('scripts')
 </body>
-</html>   
-    
+</html>
+
 @endif
