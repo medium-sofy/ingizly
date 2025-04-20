@@ -35,6 +35,11 @@ Route::middleware('auth')->group(function () {
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
     Route::post('/service-provider/store', [ServiceProviderController::class, 'store'])->name('service_provider.store');
+    Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
+
+
+    Route::resource('services',\Provider\ServiceController::class);
+
 
     // Service Buyer routes
     Route::get('/service-buyer/form', [ServiceBuyerController::class, 'create'])->name('service_buyer.form');
@@ -43,7 +48,7 @@ Route::middleware('auth')->group(function () {
 
 //Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {});
     // admin routes
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users/create', [UserController::class, 'store'])->name('admin.users.store');
@@ -87,7 +92,7 @@ Route::resource('services', ServiceProviderCatalogController::class);
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
-Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');;
+Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
@@ -142,3 +147,4 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 
 Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
 ->name('notifications.mark-read');
+
