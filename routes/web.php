@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/services/show/{service}', [AdminServiceController::class, 'show'])->name('admin.services.show');
     Route::post('/admin/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
     Route::post('/admin/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+Route::get('/admin/payments/', [PaymentController::class, 'index'])->name('admin.payments');
     //// Show single service details
     //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 
