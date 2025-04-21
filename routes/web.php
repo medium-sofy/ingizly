@@ -24,6 +24,7 @@ use App\Http\Controllers\admin\CategoryController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentExportController;
+use App\Http\Controllers\admin\CustomReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -168,8 +169,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/{violation}', [ReportController::class, 'show'])->name('reports.show');
     Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
-});
 
+    // Custom Reports Routes
+
+});
+Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
+Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
 // Payment Export Routes
 Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
 Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');

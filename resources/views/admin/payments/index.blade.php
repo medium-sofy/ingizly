@@ -10,6 +10,9 @@
                 Add New Payment
             </a> --}}
             <div class="flex space-x-4">
+                <a href="{{ route('reports.custom.index') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
+                    <i class="fas fa-chart-bar mr-2"></i>Custom Reports
+                </a>
                 <a href="{{ route('admin.payments.export.pdf') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
                     Export PDF
                 </a>
