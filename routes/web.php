@@ -20,6 +20,10 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\ReviewController;
+use App\Http\Controllers\admin\ReportController;
+use App\Http\Controllers\admin\PaymentExportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -148,4 +152,25 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 
 Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
 ->name('notifications.mark-read');
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Categories
+    Route::resource('categories', CategoryController::class);
+
+    // Reviews
+    Route::resource('reviews', ReviewController::class)->only(['index', 'show', 'update', 'destroy']);
+
+    // Reports
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+    // Violations (Reports) Routes
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{violation}', [ReportController::class, 'show'])->name('reports.show');
+    Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
+});
+
+// Payment Export Routes
+Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
+Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');
 

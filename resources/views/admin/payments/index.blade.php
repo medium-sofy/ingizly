@@ -9,6 +9,14 @@
             {{-- <a href="{{ route('admin.payments.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded whitespace-nowrap">
                 Add New Payment
             </a> --}}
+            <div class="flex space-x-4">
+                <a href="{{ route('admin.payments.export.pdf') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                    Export PDF
+                </a>
+                <a href="{{ route('admin.payments.export.csv') }}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                    Export CSV
+                </a>
+            </div>
         </div>
 
         {{-- Filter Section --}}

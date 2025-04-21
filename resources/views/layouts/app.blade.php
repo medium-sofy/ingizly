@@ -90,17 +90,17 @@
                 <i class="fas fa-money-bill mr-3"></i>
                 <span>Payments</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
+            <a href="{{ route('admin.categories.index') }}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
                 <i class="fas fa-folder mr-3"></i>
                 <span>Categories</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
+            <a href="{{ route('admin.reviews.index') }}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
                 <i class="fas fa-star mr-3"></i>
                 <span>Reviews</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
+            <a href="{{ route('admin.reports.index') }}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
                 <i class="fas fa-file-alt mr-3"></i>
-                <span>Reports</span>
+                <span>Violations Reports</span>
             </a>
             {{-- Consider adding Logout link here --}}
         </nav>
