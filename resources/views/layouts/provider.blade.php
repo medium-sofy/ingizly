@@ -63,8 +63,15 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
-                        <i class="fas fa-cog mr-3"></i> Settings
+                    <!-- Your Wallet Link -->
+                    <a  class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
+                        <i class="fas fa-wallet mr-3"></i> Your Wallet
+                    </a>
+                </li>
+                <li>
+                    <!-- Profile Link -->
+                    <a href="{{ route('service_provider.profile.edit') }}"  class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
+                        <i class="fas fa-user mr-3"></i> Profile
                     </a>
                 </li>
             </ul>

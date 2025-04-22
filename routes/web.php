@@ -51,6 +51,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/service-buyer/store', [ServiceBuyerController::class, 'store'])->name('service_buyer.store');
 });
 
+Route::middleware(['auth', 'role:service_provider'])->group(function () {
+    Route::get('/service-provider/profile', [ServiceProviderController::class, 'edit'])->name('service_provider.profile.edit');
+    Route::put('/service-provider/profile', [ServiceProviderController::class, 'update'])->name('service_provider.profile.update');
+    Route::put('/service-provider/profile/password', [ServiceProviderController::class, 'updatePassword'])->name('service_provider.profile.update_password');
+    Route::delete('/service-provider/profile', [ServiceProviderController::class, 'deleteAccount'])->name('service_provider.profile.delete');
+
+});
+
 //Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {});
     // admin routes
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');

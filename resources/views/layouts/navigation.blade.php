@@ -5,17 +5,17 @@
             <div class="flex">
                 <!-- Modern App Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-blue-600 tracking-wide hover:text-blue-700 transition duration-300">
+                    <a  class="text-2xl font-bold text-blue-600 tracking-wide hover:text-blue-700 transition duration-300">
                         Ingezly
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <!-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                </div>
+                </div> -->
             </div>
 
             <!-- Settings Dropdown -->

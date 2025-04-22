@@ -10,6 +10,15 @@
 </style>
 <script src="//unpkg.com/alpinejs" defer></script>
 <div class="p-4 sm:p-6 bg-gray-100">
+    <!-- Welcome Message -->
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
+            Welcome, {{ Auth::user()->name }}!
+        </h1>
+        <p class="text-gray-600 text-sm sm:text-base">Here's an overview of your dashboard.</p>
+    </div>
+
+    <!-- Dashboard Header -->
     <h2 class="text-2xl sm:text-3xl font-bold mb-6 flex items-center">
         <i class="fas fa-tachometer-alt text-blue-500 mr-3"></i> Dashboard
     </h2>
