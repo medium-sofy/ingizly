@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <div class="py-4">
@@ -55,8 +55,8 @@
                             <td class="py-4">
                                 <div class="flex items-center">
                                     @if($category->icon)
-                                        <img src="{{ Storage::url($category->icon) }}" 
-                                             alt="{{ $category->name }}" 
+                                        <img src="{{ Storage::url($category->icon) }}"
+                                             alt="{{ $category->name }}"
                                              class="w-8 h-8 rounded-full mr-3">
                                     @endif
                                     <div>
@@ -87,11 +87,11 @@
                             </td>
                             <td class="py-4">
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('admin.categories.show', $category->id) }}" 
+                                    <a href="{{ route('admin.categories.show', $category->id) }}"
                                        class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded">
                                         View
                                     </a>
-                                    <a href="{{ route('admin.categories.edit', $category->id) }}" 
+                                    <a href="{{ route('admin.categories.edit', $category->id) }}"
                                        class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded">
                                         Edit
                                     </a>

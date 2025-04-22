@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <div class="py-4">
@@ -24,19 +24,19 @@
                             <label class="block text-sm font-medium text-gray-700">Name</label>
                             <p class="mt-1 text-sm text-gray-900">{{ $category->name }}</p>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Parent Category</label>
                             <p class="mt-1 text-sm text-gray-900">
                                 {{ $category->parent ? $category->parent->name : 'None (Top Level Category)' }}
                             </p>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Description</label>
                             <p class="mt-1 text-sm text-gray-900">{{ $category->description }}</p>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Icon</label>
                             @if($category->icon)
@@ -83,4 +83,4 @@
             </div>
         </div>
     </div>
-@endsection 
+@endsection

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <h1 class="text-3xl font-semibold mb-8">Dashboard Overview</h1>

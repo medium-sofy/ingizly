@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <div class="py-4">
@@ -28,7 +28,7 @@
 
                     <!-- Date Range -->
                     <div class="flex items-center">
-                        <input type="date" name="start_date" 
+                        <input type="date" name="start_date"
                                value="{{ request('start_date') }}"
                                class="border border-gray-300 rounded p-2">
                         <span class="px-2">to</span>
@@ -91,14 +91,14 @@
                             </td>
                             <td class="py-4">
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('admin.reports.show', $violation->id) }}" 
+                                    <a href="{{ route('admin.reports.show', $violation->id) }}"
                                        class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded">
                                         View
                                     </a>
                                     <form action="{{ route('admin.reports.update', $violation->id) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PUT')
-                                        <select name="status" onchange="this.form.submit()" 
+                                        <select name="status" onchange="this.form.submit()"
                                                 class="border border-gray-300 rounded p-1 text-sm">
                                             <option value="pending" {{ $violation->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                             <option value="investigating" {{ $violation->status == 'investigating' ? 'selected' : '' }}>Investigating</option>
