@@ -1,50 +1,5 @@
 <!DOCTYPE html>
-@php use Illuminate\Support\Str; @endphp
 
-@if (!Str::contains(request()->path(), 'admin'))
-
-    <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-
-                @hasSection('content')
-                    @yield('content')
-                @else
-                    {{ $slot ?? '' }}
-                @endif
-
-            </main>
-         </div>
-    </body>
-</html>
-    @else
     <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -71,7 +26,7 @@
         </div>
         <nav class="mt-6 flex-1">
             {{-- Added check for active route for better UX --}}
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
+            <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
                 <i class="fas fa-chart-bar mr-3"></i>
                 <span>Dashboard</span>
             </a>
@@ -83,19 +38,29 @@
                 <i class="fas fa-cogs mr-3"></i>
                 <span>Services</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
+            <a href="{{ route('admin.payments') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('admin.payments.*') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
+                <i class="fas fa-money-bill mr-3"></i>
+                <span>Payments</span>
+            </a>
+            <a href="{{ route('admin.categories.index') }}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
                 <i class="fas fa-folder mr-3"></i>
                 <span>Categories</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
+            <a href="{{ route('admin.reviews.index') }}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
                 <i class="fas fa-star mr-3"></i>
                 <span>Reviews</span>
             </a>
-            <a href="#" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
+            <a href="{{ route('admin.reports.index') }}" class="flex items-center px-6 py-3 text-white hover:bg-indigo-800"> {{-- Add active check later --}}
                 <i class="fas fa-file-alt mr-3"></i>
                 <span>Reports</span>
             </a>
-            {{-- Consider adding Logout link here --}}
+            <form method="POST" action="{{ route('logout') }}" class="mt-auto">
+                @csrf
+                <button type="submit" class="flex items-center w-full px-6 py-3 text-white hover:bg-indigo-800">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    <span>Logout</span>
+                </button>
+            </form>
         </nav>
     </aside>
 
@@ -179,5 +144,3 @@
 @stack('scripts')
 </body>
 </html>
-
-@endif

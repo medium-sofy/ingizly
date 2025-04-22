@@ -20,6 +20,11 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\ReviewController;
+use App\Http\Controllers\admin\ReportController;
+use App\Http\Controllers\admin\PaymentExportController;
+use App\Http\Controllers\admin\CustomReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -73,6 +78,7 @@ Route::middleware(['auth', 'role:service_provider'])->group(function () {
     Route::get('/admin/services/show/{service}', [AdminServiceController::class, 'show'])->name('admin.services.show');
     Route::post('/admin/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
     Route::post('/admin/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+Route::get('/admin/payments/', [PaymentController::class, 'index'])->name('admin.payments');
     //// Show single service details
     //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 
@@ -122,14 +128,20 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
     Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
     Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
 });
-//
-//Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
-//Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+
+// Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
+// Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+
+
+
 
 // Service Details Routes
-// Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
-//      ->name('service.details');
 
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+     ->name('service.details');
+
+
+Route::middleware(['auth', 'role:service_buyer'])->group(function () {
 Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
      ->name('service.review.submit');
 
@@ -139,20 +151,61 @@ Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'sh
 Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
      ->name('service.report.submit');
 
-     // Booking routes (temporary - remove buyer_id when auth is implemented)
+     // Booking routes
 Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
 ->name('service.book');
 
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      ->name('service.details');
 
-Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
-->name('orders.confirm');
+     Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
+     ->name('orders.accept');
+
+ Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
+     ->name('orders.confirm');
+
+     Route::post('/orders/{order}/cancel', [ServiceBookingController::class, 'cancelOrder'])
+    ->name('orders.cancel');
+
+     Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
+     ->name('order.payment');
+
 
 // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+    Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
+});
 Route::get('/notifications', [NotificationController::class, 'index'])
 ->name('notifications.index');
 
 Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
 ->name('notifications.mark-read');
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Categories
+    Route::resource('categories', CategoryController::class);
+
+    // Reviews
+    Route::resource('reviews', ReviewController::class)->only(['index', 'show', 'update', 'destroy']);
+
+    // Reports
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+    // Violations (Reports) Routes
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{violation}', [ReportController::class, 'show'])->name('reports.show');
+    Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
+
+    // Custom Reports Routes
+
+});
+Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
+Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
+// Payment Export Routes
+Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
+Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');
 

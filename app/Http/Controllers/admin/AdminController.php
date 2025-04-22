@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Service;
@@ -22,7 +23,9 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $activeServices = Service::where('status', 'active')->count();
         $newReviews = Review::whereMonth('created_at', Carbon::now()->month)->count();
-
+        $totalSpent = Payment::where('payment_status', 'successful')->sum('amount');
+        $spentLastMonth = Payment::whereMonth('created_at', Carbon::now()->subMonth()->month)->sum('amount');
+        $spentPercentageChange = $spentLastMonth > 0 ? round((($totalSpent - $spentLastMonth) / $spentLastMonth) * 100) : 0;
         // Calculate percentage changes from last month
         $usersLastMonth = User::whereMonth('created_at', Carbon::now()->subMonth()->month)->count();
         $userPercentageChange = $usersLastMonth > 0 ? round((($totalUsers - $usersLastMonth) / $usersLastMonth) * 100) : 0;
@@ -53,10 +56,11 @@ class AdminController extends Controller
             'servicePercentageChange',
             'reviewPercentageChange',
             'recentActivities',
-            'pendingServices'
+            'pendingServices',
+            'totalSpent',
+            'spentPercentageChange'
         ));
     }
-
     private function getRecentActivities()
     {
         // Combine recent users, services, reviews and reports

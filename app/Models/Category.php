@@ -33,4 +33,15 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_category_id');
     }
+
+    // Alias relationships for better compatibility
+    public function parent()
+    {
+        return $this->parentCategory();
+    }
+
+    public function children()
+    {
+        return $this->childCategories();
+    }
 }
