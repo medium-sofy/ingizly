@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Buyer;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Service;
+use App\Models\Notification;  
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -70,7 +71,14 @@ class OrderController extends Controller
             'location' => $request->location,
             'special_instructions' => $request->special_instructions,
         ]);
-
+        
+   Notification::create([
+        'user_id' => $service->provider->user_id,
+        'title' => 'New Booking Request',
+        'content' => 'New booking for '.$service->title,
+        'is_read' => false,
+        'notification_type' => 'order_update'
+    ]);
         // Redirect to checkout
         return redirect()->route('checkout.show', $order->id);
     }

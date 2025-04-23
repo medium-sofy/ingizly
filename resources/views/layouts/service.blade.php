@@ -90,9 +90,7 @@
                             <a href="{{ route('provider.dashboard') }}" class="nav-link text-white font-medium">
                                 <i class='bx bx-grid-alt mr-2'></i> Dashboard
                             </a>
-                            <a href="{{ route('services.create') }}" class="nav-link text-white font-medium">
-                                <i class='bx bx-plus-circle mr-2'></i> New Service
-                            </a>
+                     
                         @else
                             <a href="{{ route('buyer.dashboard') }}" class="nav-link text-white font-medium">
                                 <i class='bx bx-grid-alt mr-2'></i> Dashboard

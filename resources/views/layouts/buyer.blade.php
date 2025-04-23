@@ -57,6 +57,16 @@
                         <i class="fas fa-user mr-3"></i> Profile
                     </a>
                 </li>
+
+                <li>
+                    <!-- Notifications -->
+            
+    <x-notification-bell 
+        :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()"
+        hoverColor="hover:bg-green-700"
+    />
+</li>
+                
                 <li>
                     <a href="#" class="flex items-center px-4 py-3 rounded hover:bg-green-700">
                         <i class="fas fa-cog mr-3"></i> Settings
