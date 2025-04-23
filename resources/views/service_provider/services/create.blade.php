@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    <form action="{{ route('services.store') }}" method="POST" class="space-y-5" enctype="multipart/form-data">
+    <form action="{{ route('provider.services.store') }}" method="POST" class="space-y-5" enctype="multipart/form-data">
         @csrf
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -88,7 +88,7 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4">
-            <a href="{{ route('services.index') }}"
+            <a href="{{ route('provider.services.index') }}"
                class="text-sm text-gray-600 hover:text-gray-900 transition">Cancel</a>
             <button type="submit"
                     class="bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow">

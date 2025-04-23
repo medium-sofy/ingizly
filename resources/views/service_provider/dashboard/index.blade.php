@@ -61,7 +61,7 @@
             <h3 class="text-lg sm:text-xl font-bold flex items-center">
                 <i class="fas fa-list text-blue-500 mr-2"></i> Services
             </h3>
-            <a href="{{ route('services.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm sm:text-base transition">
+            <a href="{{ route('provider.services.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm sm:text-base transition">
                 <i class="fas fa-plus mr-2"></i> Add New Service
             </a>
         </div>
@@ -96,7 +96,7 @@
                     <td class="p-3 border-b">{{ $service->orders->count() }}</td>
                     <td class="p-3 border-b">
                         <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-                            <a href="{{ route('services.edit', $service->id) }}"
+                            <a href="{{ route('provider.services.edit', $service->id) }}"
                                class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 text-xs sm:text-sm font-medium transition">
                                 <i class="fas fa-edit mr-1"></i> Edit
                             </a>
@@ -120,7 +120,7 @@
                                                     class="px-4 py-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded transition">
                                                 Cancel
                                             </button>
-                                            <form method="POST" action="{{ route('services.destroy', $service->id) }}">
+                                            <form method="POST" action="{{ route('provider.services.destroy', $service->id) }}">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"

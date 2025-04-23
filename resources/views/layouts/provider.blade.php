@@ -48,7 +48,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('services.index') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
+                    <a href="{{ route('provider.services.index') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-briefcase mr-3"></i> Services
                     </a>
                 </li>

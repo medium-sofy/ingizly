@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <form action="{{ route('services.update', $service->id) }}" method="POST" class="space-y-6" enctype="multipart/form-data">
+    <form action="{{ route('provider.services.update', $service->id) }}" method="POST" class="space-y-6" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -110,7 +110,7 @@
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
                 Update Service
             </button>
-            <a href="{{ route('services.index') }}"
+            <a href="{{ route('provider.services.index') }}"
                 class="text-gray-500 hover:text-blue-600 underline text-sm transition duration-200">Cancel</a>
         </div>
     </form>

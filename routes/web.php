@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
 
 
-    Route::resource('services',\Provider\ServiceController::class);
+    //Route::resource('services',\Provider\ServiceController::class);
 
 
     // Service Buyer routes
@@ -101,7 +101,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('services', ServiceProviderCatalogController::class);
+//Route::resource('services', ServiceProviderCatalogController::class);
+
+
+// Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->name('provider.')->group(function () {
+//     Route::resource('services', ServiceProviderCatalogController::class);
+// });
+Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->name('provider.')->group(function () {
+    Route::resource('services', ServiceProviderCatalogController::class)->names('services');
+});
+
 
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');

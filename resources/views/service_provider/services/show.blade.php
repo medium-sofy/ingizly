@@ -53,11 +53,11 @@
 
     {{-- Action Buttons --}}
     <div class="flex justify-between items-center">
-        <a href="{{ route('services.edit', $service) }}"
+        <a href="{{ route('provider.services.edit', $service) }}"
            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition duration-200">
             Edit Service
         </a>
-        <a href="{{ route('services.index') }}"
+        <a href="{{ route('provider.services.index') }}"
            class="text-gray-500 hover:text-blue-600 text-sm underline">
             ← Back to Services
         </a>
