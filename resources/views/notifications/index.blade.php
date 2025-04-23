@@ -1,4 +1,13 @@
-@extends('layouts.service')
+@php
+    $layout = match(auth()->user()->role) {
+        'service_buyer' => 'layouts.buyer',
+        'service_provider' => 'layouts.provider',
+        'admin' => 'layouts.sidbar',
+        default => 'layouts.app'
+    };
+@endphp
+
+@extends($layout)
 
 @section('title', 'Notifications')
 

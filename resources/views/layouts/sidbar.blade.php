@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ingizly | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -54,6 +56,25 @@
                 <i class="fas fa-file-alt mr-3"></i>
                 <span>Reports</span>
             </a>
+                                <!-- Notifications -->
+
+            @php
+    $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
+@endphp
+
+<a href="{{ route('notifications.index') }}" 
+   class="flex items-center px-6 py-3 text-white {{ request()->routeIs('notifications.index*') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }} relative">
+    <div class="relative inline-block">
+        <i class="fas fa-bell mr-3"></i>
+        @if ($unreadCount > 0)
+            <span class="absolute -top-1 -right -5 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" style="transform: translateX(40%);">
+                {{ $unreadCount }}
+            </span>
+        @endif
+    </div>
+    <span>Notifications</span>
+</a>
+
             <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                 @csrf
                 <button type="submit" class="flex items-center w-full px-6 py-3 text-white hover:bg-indigo-800">

@@ -179,6 +179,7 @@ Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
      ->name('order.payment');
 
+    });
 
 // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -186,12 +187,9 @@ Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
     Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
     Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
-});
-Route::get('/notifications', [NotificationController::class, 'index'])
-->name('notifications.index');
 
-Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
-->name('notifications.mark-read');
+
+
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Categories
