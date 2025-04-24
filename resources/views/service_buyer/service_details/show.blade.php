@@ -397,14 +397,13 @@
                     </div>
                     @endif
                     @auth
-                        <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl flex items-center justify-center contact-provider-btn shadow transition"
-                                onclick="openModal('contactProviderModal')" data-phone="{{ $service->provider->phone_number }}">
+                        <button onclick="openModal('contactProviderModal')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl flex items-center justify-center shadow transition">
                             <i class="fas fa-phone-alt mr-2"></i> Contact Provider
                         </button>
                     @else
-                        <a href="{{ route('login') }}" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl flex items-center justify-center shadow transition">
-                            <i class="fas fa-sign-in-alt mr-2"></i> Login to Contact
-                        </a>
+                        <button onclick="openModal('loginModal')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl flex items-center justify-center shadow transition">
+                            <i class="fas fa-phone-alt mr-2"></i> Contact Provider
+                        </button>
                     @endauth
                 </div>
             </div>
@@ -550,6 +549,32 @@
             </div>
         @endif
     @endauth
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header flex items-center justify-between p-4 border-b">
+                    <h5 class="text-xl font-medium text-gray-900">Login Required</h5>
+                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeModal('loginModal')">
+                        <span class="sr-only">Close</span>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-4 text-gray-700">You need to be logged in to perform this action.</p>
+                    <div class="flex gap-4 mt-4">
+                        <a href="{{ route('login') }}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl text-center shadow transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Login
+                        </a>
+                        <a href="{{ route('register') }}" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-xl text-center shadow transition">
+                            <i class="fas fa-user-plus mr-2"></i> Register
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 

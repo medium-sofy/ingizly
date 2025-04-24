@@ -25,12 +25,14 @@ use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentExportController;
 use App\Http\Controllers\admin\CustomReportController;
-
+use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\PublicCategoryController;
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/register',[RegisteredUserController::class]);
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
+Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
 Route::post('/register',[RegisteredUserController::class]);
 
 Route::middleware('auth')->group(function () {
@@ -146,8 +148,7 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
 
 // Service Details Routes
 
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details');
+
 
 
 Route::middleware(['auth', 'role:service_buyer'])->group(function () {
@@ -216,3 +217,5 @@ Route::post('reports/custom/generate', [CustomReportController::class, 'generate
 Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
 Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');
 
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+     ->name('service.details');
