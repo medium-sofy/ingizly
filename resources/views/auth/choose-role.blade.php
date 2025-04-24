@@ -1,4 +1,6 @@
-@extends('layouts.app') {{-- Assuming layouts.app includes Tailwind CSS --}}
+@extends('layouts.minimal')
+
+@section('title', 'Choose Your Role')
 
 @section('content')
 <div class="flex items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-8">
