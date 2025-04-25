@@ -6,7 +6,7 @@
     <meta name="description" content="Find trusted local service providers on Ingilzy. Browse, book, and review all in one place.">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    <title>Ingilzy - Find Trusted Services</title>
+    <title>Ingizly - Find Trusted Services</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://unpkg.com/alpinejs" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
@@ -391,8 +391,61 @@
 
 
 
-  </div>
-</div>
+    <!-- Contact Section -->
+<section id="contact" class="py-16 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <!-- Title -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-extrabold text-blue-600 dark:text-blue-400 animate-fadeIn">Get in Touch</h2>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 animate-fadeIn delay-100">
+                Have questions or need assistance? Reach out to us, and we’ll get back to you promptly.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <!-- Contact Form -->
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg animate-fadeIn delay-200">
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Send Us a Message</h3>
+                <form class="space-y-6">
+                    <!-- Name -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your Name"
+                               class="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com"
+                               class="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Message -->
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                        <textarea id="message" name="message" rows="4" placeholder="How can we help you?"
+                                  class="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit"
+                                class="w-full px-6 py-3 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Image -->
+            <div class="animate-fadeIn delay-300">
+                <img src="{{ asset('images/Contact_us-amico-removebg-preview.png') }}" alt="Contact Us Illustration" class="w-full rounded-xl ">
+            </div>
+        </div>
+    </div>
+</section>
+
 
 
     <!-- Theme Switcher Logic -->
