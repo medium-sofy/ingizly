@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Violation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,13 +59,28 @@ class ReportController extends Controller
         $request->validate([
             'status' => 'required|in:pending,investigating,resolved,dismissed'
         ]);
+        $oldStatus = $violation->status;
 
         $violation->update([
             'status' => $request->status,
             'admin_notes' => $request->admin_notes
         ]);
 
-        return redirect()->route('admin.reports.index')
-            ->with('success', 'Violation status updated successfully.');
+      // Notify buyer about status change
+      if ($oldStatus != $request->status) {
+        $serviceTitle = $violation->service->title;
+        
+        Notification::create([
+            'user_id' => $violation->user_id,
+            'title' => 'Violation Report Update #' . $violation->id,
+            'content' => "Your violation report #{$violation->id} for '{$serviceTitle}' has been {$request->status}",
+            'notification_type' => 'system',
+            'is_read' => false
+        ]);
     }
-} 
+
+    return redirect()->route('admin.reports.index')
+        ->with('success', 'Violation status updated successfully.');
+}
+
+}
