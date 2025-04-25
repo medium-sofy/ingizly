@@ -446,6 +446,45 @@
     </div>
 </section>
 
+<!-- FAQ Section -->
+<section id="faq" class="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h2 class="text-4xl lg:text-5xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight">
+                Frequently Asked Questions
+            </h2>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                Everything you need to know about using Ingizly — from bookings to becoming a provider.
+            </p>
+        </div>
+
+        <!-- Accordion -->
+        <div class="space-y-6" x-data="{ selected: null }">
+            @foreach([
+                ['question' => 'How does Ingizly work?', 'answer' => 'Ingizly connects customers with trusted service providers. Simply browse services, book an appointment, and leave a review after your experience.'],
+                ['question' => 'Is it free to use Ingizly?', 'answer' => 'Yes, it’s free to browse and book services on Ingizly. Service providers may charge for their services.'],
+                ['question' => 'How do I become a service provider?', 'answer' => 'To become a service provider, sign up, complete your profile, and start offering services to customers.'],
+                ['question' => 'What payment methods are supported?', 'answer' => 'We support secure payments via credit cards, digital wallets, and bank transfers.']
+            ] as $index => $faq)
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow transition-shadow duration-300 hover:shadow-md">
+                    <button 
+                        @click="selected === {{ $index }} ? selected = null : selected = {{ $index }}"
+                        class="w-full flex justify-between items-center p-5 text-left"
+                    >
+                        <span class="text-lg font-semibold text-blue-700 dark:text-blue-300">{{ $faq['question'] }}</span>
+                        <svg :class="selected === {{ $index }} ? 'rotate-180' : ''" class="w-5 h-5 text-blue-600 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="selected === {{ $index }}" x-collapse class="px-5 pb-5 text-gray-600 dark:text-gray-300 text-base leading-relaxed">
+                        {{ $faq['answer'] }}
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
 
 
     <!-- Theme Switcher Logic -->
