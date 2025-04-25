@@ -343,7 +343,56 @@
     </div>
 </section>
 
+<!-- Payment Section -->
+<section class="bg-gradient-to-br from-gray-100 to-white dark:from-gray-800 dark:to-gray-900 py-16 px-4 sm:px-6 lg:px-8">
 
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="mb-10">
+        <h2 class="text-4xl font-bold mb-4 text-blue-600 dark:text-blue-400">Flexible & Secure Payments</h2>
+
+            <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                We support trusted payment gateways so your transactions stay safe and smooth. Whether you're booking a service or getting paid, we’ve got you covered.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-10">
+            <div class="flex flex-col items-center text-center max-w-xs">
+                <div class="text-blue-600 dark:text-blue-400 text-5xl mb-4">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Secure Transactions</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    We use industry-standard encryption to keep your payments safe.
+                </p>
+            </div>
+
+            <div class="flex flex-col items-center text-center max-w-xs">
+                <div class="text-blue-600 dark:text-blue-400 text-5xl mb-4">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Multiple Methods</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Pay with cards, wallets, or bank transfers—whatever suits you best.
+                </p>
+            </div>
+
+            <div class="flex flex-col items-center text-center max-w-xs">
+                <div class="text-blue-600 dark:text-blue-400 text-5xl mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Fast & Reliable</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Confirmed instantly, with clear tracking and zero hidden fees.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+  </div>
+</div>
 
 
     <!-- Theme Switcher Logic -->
