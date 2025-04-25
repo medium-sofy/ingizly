@@ -30,7 +30,7 @@
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-6 text-base font-medium">
-            <a href="#services" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
+            <a href="{{ route('services.all') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
             <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
             <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
             @auth
@@ -110,6 +110,7 @@
     </nav>
 </header>
 
+<div class="h-8 bg-gray-50 dark:bg-gray-900"></div>
 
     <!-- Hero Section -->
     <section class="relative bg-cover bg-center py-20 sm:py-24 md:py-32 animate-fadeIn dark:text-gray-100"
@@ -486,6 +487,94 @@
     </div>
 </section>
 
+
+
+<!-- CTA Section -->
+<section class="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white dark:from-gray-800 dark:to-gray-900 relative overflow-hidden rounded-3xl mx-6 lg:mx-12">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+        <!-- Title -->
+        <h2 class="text-4xl font-extrabold mb-4 text-white dark:text-blue-300">Ready to Get Started?</h2>
+        <p class="text-lg mb-8 text-gray-200 dark:text-gray-400">
+            Join thousands of users who trust Ingizly to connect with reliable service providers or grow their business.
+        </p>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-6 relative z-10">
+            <a href="{{ route('register') }}"
+               class="px-8 py-4 text-lg font-semibold bg-white text-blue-600 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                Get Started
+            </a>
+            <a href="#contact"
+               class="px-8 py-4 text-lg font-semibold bg-transparent border border-white text-white rounded-full shadow-md hover:bg-white hover:text-blue-600 dark:hover:bg-gray-700 dark:hover:text-white transition">
+                Book a Call →
+            </a>
+        </div>
+    </div>
+
+    <!-- Decorative Arrow -->
+    <div class="absolute right-0 bottom-0 transform translate-x-1/4 translate-y-1/4">
+        <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 150C0 67.1573 67.1573 0 150 0C232.843 0 300 67.1573 300 150C300 232.843 232.843 300 150 300C67.1573 300 0 232.843 0 150Z" fill="rgba(255, 255, 255, 0.1)" />
+            <path d="M150 0C67.1573 0 0 67.1573 0 150" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" />
+        </svg>
+    </div>
+</section>
+
+<!-- Divider Line -->
+<div class="border-t border-gray-300 dark:border-gray-700 my-8"></div>
+
+<footer class="bg-gray-100 dark:bg-gray-900 py-10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- About Section -->
+            <div>
+                <!-- Logo -->
+                <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Ingizly connects customers with trusted service providers. Our mission is to make finding and booking services simple and reliable.
+                </p>
+            </div>
+
+            <!-- Navigation Links -->
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="#services" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a></li>
+                    <li><a href="#about" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a></li>
+                    <li><a href="#faq" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">FAQs</a></li>
+                    <li><a href="#contact" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Social Media Links -->
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition">
+                        <i class="fab fa-facebook-f text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-green-500 hover:text-green-600 transition">
+                        <i class="fab fa-whatsapp text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-pink-500 hover:text-pink-600 transition">
+                        <i class="fab fa-instagram text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-blue-400 hover:text-blue-500 transition">
+                        <i class="fab fa-twitter text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-300 dark:border-gray-700 mt-8"></div>
+
+        <!-- Copyright -->
+        <div class="mt-6 text-center text-gray-600 dark:text-gray-400 text-sm">
+            © {{ date('Y') }} Ingizly. All rights reserved.
+        </div>
+    </div>
+</footer>
 
     <!-- Theme Switcher Logic -->
     <script>
