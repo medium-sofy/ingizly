@@ -17,8 +17,8 @@
             @auth
                 <!-- User Profile (Hidden on Mobile) -->
                 <div class="hidden md:flex items-center gap-2">
-                    <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                         alt="Profile Picture" 
+                    <img src="{{ asset('storage/' . Auth::user()->profile_image) }}"
+                         alt="Profile Picture"
                          class="w-10 h-10 rounded-full object-cover">
                     <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
                 </div>
