@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Violation;
+use App\Models\Notification;
+
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,45 +53,56 @@ class ServicedetailsController extends Controller
         'hasReported' => $hasReported
     ]);
 }
-    public function submitReview(Request $request, $serviceId)
-    {
-        $validated = $request->validate([
-            'rating' => 'required|integer|between:1,5',
-            'comment' => 'required|string|max:500',
-        ]);
-    
-        // Find the first completed order for this service by current user
-        $order = Order::where('buyer_id', auth()->id())
-                    ->where('service_id', $serviceId)
-                    ->where('status', 'completed')
-                    ->first();
-    
-        if (!$order) {
-            return back()->with('error', 'You need to complete an order before reviewing');
-        }
-    
-        // Check for existing review
-        if (Review::where('order_id', $order->id)->exists()) {
-            return back()->with('error', 'You have already reviewed this service');
-        }
-    
-        // Create review
-        Review::create([
-            'service_id' => $serviceId,
-            'buyer_id' => auth()->id(),
-            'order_id' => $order->id,
-            'rating' => $validated['rating'],
-            'comment' => $validated['comment'],
-        ]);
-    
-        // Update service rating
-        $service = Service::find($serviceId);
-        $service->update([
-            'avg_rating' => $service->reviews()->avg('rating')
-        ]);
-    
-        return back()->with('success', 'Review submitted successfully!');
+public function submitReview(Request $request, $serviceId)
+{
+    $validated = $request->validate([
+        'rating' => 'required|integer|between:1,5',
+        'comment' => 'required|string|max:500',
+    ]);
+
+    // Find the first completed order for this service by current user
+    $order = Order::where('buyer_id', auth()->id())
+                ->where('service_id', $serviceId)
+                ->where('status', 'completed')
+                ->first();
+
+    if (!$order) {
+        return back()->with('error', 'You need to complete an order before reviewing');
     }
+
+    // Check for existing review
+    if (Review::where('order_id', $order->id)->exists()) {
+        return back()->with('error', 'You have already reviewed this service');
+    }
+
+    // Get the service first
+    $service = Service::findOrFail($serviceId);
+
+    // Create review
+    Review::create([
+        'service_id' => $serviceId,
+        'buyer_id' => auth()->id(),
+        'order_id' => $order->id,
+        'rating' => $validated['rating'],
+        'comment' => $validated['comment'],
+    ]);
+
+    // Create notification for the provider
+    Notification::create([
+        'user_id' => $service->provider_id, 
+        'title' => 'New Review Received',
+        'content' => "You received a new review for your service '{$service->title}'",
+        'notification_type' => 'review',
+        'is_read' => false
+    ]);
+
+    // Update service rating
+    $service->update([
+        'avg_rating' => $service->reviews()->avg('rating')
+    ]);
+
+    return back()->with('success', 'Review submitted successfully!');
+}
 
     public function showReportForm($serviceId)
     {
