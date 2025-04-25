@@ -47,7 +47,7 @@
     <header class="bg-white dark:bg-gray-800 shadow-sm animate-fadeIn">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex justify-between items-center">
             <!-- Logo -->
-            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
 
                 <span class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</span>
             </a>

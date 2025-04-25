@@ -58,7 +58,7 @@
             </a>
                                 <!-- Notifications -->
 
-            @php
+            <!-- @php
     $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
 @endphp
 
@@ -73,7 +73,7 @@
         @endif
     </div>
     <span>Notifications</span>
-</a>
+</a> -->
 
             <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                 @csrf
