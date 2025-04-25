@@ -298,13 +298,20 @@
                     console.error('Error marking all notifications as read:', error);
                 }
             },
-
             getNotificationLink(notif) {
-                if (notif.notification_type === 'order_update' && notif.service_id) {
-                    return `/services/${notif.service_id}`;
-                }
-                return '/notifications';
-            },
+    // If the notification has a link property from the API, use it
+    if (notif.link && notif.link !== '#') {
+        return notif.link;
+    }
+    
+    // Fallback logic (only used if API doesn't provide a link)
+    if (notif.notification_type === 'order_update' && notif.service_id) {
+        return `/services/${notif.service_id}`;
+    }
+    
+    // Default to notifications page if no specific link is found
+    return '/notifications';
+},
 
             getNotificationIcon(type) {
                 switch(type) {

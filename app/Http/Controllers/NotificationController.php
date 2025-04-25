@@ -32,6 +32,7 @@ class NotificationController extends Controller
             ->limit(10)
             ->get()
             ->map(function ($notification) {
+                // Get the appropriate link for this notification
                 $link = $this->getNotificationLink($notification);
                 
                 return [
@@ -44,35 +45,41 @@ class NotificationController extends Controller
                     'link' => $link
                 ];
             });
-
+    
         return response()->json([
             'notifications' => $notifications,
             'unread_count' => Auth::user()->notifications()->where('is_read', false)->count()
         ]);
     }
-
     protected function getNotificationLink($notification)
     {
         $user = Auth::user();
         
         // Extract IDs from notification content for routing
         $violationId = null;
-        if (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->title, $matches)) {
-            $violationId = $matches[1] ?? $matches[2] ?? null;
-        } elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->content, $matches)) {
-            $violationId = $matches[1] ?? $matches[2] ?? null;
+        $reviewId = null;
+        
+        // Extract violation/report ID from title or content
+        if (preg_match('/(?:violation|report).*?#(\d+)/i', $notification->title, $matches)) {
+            $violationId = $matches[1] ?? null;
+        } elseif (preg_match('/(?:violation|report).*?#(\d+)/i', $notification->content, $matches)) {
+            $violationId = $matches[1] ?? null;
         }
         
-        $reviewId = null;
+        // Extract review ID from content
         if (preg_match('/review.*?#(\d+)/i', $notification->content, $matches)) {
+            $reviewId = $matches[1] ?? null;
+        } elseif (preg_match('/review.*?#(\d+)/i', $notification->title, $matches)) {
             $reviewId = $matches[1] ?? null;
         }
         
+        // Extract order ID from content
         $orderId = null;
         if (preg_match('/order.*?#(\d+)/i', $notification->content, $matches)) {
             $orderId = $matches[1] ?? null;
         }
         
+        // Route based on notification type and user role
         switch ($notification->notification_type) {
             case 'order_update':
                 if ($user->role === 'service_buyer' || $user->role === 'service_provider') {
@@ -90,21 +97,25 @@ class NotificationController extends Controller
                 break;
                 
             case 'system':
+            case 'violation_update':  // Make sure to catch this type too
                 if ($user->role === 'admin' && $violationId) {
                     return route('admin.reports.show', $violationId);
                 } elseif ($user->role === 'service_buyer') {
-                    $violation = Violation::where('user_id', $user->id)
-                        ->orderBy('created_at', 'desc')
-                        ->first();
-                    return $violation ? route('service.details', $violation->service_id) : '#';
+                    if ($violationId) {
+                        $violation = Violation::find($violationId);
+                        return $violation ? route('service.details', $violation->service_id) : '#';
+                    } else {
+                        $violation = Violation::where('user_id', $user->id)
+                            ->orderBy('created_at', 'desc')
+                            ->first();
+                        return $violation ? route('service.details', $violation->service_id) : '#';
+                    }
                 }
                 break;
-                
-            default:
-                return '#';
         }
         
-        return '#';
+        // Default return for any other cases
+        return route('notifications.index');
     }
 
     protected function extractOrderId($content)
