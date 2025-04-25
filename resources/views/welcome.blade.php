@@ -26,7 +26,7 @@
 <header class="bg-white dark:bg-gray-800 shadow-md animate-fadeIn" x-data="{ menuOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
         <!-- Logo -->
-        <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingilzy</a>
+        <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-6 text-base font-medium">
@@ -120,10 +120,10 @@
                 Find Trusted Services in Seconds
             </h1>
             <p class="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-10">
-                Thousands of small businesses use <span class="text-blue-600 dark:text-blue-400 font-semibold">Ingilzy</span> to turn ideas into action.
+                Thousands of small businesses use <span class="text-blue-600 dark:text-blue-400 font-semibold">Ingizly</span> to turn ideas into action.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-                <a href="#services"
+                <a href="{{ route('services.all') }}"
                    class="px-6 py-3 sm:px-8 sm:py-4 text-lg font-semibold bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition">
                     Explore Services
                 </a>
@@ -303,7 +303,7 @@
         <!-- Text Content -->
         <div class="md:w-1/2 md:pl-12 text-gray-800 dark:text-gray-200">
             <h2 class="text-4xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-400">
-                About Ingilzy
+                About Ingizly
             </h2>
             <p class="mb-6 text-lg leading-relaxed">
                 Ingilzy helps you find trusted service providers near you—fast, reliable, and rated by real users. We aim to bridge the gap between customers and local professionals through a simple, modern, and trustworthy platform.
@@ -335,7 +335,7 @@
                 </li>
             </ul>
             <div class="mt-8">
-                <a href="#services" class="inline-block px-6 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition">
+                <a href="{{ route('services.all') }}" class="inline-block px-6 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition">
                     Explore Services
                 </a>
             </div>
@@ -343,7 +343,56 @@
     </div>
 </section>
 
+<!-- Payment Section -->
+<section class="bg-gradient-to-br from-gray-100 to-white dark:from-gray-800 dark:to-gray-900 py-16 px-4 sm:px-6 lg:px-8">
 
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="mb-10">
+        <h2 class="text-4xl font-bold mb-4 text-blue-600 dark:text-blue-400">Flexible & Secure Payments</h2>
+
+            <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                We support trusted payment gateways so your transactions stay safe and smooth. Whether you're booking a service or getting paid, we’ve got you covered.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-10">
+            <div class="flex flex-col items-center text-center max-w-xs">
+                <div class="text-blue-600 dark:text-blue-400 text-5xl mb-4">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Secure Transactions</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    We use industry-standard encryption to keep your payments safe.
+                </p>
+            </div>
+
+            <div class="flex flex-col items-center text-center max-w-xs">
+                <div class="text-blue-600 dark:text-blue-400 text-5xl mb-4">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Multiple Methods</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Pay with cards, wallets, or bank transfers—whatever suits you best.
+                </p>
+            </div>
+
+            <div class="flex flex-col items-center text-center max-w-xs">
+                <div class="text-blue-600 dark:text-blue-400 text-5xl mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Fast & Reliable</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Confirmed instantly, with clear tracking and zero hidden fees.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+  </div>
+</div>
 
 
     <!-- Theme Switcher Logic -->

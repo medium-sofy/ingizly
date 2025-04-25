@@ -33,6 +33,7 @@ Route::get('/', function () {
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
+Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
 Route::post('/register',[RegisteredUserController::class]);
 
 Route::middleware('auth')->group(function () {

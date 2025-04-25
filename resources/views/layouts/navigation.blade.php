@@ -3,7 +3,7 @@
 <header class="bg-white dark:bg-gray-800 shadow-sm animate-fadeIn" x-data="{ darkMode: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex justify-between items-center">
         <!-- Logo -->
-        <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingilzy</a>
+        <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-6 text-base font-medium">
