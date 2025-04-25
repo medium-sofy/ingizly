@@ -6,7 +6,7 @@
     <meta name="description" content="Find trusted local service providers on Ingilzy. Browse, book, and review all in one place.">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    <title>Ingilzy - Find Trusted Services</title>
+    <title>Ingizly - Find Trusted Services</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://unpkg.com/alpinejs" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
@@ -30,7 +30,7 @@
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-6 text-base font-medium">
-            <a href="#services" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
+            <a href="{{ route('services.all') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
             <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
             <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
             @auth
@@ -184,7 +184,6 @@
         </div>
     </section>
 
-    <!-- How It Works -->
    <!-- How It Works -->
 <section class="relative py-20 bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
   <div class="container mx-auto px-6 text-center">
@@ -319,7 +318,7 @@
                 </li>
                 <li class="flex items-start">
                     <span class="text-green-500 mr-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     </span>
@@ -391,9 +390,189 @@
 
 
 
-  </div>
-</div>
+    <!-- Contact Section -->
+<section id="contact" class="py-16 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <!-- Title -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-extrabold text-blue-600 dark:text-blue-400 animate-fadeIn">Get in Touch</h2>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 animate-fadeIn delay-100">
+                Have questions or need assistance? Reach out to us, and we’ll get back to you promptly.
+            </p>
+        </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <!-- Contact Form -->
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg animate-fadeIn delay-200">
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Send Us a Message</h3>
+                <form class="space-y-6">
+                    <!-- Name -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your Name"
+                               class="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com"
+                               class="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Message -->
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                        <textarea id="message" name="message" rows="4" placeholder="How can we help you?"
+                                  class="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit"
+                                class="w-full px-6 py-3 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Image -->
+            <div class="animate-fadeIn delay-300">
+                <img src="{{ asset('images/Contact_us-amico-removebg-preview.png') }}" alt="Contact Us Illustration" class="w-full rounded-xl ">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section id="faq" class="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h2 class="text-4xl lg:text-5xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight">
+                Frequently Asked Questions
+            </h2>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                Everything you need to know about using Ingizly — from bookings to becoming a provider.
+            </p>
+        </div>
+
+        <!-- Accordion -->
+        <div class="space-y-6" x-data="{ selected: null }">
+            @foreach([
+                ['question' => 'How does Ingizly work?', 'answer' => 'Ingizly connects customers with trusted service providers. Simply browse services, book an appointment, and leave a review after your experience.'],
+                ['question' => 'Is it free to use Ingizly?', 'answer' => 'Yes, it’s free to browse and book services on Ingizly. Service providers may charge for their services.'],
+                ['question' => 'How do I become a service provider?', 'answer' => 'To become a service provider, sign up, complete your profile, and start offering services to customers.'],
+                ['question' => 'What payment methods are supported?', 'answer' => 'We support secure payments via credit cards, digital wallets, and bank transfers.']
+            ] as $index => $faq)
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow transition-shadow duration-300 hover:shadow-md">
+                    <button 
+                        @click="selected === {{ $index }} ? selected = null : selected = {{ $index }}"
+                        class="w-full flex justify-between items-center p-5 text-left"
+                    >
+                        <span class="text-lg font-semibold text-blue-700 dark:text-blue-300">{{ $faq['question'] }}</span>
+                        <svg :class="selected === {{ $index }} ? 'rotate-180' : ''" class="w-5 h-5 text-blue-600 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="selected === {{ $index }}" x-collapse class="px-5 pb-5 text-gray-600 dark:text-gray-300 text-base leading-relaxed">
+                        {{ $faq['answer'] }}
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+
+
+<!-- CTA Section -->
+<section class="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white dark:from-gray-800 dark:to-gray-900 relative overflow-hidden rounded-3xl mx-6 lg:mx-12">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+        <!-- Title -->
+        <h2 class="text-4xl font-extrabold mb-4 text-white dark:text-blue-300">Ready to Get Started?</h2>
+        <p class="text-lg mb-8 text-gray-200 dark:text-gray-400">
+            Join thousands of users who trust Ingizly to connect with reliable service providers or grow their business.
+        </p>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-6 relative z-10">
+            <a href="{{ route('register') }}"
+               class="px-8 py-4 text-lg font-semibold bg-white text-blue-600 rounded-full shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                Get Started
+            </a>
+            <a href="#contact"
+               class="px-8 py-4 text-lg font-semibold bg-transparent border border-white text-white rounded-full shadow-md hover:bg-white hover:text-blue-600 dark:hover:bg-gray-700 dark:hover:text-white transition">
+                Book a Call →
+            </a>
+        </div>
+    </div>
+
+    <!-- Decorative Arrow -->
+    <div class="absolute right-0 bottom-0 transform translate-x-1/4 translate-y-1/4">
+        <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 150C0 67.1573 67.1573 0 150 0C232.843 0 300 67.1573 300 150C300 232.843 232.843 300 150 300C67.1573 300 0 232.843 0 150Z" fill="rgba(255, 255, 255, 0.1)" />
+            <path d="M150 0C67.1573 0 0 67.1573 0 150" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" />
+        </svg>
+    </div>
+</section>
+
+<!-- Divider Line -->
+<div class="border-t border-gray-300 dark:border-gray-700 my-8"></div>
+
+<footer class="bg-gray-100 dark:bg-gray-900 py-10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- About Section -->
+            <div>
+                <!-- Logo -->
+                <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Ingizly connects customers with trusted service providers. Our mission is to make finding and booking services simple and reliable.
+                </p>
+            </div>
+
+            <!-- Navigation Links -->
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="#services" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a></li>
+                    <li><a href="#about" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a></li>
+                    <li><a href="#faq" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">FAQs</a></li>
+                    <li><a href="#contact" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Social Media Links -->
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition">
+                        <i class="fab fa-facebook-f text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-green-500 hover:text-green-600 transition">
+                        <i class="fab fa-whatsapp text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-pink-500 hover:text-pink-600 transition">
+                        <i class="fab fa-instagram text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-blue-400 hover:text-blue-500 transition">
+                        <i class="fab fa-twitter text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-300 dark:border-gray-700 mt-8"></div>
+
+        <!-- Copyright -->
+        <div class="mt-6 text-center text-gray-600 dark:text-gray-400 text-sm">
+            © {{ date('Y') }} Ingizly. All rights reserved.
+        </div>
+    </div>
+</footer>
 
     <!-- Theme Switcher Logic -->
     <script>
