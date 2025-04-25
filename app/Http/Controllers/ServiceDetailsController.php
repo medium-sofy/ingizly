@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Violation;
@@ -60,7 +61,6 @@ public function submitReview(Request $request, $serviceId)
         'comment' => 'required|string|max:500',
     ]);
 
-    // Find the first completed order for this service by current user
     $order = Order::where('buyer_id', auth()->id())
                 ->where('service_id', $serviceId)
                 ->where('status', 'completed')
@@ -70,24 +70,21 @@ public function submitReview(Request $request, $serviceId)
         return back()->with('error', 'You need to complete an order before reviewing');
     }
 
-    // Check for existing review
     if (Review::where('order_id', $order->id)->exists()) {
         return back()->with('error', 'You have already reviewed this service');
     }
 
-    // Get the service first
     $service = Service::findOrFail($serviceId);
 
-    // Create review
-    Review::create([
+    $reviewId = Review::create([
         'service_id' => $serviceId,
         'buyer_id' => auth()->id(),
         'order_id' => $order->id,
         'rating' => $validated['rating'],
         'comment' => $validated['comment'],
-    ]);
+    ])->id;
 
-    // Create notification for the provider
+    // Notify provider
     Notification::create([
         'user_id' => $service->provider_id, 
         'title' => 'New Review Received',
@@ -96,7 +93,18 @@ public function submitReview(Request $request, $serviceId)
         'is_read' => false
     ]);
 
-    // Update service rating
+    // Notify admin (without related_id)
+    $admin = User::where('role', 'admin')->first();
+    if ($admin) {
+        Notification::create([
+            'user_id' => $admin->id,
+            'title' => 'New Review Submitted',
+            'content' => "A new review #{$reviewId} was submitted for service '{$service->title}' by user " . auth()->user()->name,
+            'notification_type' => 'review',
+            'is_read' => false
+        ]);
+    }
+
     $service->update([
         'avg_rating' => $service->reviews()->avg('rating')
     ]);
@@ -122,7 +130,6 @@ public function submitReview(Request $request, $serviceId)
 
     public function submitReport(Request $request, $serviceId)
     {
-        // Check if user has already reported this service
         $existingReport = Violation::where('user_id', Auth::id())
                                 ->where('service_id', $serviceId)
                                 ->first();
@@ -138,17 +145,29 @@ public function submitReview(Request $request, $serviceId)
             'agree_terms' => 'required|accepted'
         ]);
 
-        Violation::create([
+        $violation = Violation::create([
             'user_id' => Auth::id(),
             'service_id' => $serviceId,
             'reason_type' => $request->reason_type,
             'reason' => $request->reason,
             'status' => 'pending'
         ]);
+        $serviceTitle = Service::find($serviceId)->title;
+
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'title' => 'New Violation Reported',
+                'content' => "New violation report #{$violation->id} for service '{$serviceTitle}' by user " . Auth::user()->name,
+                'notification_type' => 'system',
+                'is_read' => false
+            ]);
+        }
 
         return redirect()->route('service.details', $serviceId)
                          ->with('success', 'Service reported successfully. Our team will review it shortly.');
     }
-
-
 }
+
+
