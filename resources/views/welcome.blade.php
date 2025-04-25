@@ -110,7 +110,6 @@
     </nav>
 </header>
 
-<div class="h-8 bg-gray-50 dark:bg-gray-900"></div>
 
     <!-- Hero Section -->
     <section class="relative bg-cover bg-center py-20 sm:py-24 md:py-32 animate-fadeIn dark:text-gray-100"
@@ -185,7 +184,6 @@
         </div>
     </section>
 
-    <!-- How It Works -->
    <!-- How It Works -->
 <section class="relative py-20 bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
   <div class="container mx-auto px-6 text-center">
@@ -320,7 +318,7 @@
                 </li>
                 <li class="flex items-start">
                     <span class="text-green-500 mr-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     </span>
