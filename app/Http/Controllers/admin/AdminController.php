@@ -104,11 +104,18 @@ class AdminController extends Controller
         $service->save();
 
         // Create notification for service provider
-        $this->createServiceNotification($service->provider_id, 'Service Approved',  "Your service '{$service->title}' has been approved by admin.");
-
+        DB::table('notifications')->insert([
+            'user_id' => $service->provider_id,
+            'title' => 'Service Approved',
+            'content' => 'Your service "'.$service->title.'" is now active',
+            'notification_type' => 'system',
+            'is_read' => false,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+    
         return redirect()->back()->with('success', 'Service has been approved');
     }
-
     /**
      * Reject a pending service.
      *
@@ -122,8 +129,16 @@ class AdminController extends Controller
         $service->save();
 
         // Create notification for service provider
-        $this->createServiceNotification($service->provider_id, 'Service Rejected', "Your service '{$service->title}' has been rejected by admin.");
-
+        DB::table('notifications')->insert([
+            'user_id' => $service->provider_id,
+            'title' => 'Service Rejected',
+            'content' => 'Your service "'.$service->title.'" was rejected',
+            'notification_type' => 'system',
+            'is_read' => false,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+    
         return redirect()->back()->with('success', 'Service has been rejected');
     }
 

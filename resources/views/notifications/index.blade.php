@@ -29,64 +29,105 @@
         <div class="divide-y divide-gray-200">
             @forelse ($notifications as $notification)
                 @php
-    $link = '#';
-    $markAsReadUrl = route('notifications.mark-read', $notification->id);
-    
-    // Better extraction of IDs from notification content
-    $violationId = null;
-    $reviewId = null;
-    $orderId = null;
-    
-    // Extract violation ID from title
-    if (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->title, $matches)) {
-        $violationId = $matches[1] ?? $matches[2] ?? null;
-    }
-    // If not found in title, try content
-    elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->content, $matches)) {
-        $violationId = $matches[1] ?? $matches[2] ?? null;
-    }
-    
-    // Extract review ID
-    if (preg_match('/review.*?#(\d+)/i', $notification->content, $matches)) {
-        $reviewId = $matches[1] ?? null;
-    }
-    
-    // Extract order ID
-    if (preg_match('/order.*?#(\d+)/i', $notification->content, $matches)) {
-        $orderId = $matches[1] ?? null;
-    }
-
-    // For admin role - direct to specific admin routes
-    if (auth()->user()->role === 'admin') {
-        if ($notification->notification_type === 'system' && $violationId) {
-            $link = route('admin.reports.show', $violationId);
-        } 
-        elseif ($notification->notification_type === 'review' && $reviewId) {
-            $link = route('admin.reviews.show', $reviewId);
-        }
-        elseif ($notification->notification_type === 'review' && !$reviewId) {
-            // If we couldn't extract a specific review ID, go to reviews index
-            $link = route('admin.reviews.index');
-        }
-    }
-    // For other roles - existing logic
-    elseif ($notification->notification_type === 'order_update' && $orderId) {
-        $order = \App\Models\Order::find($orderId);
-        $link = $order ? route('service.details', $order->service_id) : '#';
-    } 
-    elseif ($notification->notification_type === 'system' && auth()->user()->role === 'service_buyer' && $violationId) {
-        $violation = \App\Models\Violation::find($violationId);
-        $link = $violation ? route('service.details', $violation->service_id) : '#';
-    } 
-    elseif ($notification->notification_type === 'review' && auth()->user()->role === 'service_provider') {
-        $link = route('provider.services.index');
-    }
-@endphp
+                    $markAsReadUrl = route('notifications.mark-read', $notification->id);
+                    
+                    // Create a link using NotificationController's logic
+                    $user = auth()->user();
+                    $violationId = null;
+                    $reviewId = null;
+                    $orderId = null;
+                    $serviceId = null;
+                    $source = null;
+                    
+                    // Try to decode JSON content for source information
+                    try {
+                        $decodedContent = json_decode($notification->content, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($decodedContent)) {
+                            $source = $decodedContent['source'] ?? null;
+                            $displayContent = $decodedContent['message'] ?? $notification->content;
+                            $contentForRegex = $displayContent;
+                        } else {
+                            $displayContent = $notification->content;
+                            $contentForRegex = $notification->content;
+                        }
+                    } catch (\Exception $e) {
+                        $displayContent = $notification->content;
+                        $contentForRegex = $notification->content;
+                    }
+                    
+                    // Extract violation ID from title or content
+                    if (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->title, $matches)) {
+                        $violationId = $matches[1] ?? $matches[2] ?? null;
+                    } elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $contentForRegex, $matches)) {
+                        $violationId = $matches[1] ?? $matches[2] ?? null;
+                    }
+                    
+                    // Extract review ID
+                    if (preg_match('/review.*?#(\d+)/i', $contentForRegex, $matches)) {
+                        $reviewId = $matches[1] ?? null;
+                    }
+                    
+                    // Extract order ID
+                    if (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $contentForRegex, $matches)) {
+                        $orderId = $matches[1] ?? $matches[2] ?? null;
+                    } elseif (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $notification->title, $matches)) {
+                        $orderId = $matches[1] ?? $matches[2] ?? null;
+                    }
+                    
+                    // Extract service ID
+                    if (preg_match('/service id: (\d+)/i', $contentForRegex, $matches)) {
+                        $serviceId = $matches[1] ?? null;
+                    } elseif (preg_match('/\(service id: (\d+)\)/i', $contentForRegex, $matches)) {
+                        $serviceId = $matches[1] ?? null;
+                    }
+                    
+                    // Admin - New Service Notification
+                    if ($user->role === 'admin' && str_contains($notification->title, 'New Service Pending Approval')) {
+                        $link = route('admin.dashboard');
+                    }
+                    // Provider - Approval/Rejection Notifications
+                    elseif ($user->role === 'service_provider' && 
+                          (str_contains($notification->title, 'Service Approved') || 
+                           str_contains($notification->title, 'Service Rejected'))) {
+                        $link = route('provider.services.index');
+                    }
+                    // For service buyer
+                    elseif ($user->role === 'service_buyer') {
+                        if ($source === 'dashboard') {
+                            $link = route('buyer.orders.index');
+                        } elseif ($source === 'landing' && $serviceId) {
+                            $link = route('service.details', $serviceId);
+                        } elseif ($orderId) {
+                            $order = \App\Models\Order::find($orderId);
+                            if ($order) {
+                                $link = route('service.details', $order->service_id);
+                            } else {
+                                $link = route('buyer.orders.index');
+                            }
+                        } else {
+                            $link = route('notifications.index');
+                        }
+                    }
+                    // For admin reports
+                    elseif ($user->role === 'admin' && $notification->notification_type === 'system' && $violationId) {
+                        $link = route('admin.reports.show', $violationId);
+                    }
+                    // For admin reviews
+                    elseif ($user->role === 'admin' && $notification->notification_type === 'review' && $reviewId) {
+                        $link = route('admin.reviews.show', $reviewId);
+                    }
+                    elseif ($user->role === 'admin' && $notification->notification_type === 'review' && !$reviewId) {
+                        $link = route('admin.reviews.index');
+                    }
+                    // Default
+                    else {
+                        $link = route('notifications.index');
+                    }
+                @endphp
                 
-<a href="{{ $link }}" 
-   class="notification-link block px-6 py-4 hover:bg-gray-50 transition {{ $notification->is_read ? 'bg-white' : 'bg-purple-50' }}"
-   data-notification-id="{{ $notification->id }}" 
-   data-read-url="{{ $markAsReadUrl }}">
+                <a href="{{ $link }}" 
+                   class="notification-link block px-6 py-4 hover:bg-gray-50 transition {{ $notification->is_read ? 'bg-white' : 'bg-purple-50' }}"
+                   data-read-url="{{ $markAsReadUrl }}">
                    
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mr-4">
@@ -102,7 +143,15 @@
                                         <i class='bx bx-message-detail text-xl'></i>
                                         @break
                                     @case('system')
-                                        <i class='bx bx-flag text-xl'></i>
+                                        @if(str_contains($notification->title, 'Service Approved'))
+                                            <i class='bx bx-check-circle text-xl text-green-500'></i>
+                                        @elseif(str_contains($notification->title, 'Service Rejected'))
+                                            <i class='bx bx-x-circle text-xl text-red-500'></i>
+                                        @elseif(str_contains($notification->title, 'New Service'))
+                                            <i class='bx bx-plus-circle text-xl text-blue-500'></i>
+                                        @else
+                                            <i class='bx bx-flag text-xl'></i>
+                                        @endif
                                         @break
                                     @case('review')
                                         <i class='bx bx-star text-xl'></i>
@@ -123,7 +172,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <p class="text-gray-600 mt-1">{{ $notification->content }}</p>
+                            <p class="text-gray-600 mt-1">{{ $displayContent }}</p>
                             <p class="text-sm text-gray-400 mt-2">
                                 <i class='bx bx-time-five mr-1'></i> {{ $notification->created_at->diffForHumans() }}
                             </p>
