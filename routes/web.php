@@ -1,32 +1,36 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\CustomReportController;
+use App\Http\Controllers\admin\PaymentExportController;
+use App\Http\Controllers\admin\ReviewController;
+use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\admin\UserController;
+
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\ServiceBuyerController;
 use App\Http\Controllers\Auth\ServiceProviderController;
+
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
-
 use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogController;
+
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
 
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PublicCategoryController;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\admin\CategoryController;
-use App\Http\Controllers\admin\ReviewController;
-use App\Http\Controllers\admin\ReportController;
-use App\Http\Controllers\admin\PaymentExportController;
-use App\Http\Controllers\admin\CustomReportController;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\PublicCategoryController;
+
 Route::get('/', function () {
     return view('welcome');
 });
