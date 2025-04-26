@@ -50,6 +50,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Order::class);
         $request->validate([
             'service_id' => 'required|exists:services,id',
             'scheduled_date' => 'required|date|after_or_equal:today',
@@ -105,10 +106,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Check if the order belongs to the authenticated user
-        if ($order->buyer_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('view', $order);
 
         $order->load('service', 'service.provider.user');
         return view('service_buyer.orders.show', compact('order'));
@@ -117,11 +115,7 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        // Check if the order belongs to the authenticated user
-        if ($order->buyer_id != Auth::id()) {
-            return redirect()->route('buyer.orders.index')
-                ->with('error', 'You are not authorized to cancel this order.');
-        }
+        $this->authorize('delete', $order);
     
         // Check if the order is in pending status
         if ($order->status !== 'pending') {
