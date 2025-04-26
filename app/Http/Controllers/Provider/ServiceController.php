@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class ServiceController extends Controller
 {
@@ -59,6 +61,19 @@ class ServiceController extends Controller
             }
         }
 
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            DB::table('notifications')->insert([
+                'user_id' => $admin->id,
+                'title' => 'New Service Pending Approval',
+                'content' => 'New service "'.$service->title.'" needs review',
+                'notification_type' => 'system',
+                'is_read' => false,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+    
         return redirect()->route('provider.services.index')->with('success', 'Service created successfully.');
     }
 

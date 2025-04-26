@@ -32,13 +32,22 @@ class NotificationController extends Controller
             ->limit(10)
             ->get()
             ->map(function ($notification) {
-                // Get the appropriate link for this notification
                 $link = $this->getNotificationLink($notification);
+                
+                $displayContent = $notification->content;
+                try {
+                    $decodedContent = json_decode($notification->content, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decodedContent)) {
+                        $displayContent = $decodedContent['message'] ?? $notification->content;
+                    }
+                } catch (\Exception $e) {
+                    // Keep original content if parsing fails
+                }
                 
                 return [
                     'id' => $notification->id,
                     'title' => $notification->title,
-                    'content' => $notification->content,
+                    'content' => $displayContent,
                     'is_read' => (bool)$notification->is_read,
                     'created_at' => $notification->created_at->toDateTimeString(),
                     'notification_type' => $notification->notification_type,
@@ -55,89 +64,148 @@ class NotificationController extends Controller
     protected function getNotificationLink($notification)
     {
         $user = Auth::user();
-        
-        // Extract IDs from notification content for routing
         $violationId = null;
         $reviewId = null;
         $orderId = null;
         $serviceId = null;
-        
-        // Extract violation ID from title or content
+        $source = null;
+    
+        // Parse notification content
+        try {
+            $decodedContent = json_decode($notification->content, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decodedContent)) {
+                $source = $decodedContent['source'] ?? null;
+                $contentForRegex = $decodedContent['message'] ?? $notification->content;
+            } else {
+                $contentForRegex = $notification->content;
+            }
+        } catch (\Exception $e) {
+            $contentForRegex = $notification->content;
+        }
+    
+        // Extract IDs from content
         if (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->title, $matches)) {
             $violationId = $matches[1] ?? $matches[2] ?? null;
-        } elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->content, $matches)) {
+        } elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $contentForRegex, $matches)) {
             $violationId = $matches[1] ?? $matches[2] ?? null;
         }
-        
-        // Extract review ID
-        if (preg_match('/review.*?#(\d+)/i', $notification->content, $matches)) {
+    
+        if (preg_match('/review.*?#(\d+)/i', $contentForRegex, $matches)) {
             $reviewId = $matches[1] ?? null;
         }
-        
-        // Extract order ID from content (common pattern in service booking notifications)
-        if (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $notification->content, $matches)) {
-            $orderId = $matches[1] ?? null;
+    
+        if (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $contentForRegex, $matches)) {
+            $orderId = $matches[1] ?? $matches[2] ?? null;
+        } elseif (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $notification->title, $matches)) {
+            $orderId = $matches[1] ?? $matches[2] ?? null;
         }
-        
-        // Extract service ID from content if mentioned
-        if (preg_match('/service id: (\d+)/i', $notification->content, $matches)) {
+    
+        if (preg_match('/service id: (\d+)/i', $contentForRegex, $matches)) {
+            $serviceId = $matches[1] ?? null;
+        } elseif (preg_match('/\(service id: (\d+)\)/i', $contentForRegex, $matches)) {
             $serviceId = $matches[1] ?? null;
         }
-        
-        // If we have an order ID but no service ID, try to get service ID from order
+    
+        // Get service ID from order if available
         if ($orderId && !$serviceId) {
             $order = Order::find($orderId);
-            $serviceId = $order->service_id ?? null;
+            if ($order) {
+                $serviceId = $order->service_id ?? null;
+            }
         }
-        
-        // Route based on notification type and user role
-        switch ($notification->notification_type) {
-            case 'order_update':
-            case 'payment':
+    
+        // =============================================
+        // SERVICE PROVIDER NOTIFICATIONS (UPDATED)
+        // =============================================
+        if ($user->role === 'service_provider') {
+            // Handle all booking/order/review notifications - always go to provider services
+            if (str_contains(strtolower($notification->title), 'booking') || 
+                str_contains(strtolower($notification->title), 'order') ||
+                str_contains(strtolower($notification->title), 'review') ||
+                str_contains(strtolower($notification->title), 'cancel') ||
+                $notification->notification_type === 'order_update' ||
+                $notification->notification_type === 'review') {
+                
+                // If we have a specific service ID, go to that service's edit page
                 if ($serviceId) {
-                    if ($user->role === 'service_buyer') {
-                        return route('service.details', $serviceId);
-                    } elseif ($user->role === 'service_provider') {
-                        return route('provider.services.show', $serviceId);
-                    }
-                } elseif ($orderId) {
-                    $order = Order::find($orderId);
-                    if ($order && $order->service_id) {
-                        if ($user->role === 'service_buyer') {
-                            return route('service.details', $order->service_id);
-                        } elseif ($user->role === 'service_provider') {
-                            return route('provider.services.show', $order->service_id);
-                        }
-                    }
+                    return route('provider.services.show', $serviceId);
                 }
-                break;
-                
-            case 'review':
-                if ($user->role === 'admin' && $reviewId) {
-                    return route('admin.reviews.show', $reviewId);
-                } elseif ($user->role === 'admin' && !$reviewId) {
-                    return route('admin.reviews.index');
-                } elseif ($user->role === 'service_provider') {
-                    return route('provider.services.index');
-                }
-                break;
-                
-            case 'system':
-                if ($user->role === 'admin' && $violationId) {
-                    return route('admin.reports.show', $violationId);
-                } elseif ($user->role === 'service_buyer') {
-                    if ($violationId) {
-                        $violation = Violation::find($violationId);
-                        return $violation ? route('service.details', $violation->service_id) : route('notifications.index');
-                    }
-                }
-                break;
+                // Otherwise go to services index
+                return route('provider.services.index');
+            }
+    
+            // Service approval/rejection
+            if (str_contains($notification->title, 'Service Approved') || 
+                str_contains($notification->title, 'Service Rejected')) {
+                return route('provider.services.index');
+            }
+    
+            // Default for any other provider notifications
+            return route('provider.services.index');
         }
-        
-        // Default return for any other cases
+    
+        // =============================================
+        // ADMIN NOTIFICATIONS (ORIGINAL LOGIC)
+        // =============================================
+        if ($user->role === 'admin') {
+            // New service pending approval
+            if (str_contains($notification->title, 'New Service Pending Approval')) {
+                return route('admin.dashboard');
+            }
+            
+            // Violation reports
+            if ($violationId && $notification->notification_type === 'system') {
+                return route('admin.reports.show', $violationId);
+            }
+            
+            // Reviews
+            if ($reviewId && $notification->notification_type === 'review') {
+                return route('admin.reviews.show', $reviewId);
+            } elseif ($notification->notification_type === 'review') {
+                return route('admin.reviews.index');
+            }
+        }
+    
+        // =============================================
+        // BUYER NOTIFICATIONS (UPDATED)
+        // =============================================
+        if ($user->role === 'service_buyer') {
+            // Order cancellations - check source
+            if (str_contains(strtolower($notification->title), 'cancel')) {
+                if ($source === 'dashboard') {
+                    return route('buyer.orders.index');
+                }
+                
+                if ($serviceId) {
+                    return route('service.details', $serviceId);
+                }
+                
+                return route('buyer.orders.index');
+            }
+            
+            // Booking requests
+            if (str_contains($notification->title, 'Booking Request')) {
+                if ($source === 'dashboard') {
+                    return route('buyer.orders.index');
+                }
+                
+                if ($serviceId) {
+                    return route('service.details', $serviceId);
+                }
+                
+                return route('buyer.orders.index');
+            }
+            
+            // Violation notifications
+            if ($violationId && $notification->notification_type === 'system') {
+                $violation = Violation::find($violationId);
+                return $violation ? route('service.details', $violation->service_id) : route('notifications.index');
+            }
+        }
+    
+        // Default fallback for any unhandled cases
         return route('notifications.index');
     }
-
     public function markAsRead(Notification $notification)
     {
         if ($notification->user_id !== Auth::id()) {
