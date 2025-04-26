@@ -59,7 +59,7 @@ class ServiceController extends Controller
             }
         }
 
-        return redirect()->route('services.index')->with('success', 'Service created successfully.');
+        return redirect()->route('provider.services.index')->with('success', 'Service created successfully.');
     }
 
     public function edit(Service $service)
@@ -119,7 +119,7 @@ class ServiceController extends Controller
             'service_type' => $validated['service_type'],
         ]);
 
-        return redirect()->route('services.index')->with('success', 'Service updated successfully.');
+        return redirect()->route('provider.services.index')->with('success', 'Service updated successfully.');
     }
 
     public function destroy(Service $service)
@@ -133,9 +133,9 @@ class ServiceController extends Controller
             }
 
             $service->delete();
-            return redirect()->route('services.index')->with('success', 'Service deleted successfully.');
+            return redirect()->route('provider.services.index')->with('success', 'Service deleted successfully.');
         } catch (QueryException $e) {
-            return redirect()->route('services.index')->with(
+            return redirect()->route('provider.services.index')->with(
                 'error',
                 $e->getCode() === '23000'
                     ? 'This service cannot be deleted because it has existing bookings.'

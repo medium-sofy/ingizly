@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Buyer;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Service;
+use App\Models\Notification;  
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -71,6 +72,24 @@ class OrderController extends Controller
             'special_instructions' => $request->special_instructions,
         ]);
 
+              // Notify provider that he has booking request
+
+   Notification::create([
+        'user_id' => $service->provider->user_id,
+        'title' => 'New Booking Request',
+        'content' => 'New booking for '.$service->title,
+        'is_read' => false,
+        'notification_type' => 'order_update'
+    ]);
+
+      // Notify buyer that booking request was sent
+      Notification::create([
+        'user_id' => Auth::id(),
+        'title' => 'Booking Request Sent',
+        'content' => 'Your booking request for '.$service->title.' has been sent to the provider',
+        'is_read' => false,
+        'notification_type' => 'order_update'
+    ]);
         // Redirect to checkout
         return redirect()->route('checkout.show', $order->id);
     }
@@ -106,7 +125,16 @@ class OrderController extends Controller
     
         // Update the order status to cancelled
         $order->update(['status' => 'cancelled']);
-    
+
+
+        Notification::create([
+            'user_id' => $order->service->provider->user_id,
+            'title' => 'Order Cancelled',
+            'content' => "The order for '{$order->service->title}' has been cancelled by the buyer",
+            'notification_type' => 'order_update',
+            'is_read' => false
+        ]);
+        
         return redirect()->route('buyer.orders.index')
             ->with('success', 'Order has been cancelled successfully.');
     }

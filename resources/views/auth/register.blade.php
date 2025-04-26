@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="flex flex-col justify-center items-center bg-gray-50">
+    <div class="min-h-screen flex flex-col justify-center items-center bg-gray-50">
         <!-- App Name -->
         <div class="mb-8 text-center">
             <h1 class="text-4xl font-bold text-blue-600">Ingizly</h1>
@@ -26,16 +26,10 @@
 
             <!-- Profile Image -->
             <div class="mb-4">
-                <!-- Upload profile pic -->
-                <div class="mb-4">
-                    <x-forms.label name="profile_picture" label="Profile Picture"/>
-                    <div class="relative w-full">
-                        <label for="profile_picture" class="w-full flex items-center justify-center text-white bg-blue-500 hover:bg-blue-400 border border-gray-500 rounded-md py-3 px-4 cursor-pointer">
-                            <span class="profile-picture-name">Choose Profile Pic</span>
-                        </label>
-                        <input id="profile_picture" name="profile_picture" type="file" class="absolute left-0 top-0 opacity-0" onchange="updateFileName('profile_picture', 'profile-picture-name')"/>
-                    </div>        
-                </div>
+                <x-input-label for="profile_image" :value="__('Profile Image')" />
+                <input id="profile_image" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" type="file" name="profile_image" accept="image/*" />
+                <x-input-error :messages="$errors->get('profile_image')" class="mt-2" />
+            </div>
 
             <!-- Password -->
             <div class="mb-4">
@@ -66,16 +60,4 @@
             </div>
         </form>
     </div>
-    <script>
-    function updateFileName(inputName, fileName) {
-        const input = document.getElementById(inputName);
-        const fileNameDisplay = document.querySelector('.'+fileName);
-
-        if (input.files.length > 0) {
-            fileNameDisplay.textContent = input.files[0].name;
-        } else {
-            fileNameDisplay.textContent = 'Choose File';
-        }
-    }
-    </script>
 </x-guest-layout>

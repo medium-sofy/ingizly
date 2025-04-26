@@ -1,4 +1,8 @@
-<x-home.layout>
+@extends('layouts.minimal')
+
+@section('title', 'Choose Your Role')
+
+@section('content')
 <div class="flex items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-8">
     <div class="max-w-3xl w-full space-y-8">
         {{-- Card Container --}}
@@ -52,4 +56,4 @@
         </div>
     </div>
 </div>
-</x-home.layout>
+@endsection

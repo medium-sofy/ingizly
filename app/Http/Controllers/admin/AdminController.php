@@ -104,7 +104,7 @@ class AdminController extends Controller
         $service->save();
 
         // Create notification for service provider
-        $this->createServiceNotification($service->provider_id, 'Service Approved', 'Your service has been approved by admin.');
+        $this->createServiceNotification($service->provider_id, 'Service Approved',  "Your service '{$service->title}' has been approved by admin.");
 
         return redirect()->back()->with('success', 'Service has been approved');
     }
@@ -122,7 +122,7 @@ class AdminController extends Controller
         $service->save();
 
         // Create notification for service provider
-        $this->createServiceNotification($service->provider_id, 'Service Rejected', 'Your service has been rejected by admin.');
+        $this->createServiceNotification($service->provider_id, 'Service Rejected', "Your service '{$service->title}' has been rejected by admin.");
 
         return redirect()->back()->with('success', 'Service has been rejected');
     }

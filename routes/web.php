@@ -25,14 +25,15 @@ use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\PaymentExportController;
 use App\Http\Controllers\admin\CustomReportController;
-
+use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\PublicCategoryController;
 Route::get('/', function () {
     return view('welcome');
 });
-//Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-//     ->name('service.details');
-
-Route::get('/register',[RegisteredUserController::class]);
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
+Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
+Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
 Route::post('/register',[RegisteredUserController::class]);
 
 Route::middleware('auth')->group(function () {
@@ -45,7 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
 
 
-    // Route::resource('services',\Provider\ServiceController::class);
+    //Route::resource('services',\Provider\ServiceController::class);
 
 
     // Service Buyer routes
@@ -103,7 +104,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Route::resource('services', ServiceProviderCatalogController::class);
+//Route::resource('services', ServiceProviderCatalogController::class);
+
+
+// Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->name('provider.')->group(function () {
+//     Route::resource('services', ServiceProviderCatalogController::class);
+// });
+Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->name('provider.')->group(function () {
+    Route::resource('services', ServiceProviderCatalogController::class)->names('services');
+});
+
 
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
@@ -117,7 +127,7 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.
     Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
     Route::resource('orders', OrderController::class);
 
-    // // Service browsing routes
+    // Service browsing routes
 
     Route::get('/services', [ServiceBuyerCatalogController::class, 'index'])->name('services.index');
     Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
@@ -141,6 +151,7 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
 
 
 
+
 Route::middleware(['auth', 'role:service_buyer'])->group(function () {
 Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
      ->name('service.review.submit');
@@ -156,7 +167,7 @@ Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookS
 ->name('service.book');
 
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details')->prefix('catalog');
+     ->name('service.details');
 
      Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
      ->name('orders.accept');
@@ -170,6 +181,7 @@ Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
      ->name('order.payment');
 
+    });
 
 // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -177,12 +189,9 @@ Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
     Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
     Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
-});
-Route::get('/notifications', [NotificationController::class, 'index'])
-->name('notifications.index');
 
-Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
-->name('notifications.mark-read');
+
+
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Categories
@@ -209,3 +218,5 @@ Route::post('reports/custom/generate', [CustomReportController::class, 'generate
 Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
 Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');
 
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+     ->name('service.details');

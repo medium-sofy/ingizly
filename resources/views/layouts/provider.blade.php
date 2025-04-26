@@ -48,7 +48,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('services.index') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
+                    <a href="{{ route('provider.services.index') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-briefcase mr-3"></i> Services
                     </a>
                 </li>
@@ -68,12 +68,22 @@
                         <i class="fas fa-wallet mr-3"></i> Your Wallet
                     </a>
                 </li>
+                
                 <li>
+                    <!-- Notifications -->
+            
+    <x-notification-bell 
+        :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()"
+        hoverColor="hover:bg-blue-700"
+    />
+</li>
                     <!-- Profile Link -->
                     <a href="{{ route('service_provider.profile.edit') }}"  class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-user mr-3"></i> Profile
                     </a>
                 </li>
+            
+
             </ul>
 
             <!-- Logout Button -->

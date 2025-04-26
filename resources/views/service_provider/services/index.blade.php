@@ -7,7 +7,7 @@
 <div x-data="{ showModal: false, serviceId: null }" class="p-6 bg-gray-100 min-h-screen">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 class="text-3xl font-semibold text-gray-800">My Services</h2>
-        <a href="{{ route('services.create') }}" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full shadow transition duration-300">
+        <a href="{{ route('provider.services.create') }}" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full shadow transition duration-300">
             + Add New Service
         </a>
     </div>
@@ -31,7 +31,7 @@
             @foreach($services as $service)
                 <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition border border-gray-100">
                     <!-- Service clickable area -->
-                    <a href="{{ route('services.show', $service->id) }}" class="block p-5">
+                    <a href="{{ route('provider.services.show', $service->id) }}" class="block p-5">
                         <h3 class="text-xl font-semibold text-gray-800 mb-1 truncate">{{ $service->title }}</h3>
                         <p class="text-sm text-gray-500 mb-1">
                             Category: <span class="font-medium">{{ $service->category->name ?? 'N/A' }}</span>
@@ -51,7 +51,7 @@
 
                     <!-- Buttons outside the link -->
                     <div class="flex justify-end gap-2 px-5 pb-4">
-                        <a href="{{ route('services.edit', $service->id) }}" class="inline-flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-medium px-3 py-1.5 rounded-full transition">
+                        <a href="{{ route('provider.services.edit', $service->id) }}" class="inline-flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-medium px-3 py-1.5 rounded-full transition">
                             ✏️ Edit
                         </a>
                         <button
@@ -66,9 +66,9 @@
     @endif
 
     <!-- Delete Confirmation Modal -->
-    <form id="deleteForm" method="POST"
+    <form  id="deleteForm" method="POST" 
           x-show="showModal"
-          :action="'/services/' + serviceId"
+          :action="'{{ url('/provider/services') }}/' + serviceId"
           class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
     >
         @csrf

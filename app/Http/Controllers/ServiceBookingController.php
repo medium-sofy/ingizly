@@ -39,11 +39,20 @@ class ServiceBookingController extends Controller
                 'special_instructions' => $request->special_instructions,
             ]);
     
-            // Notify only the provider about new booking
+            // Notify provider about new booking
             Notification::create([
                 'user_id' => $service->provider->user_id,
                 'title' => 'New Booking Request',
                 'content' => 'New booking for '.$service->title,
+                'is_read' => false,
+                'notification_type' => 'order_update'
+            ]);
+            
+            // Notify buyer that booking request was sent
+            Notification::create([
+                'user_id' => $user->id,
+                'title' => 'Booking Request Sent',
+                'content' => 'Your booking request for '.$service->title.' has been sent to the provider',
                 'is_read' => false,
                 'notification_type' => 'order_update'
             ]);
@@ -85,6 +94,7 @@ class ServiceBookingController extends Controller
     
         return back()->with('success', 'Order accepted!');
     }
+
     public function markInProgress(Order $order)
     {
         // Provider marks order as in progress
@@ -94,11 +104,11 @@ class ServiceBookingController extends Controller
 
         $order->update(['status' => 'in_progress']);
 
-        // Notify only the buyer about progress
+        // Notify the buyer about progress
         Notification::create([
             'user_id' => $order->buyer_id,
             'title' => 'Service Started',
-            'content' => "Provider has started working on your order {$order->service->title}",
+            'content' => "Provider has started working on your order for '{$order->service->title}'",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -115,11 +125,11 @@ class ServiceBookingController extends Controller
 
         $order->update(['status' => 'completed']);
 
-        // Notify only the buyer about completion
+        // Notify the buyer about completion
         Notification::create([
             'user_id' => $order->buyer_id,
             'title' => 'Service Completed',
-            'content' => "Your order {$order->service->title} has been completed",
+            'content' => "Your order for '{$order->service->title}' has been completed",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -141,10 +151,21 @@ class ServiceBookingController extends Controller
 
         // Notify the other party about cancellation
         $notificationTo = $isBuyer ? $order->service->provider->user_id : $order->buyer_id;
+        $cancelledBy = $isBuyer ? 'buyer' : 'provider';
+        
         Notification::create([
             'user_id' => $notificationTo,
             'title' => 'Order Cancelled',
-            'content' => "Order {$order->service->title} has been cancelled",
+            'content' => "Your order for '{$order->service->title}' has been cancelled by the {$cancelledBy}",
+            'notification_type' => 'order_update',
+            'is_read' => false
+        ]);
+
+        // Also notify the cancelling party
+        Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Order Cancelled',
+            'content' => "You have cancelled your order for '{$order->service->title}'",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -184,5 +205,39 @@ class ServiceBookingController extends Controller
         ];
 
         return view('paymob.payment', compact('order', 'data'));
+    }
+
+    // This method would be called after successful payment
+    public function paymentSuccess(Order $order)
+    {
+        // Verify order belongs to user
+        if ($order->buyer_id != Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Update order status to in_progress if payment was the next step
+        if ($order->status === 'accepted') {
+            $order->update(['status' => 'in_progress']);
+            
+            // Notify buyer about successful payment and order status
+            Notification::create([
+                'user_id' => $order->buyer_id,
+                'title' => 'Payment Successful',
+                'content' => "Your payment for '{$order->service->title}' was successful. Your order is now in progress.",
+                'notification_type' => 'payment',
+                'is_read' => false
+            ]);
+
+            // Notify provider about payment received
+            Notification::create([
+                'user_id' => $order->service->provider->user_id,
+                'title' => 'Payment Received',
+                'content' => "Payment received for order #{$order->id} for '{$order->service->title}'",
+                'notification_type' => 'payment',
+                'is_read' => false
+            ]);
+        }
+
+        return view('paymob.success', compact('order'));
     }
 }

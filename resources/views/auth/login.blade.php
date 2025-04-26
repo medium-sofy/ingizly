@@ -28,6 +28,7 @@
                 <x-text-input id="password" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" type="password" name="password" required autocomplete="current-password" />
                 <x-input-error :messages="$errors->get('password')" class="mt-1" />
             </div>
+
             <!-- Remember Me -->
             <div class="flex items-center justify-between mb-3">
                 <label for="remember_me" class="inline-flex items-center">

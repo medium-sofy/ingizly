@@ -23,7 +23,7 @@ class ServiceProviderDashboardController extends Controller
         $totalServices = $services->count();
         $totalViews = $services->sum('view_count');
         $pendingBookings = \App\Models\Order::whereIn('service_id', $services->pluck('id'))
-        ->whereIn('status', ['pending', 'accepted']) // adjust based on your app logic
+        ->whereIn('status', ['pending', 'accepted']) 
         ->count();
         $averageRating = Review::whereIn('service_id', $services->pluck('id'))->avg('rating');
 
