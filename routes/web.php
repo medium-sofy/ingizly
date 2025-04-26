@@ -62,7 +62,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('users/{users}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('users/{users}/edit', [UserController::class, 'update'])->name('users.update');
     Route::delete('users/{users}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
-//Admin services list route
+
+    // Admin services routes
     Route::get('services', [AdminServiceController::class, 'index'])->name('services.index');
     Route::get('services/create', [AdminServiceController::class, 'create'])->name('services.create');
     Route::post('services/create', [AdminServiceController::class, 'store'])->name('services.store');
@@ -72,13 +73,32 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('services/show/{service}', [AdminServiceController::class, 'show'])->name('services.show');
     Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
     Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+
+    // Payment Export Routes
     Route::get('payments', [PaymentController::class, 'index'])->name('payments');
-// Payment Export Routes
     Route::get('payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('payments.export.pdf');
     Route::get('payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('payments.export.csv');
 
-});
+    // Categories
+    Route::resource('categories', CategoryController::class);
 
+    // Reviews
+    Route::resource('reviews', ReviewController::class)->only(['index', 'show', 'update', 'destroy']);
+
+    // Reports
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+    // Violations (Reports) Routes
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{violation}', [ReportController::class, 'show'])->name('reports.show');
+    Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
+
+    // Custom Reports Routes
+    Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
+    Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
+
+});
 
 //@@ Service provider
 Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(function () {
@@ -86,7 +106,7 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::put('profile', [ServiceProviderController::class, 'update'])->name('service_provider.profile.update');
     Route::put('profile/password', [ServiceProviderController::class, 'updatePassword'])->name('service_provider.profile.update_password');
     Route::delete('profile', [ServiceProviderController::class, 'deleteAccount'])->name('service_provider.profile.delete');
-// Provider services
+    // Provider services
     Route::resource('services', ServiceProviderCatalogController::class)->names('provider.services');
     Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
 
@@ -214,27 +234,3 @@ Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
     Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
 
-
-
-
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Categories
-    Route::resource('categories', CategoryController::class);
-
-    // Reviews
-    Route::resource('reviews', ReviewController::class)->only(['index', 'show', 'update', 'destroy']);
-
-    // Reports
-    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
-
-    // Violations (Reports) Routes
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/{violation}', [ReportController::class, 'show'])->name('reports.show');
-    Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
-
-    // Custom Reports Routes
-
-});
-Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
-Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
