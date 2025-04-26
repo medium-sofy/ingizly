@@ -22,6 +22,7 @@ use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
 use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogController;
 
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
+use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\NotificationController;
@@ -53,7 +54,6 @@ Route::middleware('auth')->group(function () {
 });
 
 //@@ Admin routes
-
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
@@ -80,8 +80,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 
-// Service provider
+//@@ Service provider
+Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(function () {
+    Route::get('profile', [ServiceProviderController::class, 'edit'])->name('service_provider.profile.edit');
+    Route::put('profile', [ServiceProviderController::class, 'update'])->name('service_provider.profile.update');
+    Route::put('profile/password', [ServiceProviderController::class, 'updatePassword'])->name('service_provider.profile.update_password');
+    Route::delete('profile', [ServiceProviderController::class, 'deleteAccount'])->name('service_provider.profile.delete');
+// Provider services
+    Route::resource('services', ServiceProviderCatalogController::class)->names('provider.services');
+    Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
 
+    Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
+
+});
 // Service buyer
 
 // Services
@@ -107,17 +118,6 @@ Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
 Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
 
-
-
-Route::middleware(['auth', 'role:service_provider'])->group(function () {
-    Route::get('/service-provider/profile', [ServiceProviderController::class, 'edit'])->name('service_provider.profile.edit');
-    Route::put('/service-provider/profile', [ServiceProviderController::class, 'update'])->name('service_provider.profile.update');
-    Route::put('/service-provider/profile/password', [ServiceProviderController::class, 'updatePassword'])->name('service_provider.profile.update_password');
-    Route::delete('/service-provider/profile', [ServiceProviderController::class, 'deleteAccount'])->name('service_provider.profile.delete');
-
-});
-
-
     //// Show single service details
     //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 
@@ -140,20 +140,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//Route::resource('services', ServiceProviderCatalogController::class);
 
-
-// Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->name('provider.')->group(function () {
-//     Route::resource('services', ServiceProviderCatalogController::class);
-// });
-Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->name('provider.')->group(function () {
-    Route::resource('services', ServiceProviderCatalogController::class)->names('services');
-    Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
-});
-
-
-use App\Http\Controllers\Provider\ServiceProviderDashboardController;
-Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
 Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
