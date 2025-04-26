@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <div class="py-4">
@@ -66,9 +66,9 @@
         </div>
 
         {{-- Users Table --}}
-        <div class="bg-white rounded-lg shadow-sm">
+        <div class="bg-white rounded-lg shadow-sm ">
             <div class="overflow-x-auto p-6"> {{-- Moved padding here so it doesn't get cut off by scroll --}}
-                <table class="w-full min-w-[800px]"> {{-- Added min-w to ensure overflow activates reliably --}}
+                <table class="min-w-full divide-y divide-gray-200"> {{-- Added min-w to ensure overflow activates reliably --}}
                     <thead>
                     <tr class="border-b border-gray-200">
                         {{-- Adjusted padding for potentially better mobile view within scroll --}}

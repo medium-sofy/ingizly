@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Buyer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,7 +21,20 @@ class CheckoutController extends Controller
         }
 
         $order->load('service', 'service.provider.user');
-        return view('service_buyer.checkout.show', compact('order'));
+        $data = [
+            "amount_cents" => $order->total_amount * 100, // assuming `total` is in EGP
+            "currency" => "EGP",
+            "shipping_data" => [
+                "first_name" => Auth::user()->name,
+                "last_name" => "", // or split name if needed
+                "phone_number" => Auth::user()->serviceBuyer->phone_number ?? '01010101010', // default if null
+                "email" => Auth::user()->email,
+            ],"items"=> [
+                "name"=> $order->id,
+            ]
+
+        ];
+        return view('paymob.payment', compact('order', 'data'));
     }
 
     /**
@@ -36,12 +50,13 @@ class CheckoutController extends Controller
         // Here you would integrate with a payment gateway
         // For now, we'll just mark the order as paid
 
-        $order->update([
-            'status' => 'paid',
-            // Add payment details as needed
-        ]);
+//        $order->update([
+//            'status' => 'paid',
+//            // Add payment details as needed
+//        ]);
 
         return redirect()->route('buyer.orders.show', $order->id)
             ->with('success', 'Payment successful! Your order has been confirmed.');
     }
+
 }

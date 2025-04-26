@@ -9,8 +9,10 @@ use App\Http\Controllers\Auth\ServiceProviderController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
+
 use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogController;
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
+
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -18,10 +20,17 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\ReviewController;
+use App\Http\Controllers\admin\ReportController;
+use App\Http\Controllers\admin\PaymentExportController;
+use App\Http\Controllers\admin\CustomReportController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+//Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+//     ->name('service.details');
 
 Route::get('/register',[RegisteredUserController::class]);
 Route::post('/register',[RegisteredUserController::class]);
@@ -33,15 +42,28 @@ Route::middleware('auth')->group(function () {
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
     Route::post('/service-provider/store', [ServiceProviderController::class, 'store'])->name('service_provider.store');
+    Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
+
+
+    // Route::resource('services',\Provider\ServiceController::class);
+
 
     // Service Buyer routes
     Route::get('/service-buyer/form', [ServiceBuyerController::class, 'create'])->name('service_buyer.form');
     Route::post('/service-buyer/store', [ServiceBuyerController::class, 'store'])->name('service_buyer.store');
 });
 
+Route::middleware(['auth', 'role:service_provider'])->group(function () {
+    Route::get('/service-provider/profile', [ServiceProviderController::class, 'edit'])->name('service_provider.profile.edit');
+    Route::put('/service-provider/profile', [ServiceProviderController::class, 'update'])->name('service_provider.profile.update');
+    Route::put('/service-provider/profile/password', [ServiceProviderController::class, 'updatePassword'])->name('service_provider.profile.update_password');
+    Route::delete('/service-provider/profile', [ServiceProviderController::class, 'deleteAccount'])->name('service_provider.profile.delete');
+
+});
+
 //Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {});
     // admin routes
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users/create', [UserController::class, 'store'])->name('admin.users.store');
@@ -58,6 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/services/show/{service}', [AdminServiceController::class, 'show'])->name('admin.services.show');
     Route::post('/admin/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
     Route::post('/admin/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+Route::get('/admin/payments/', [PaymentController::class, 'index'])->name('admin.payments');
     //// Show single service details
     //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 
@@ -80,18 +103,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('services', ServiceProviderCatalogController::class);
+// Route::resource('services', ServiceProviderCatalogController::class);
 
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 Route::get('/provider/dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 require __DIR__.'/auth.php';
-
+Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');
+Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
+Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
 // Service Buyer Routes
 Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.')->group(function () {
     Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
     Route::resource('orders', OrderController::class);
 
-    // Service browsing routes
+    // // Service browsing routes
+
     Route::get('/services', [ServiceBuyerCatalogController::class, 'index'])->name('services.index');
     Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
     Route::get('/services/{service}/order', [ServiceBuyerCatalogController::class, 'order'])->name('services.order');
@@ -104,13 +131,17 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
     Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
 });
 
-Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
-Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+// Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
+// Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
+
+
+
 
 // Service Details Routes
-// Route::get('/services/{id}', [ServicedetailsController::class, 'show'])
-//      ->name('service.details');
 
+
+
+Route::middleware(['auth', 'role:service_buyer'])->group(function () {
 Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
      ->name('service.review.submit');
 
@@ -120,19 +151,61 @@ Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'sh
 Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
      ->name('service.report.submit');
 
-     // Booking routes (temporary - remove buyer_id when auth is implemented)
+     // Booking routes
 Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
 ->name('service.book');
 
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
      ->name('service.details')->prefix('catalog');
 
-Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
-->name('orders.confirm');
+     Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
+     ->name('orders.accept');
+
+ Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
+     ->name('orders.confirm');
+
+     Route::post('/orders/{order}/cancel', [ServiceBookingController::class, 'cancelOrder'])
+    ->name('orders.cancel');
+
+     Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
+     ->name('order.payment');
+
 
 // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+    Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
+});
 Route::get('/notifications', [NotificationController::class, 'index'])
 ->name('notifications.index');
 
 Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])
 ->name('notifications.mark-read');
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Categories
+    Route::resource('categories', CategoryController::class);
+
+    // Reviews
+    Route::resource('reviews', ReviewController::class)->only(['index', 'show', 'update', 'destroy']);
+
+    // Reports
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+    // Violations (Reports) Routes
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{violation}', [ReportController::class, 'show'])->name('reports.show');
+    Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
+
+    // Custom Reports Routes
+
+});
+Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
+Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
+// Payment Export Routes
+Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
+Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');
+

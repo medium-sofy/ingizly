@@ -39,8 +39,8 @@ class RegisteredUserController extends Controller
         ]);
         // Handle Image Upload
         $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('user_images', 'public');
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->store('user_images', 'public');
         }
 
         $user = User::create([

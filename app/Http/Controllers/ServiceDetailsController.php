@@ -5,69 +5,130 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Violation;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class ServicedetailsController extends Controller
+class ServiceDetailsController extends Controller
 {
-
     public function show($id)
-    {
-        $service = Service::with([
-            'provider.user',
-            'category',
-            'images',
-            'reviews.buyer.user',
-            'orders' => function($query) {
-                $query->where('buyer_id', 16); // Only show orders for hardcoded buyer
-            }
-        ])->findOrFail($id);
+{
+    $service = Service::with([
+        'provider.user',
+        'category',
+        'images',
+        'reviews.buyer.user',
+        'orders' => function($query) {
+            $query->where('buyer_id', Auth::id())
+                  ->whereIn('status', ['pending', 'accepted', 'in_progress', 'completed']);
+        },
+        'cancelledOrders' => function($query) {
+            $query->where('buyer_id', Auth::id())
+                  ->where('status', 'cancelled')
+                  ->latest();
+        },
+        'violations' => function($query) {
+            $query->where('user_id', Auth::id());
+        }
+    ])->findOrFail($id);
+
+    $averageRating = $service->reviews->avg('rating') ?? 0;
+    $totalReviews = $service->reviews->count();
+    $hasReviewed = Auth::check() ? $service->reviews->where('buyer_id', Auth::id())->count() > 0 : false;
+    $hasReported = Auth::check() ? $service->violations->count() > 0 : false;
     
-        $averageRating = $service->reviews->avg('rating') ?? 0;
-        $totalReviews = $service->reviews->count();
-    
-        return view('service_buyer.service_details.show', [
-            'service' => $service,
-            'averageRating' => $averageRating,
-            'totalReviews' => $totalReviews,
-            'images' => $service->images
-        ]);
-    }
+    $currentOrder = $service->orders->first();
+    $cancelledOrder = $service->cancelledOrders->first();
+
+    return view('service_buyer.service_details.show', [
+        'service' => $service,
+        'currentOrder' => $currentOrder,
+        'cancelledOrder' => $cancelledOrder,
+        'averageRating' => $averageRating,
+        'totalReviews' => $totalReviews,
+        'images' => $service->images,
+        'hasReviewed' => $hasReviewed,
+        'hasReported' => $hasReported
+    ]);
+}
     public function submitReview(Request $request, $serviceId)
     {
-        $request->validate([
+        $validated = $request->validate([
             'rating' => 'required|integer|between:1,5',
             'comment' => 'required|string|max:500',
-            'order_id' => 'required|exists:orders,id',
-            'buyer_id' => 'required|exists:service_buyers,user_id'
-
         ]);
-
+    
+        // Find the first completed order for this service by current user
+        $order = Order::where('buyer_id', auth()->id())
+                    ->where('service_id', $serviceId)
+                    ->where('status', 'completed')
+                    ->first();
+    
+        if (!$order) {
+            return back()->with('error', 'You need to complete an order before reviewing');
+        }
+    
+        // Check for existing review
+        if (Review::where('order_id', $order->id)->exists()) {
+            return back()->with('error', 'You have already reviewed this service');
+        }
+    
+        // Create review
         Review::create([
             'service_id' => $serviceId,
-            'buyer_id' => 15,
-            'order_id' => $request->order_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment
+            'buyer_id' => auth()->id(),
+            'order_id' => $order->id,
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'],
         ]);
-
+    
+        // Update service rating
+        $service = Service::find($serviceId);
+        $service->update([
+            'avg_rating' => $service->reviews()->avg('rating')
+        ]);
+    
         return back()->with('success', 'Review submitted successfully!');
     }
 
     public function showReportForm($serviceId)
     {
-        $service = Service::findOrFail($serviceId);
+        $service = Service::with(['violations' => function($query) {
+            $query->where('user_id', Auth::id());
+        }])->findOrFail($serviceId);
+
+        // Check if user has already reported this service
+        if ($service->violations->count() > 0) {
+            return redirect()->route('service.details', $serviceId)
+                            ->with('error', 'You have already reported this service.');
+        }
+
         return view('service_buyer.service_details.report_form', compact('service'));
     }
 
+
     public function submitReport(Request $request, $serviceId)
     {
+        // Check if user has already reported this service
+        $existingReport = Violation::where('user_id', Auth::id())
+                                ->where('service_id', $serviceId)
+                                ->first();
+
+        if ($existingReport) {
+            return redirect()->route('service.details', $serviceId)
+                            ->with('error', 'You have already reported this service.');
+        }
+
         $request->validate([
-            'reason' => 'required|string|max:1000'
+            'reason_type' => 'required|string|max:255',
+            'reason' => 'required|string|max:1000',
+            'agree_terms' => 'required|accepted'
         ]);
 
         Violation::create([
-            'user_id' => 1, 
+            'user_id' => Auth::id(),
             'service_id' => $serviceId,
+            'reason_type' => $request->reason_type,
             'reason' => $request->reason,
             'status' => 'pending'
         ]);
@@ -75,4 +136,6 @@ class ServicedetailsController extends Controller
         return redirect()->route('service.details', $serviceId)
                          ->with('success', 'Service reported successfully. Our team will review it shortly.');
     }
+
+
 }

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <h1 class="text-3xl font-semibold mb-8">Dashboard Overview</h1>
@@ -15,6 +15,18 @@
             <div class="text-sm {{ $userPercentageChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
                 <i class="fas {{ $userPercentageChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
                 {{ $userPercentageChange >= 0 ? '+' : '' }}{{ $userPercentageChange }}% from last month
+            </div>
+{{--            total spent on the platform--}}
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-gray-600">Total Spent On Platform</h3>
+                <i class="fas fa-money-bill mr-3 text-green-500"></i>
+            </div>
+            <div class="text-3xl font-bold mb-2">{{ number_format($totalSpent) }} EGP</div>
+            <div class="text-sm {{ $spentPercentageChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
+                <i class="fas {{ $spentPercentageChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                {{ $spentPercentageChange >= 0 ? '+' : '' }}{{ $spentPercentageChange }}% from last month
             </div>
         </div>
 

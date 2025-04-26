@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Provider;
 
 use App\Http\Controllers\Controller;
@@ -7,149 +8,168 @@ use App\Models\Service;
 use App\Models\ServiceImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
 
 class ServiceController extends Controller
 {
     public function index()
     {
-        // Already using Auth::id()
-        $services = Service::where('provider_id', Auth::id())->get();
+        $services = Service::where('provider_id', Auth::id())->with('images')->get();
         return view('service_provider.services.index', compact('services'));
     }
 
     public function create()
     {
         $categories = Category::all();
-        return view('service_provider.services.create', compact('categories')); // Corrected path
+        return view('service_provider.services.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
-        // Validate the incoming request
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'location' => 'nullable|string|max:255',
-            'service_type' => 'required|in:on_site,remote,business_based',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Image validation
-        ]);
-
-        // Create the service with authenticated user's ID
-        $service = Service::create([
-            'provider_id' => Auth::id(), // Use authenticated user ID instead of hardcoded value
-            'title' => $request->title,
-            'category_id' => $request->category_id,
-            'description' => $request->description,
-            'price' => $request->price,
-            'location' => $request->location,
-            'status' => 'pending',
-            'view_count' => 0,
-            'service_type' => $request->service_type,
-        ]);
-
-        // Handle the image upload if provided
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imagePath = $image->store('service_images', 'public');  // Store the image in the 'service_images' folder
-
-            // Save the image details to the service_images table
-            $service->images()->create([
-                'image_url' => $imagePath,
-                'is_primary' => true,  // Mark this image as the primary image
-            ]);
-        }
-
-        return redirect()->route('services.index')->with('success', 'Service created successfully.');
-    }
-
-
-    public function edit(Service $service)
-    {
-        // Check if the service belongs to the authenticated user
-        if ($service->provider_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $categories = Category::all();
-        return view('service_provider.services.edit', compact('service', 'categories'));
-    }
-
-    public function update(Request $request, Service $service)
-    {
-        // Check if the service belongs to the authenticated user
-        if ($service->provider_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'required|string',
             'price' => 'required|numeric',
             'location' => 'nullable|string|max:255',
             'service_type' => 'required|in:on_site,remote,bussiness_based',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imagePath = $image->store('service_images', 'public');
-        
-            // If there's an old image, delete it (optional)
-            $oldImage = $service->images()->where('is_primary', true)->first();
-            if ($oldImage) {
-                \Storage::disk('public')->delete($oldImage->image_url);
-                $oldImage->delete();
+        $service = Service::create([
+            'provider_id' => Auth::id(),
+            'title' => $validated['title'],
+            'category_id' => $validated['category_id'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'location' => $validated['location'],
+            'status' => 'pending',
+            'view_count' => 0,
+            'service_type' => $validated['service_type'],
+        ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $imagePath = $image->store('service_images', 'public');
+                $service->images()->create([
+                    'image_url' => $imagePath,
+                    'is_primary' => $index === 0,
+                ]);
             }
-        
-            // Save the new image
-            $service->images()->create([
-                'image_url' => $imagePath,
-                'is_primary' => true,
-            ]);
         }
-        
 
-        $service->update($request->only('title', 'category_id', 'description', 'price', 'location', 'service_type'));
+        return redirect()->route('services.index')->with('success', 'Service created successfully.');
+    }
 
-        return redirect()->route('services.index')->with('success', 'Service updated.');
+    public function edit(Service $service)
+    {
+        $this->authorizeService($service);
 
+        $categories = Category::all();
+        $service->load('images');
+
+        return view('service_provider.services.edit', compact('service', 'categories'));
+    }
+
+    public function update(Request $request, Service $service)
+    {
+        $this->authorizeService($service);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'required|string',
+            'price' => 'required|numeric',
+            'location' => 'nullable|string|max:255',
+            'service_type' => 'required|in:on_site,remote,bussiness_based',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'delete_images' => 'nullable|array',
+            'delete_images.*' => 'exists:service_images,id'
+        ]);
+
+        // Delete selected images
+        if ($request->filled('delete_images')) {
+            foreach ($request->delete_images as $imageId) {
+                $image = ServiceImage::find($imageId);
+                if ($image && $image->service_id == $service->id) {
+                    Storage::disk('public')->delete($image->image_url);
+                    $image->delete();
+                }
+            }
+        }
+
+        // Upload new images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePath = $image->store('service_images', 'public');
+                $service->images()->create([
+                    'image_url' => $imagePath,
+                    'is_primary' => false,
+                ]);
+            }
+        }
+
+        $service->update([
+            'title' => $validated['title'],
+            'category_id' => $validated['category_id'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'location' => $validated['location'],
+            'service_type' => $validated['service_type'],
+        ]);
+
+        return redirect()->route('services.index')->with('success', 'Service updated successfully.');
     }
 
     public function destroy(Service $service)
     {
-        // Check if the service belongs to the authenticated user
-        if ($service->provider_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorizeService($service);
 
         try {
+            foreach ($service->images as $image) {
+                Storage::disk('public')->delete($image->image_url);
+                $image->delete();
+            }
+
             $service->delete();
             return redirect()->route('services.index')->with('success', 'Service deleted successfully.');
         } catch (QueryException $e) {
-            if ($e->getCode() === '23000') {
-                // Foreign key violation
-                return redirect()->route('services.index')
-                    ->with('error', 'This service cannot be deleted because it has existing bookings.');
-            }
-
-            // Other database error
-            return redirect()->route('services.index')
-                ->with('error', 'An unexpected error occurred while trying to delete the service.');
+            return redirect()->route('services.index')->with(
+                'error',
+                $e->getCode() === '23000'
+                    ? 'This service cannot be deleted because it has existing bookings.'
+                    : 'An error occurred while deleting the service.'
+            );
         }
     }
 
-
     public function show(Service $service)
     {
-        // Check if the service belongs to the authenticated user
-        if ($service->provider_id != Auth::id()) {
-            abort(403, 'Unauthorized access');
+        $this->authorizeService($service);
+
+        $service->load('category', 'images');
+        return view('service_provider.services.show', compact('service'));
+    }
+
+    public function destroyImage($id)
+    {
+        $image = ServiceImage::findOrFail($id);
+
+        if ($image->service->provider_id != Auth::id()) {
+            abort(403, 'Unauthorized action.');
         }
 
-        $service->load('category', 'images'); // eager load relationships
-        return view('service_provider.services.show', compact('service'));
+        Storage::disk('public')->delete($image->image_url);
+        $image->delete();
+
+        return redirect()->back()->with('success', 'Image deleted successfully.');
+    }
+
+    private function authorizeService(Service $service)
+    {
+        if ($service->provider_id != Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
     }
 }
