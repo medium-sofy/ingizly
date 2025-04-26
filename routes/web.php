@@ -49,10 +49,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/service-provider/store', [ServiceProviderController::class, 'store'])->name('service_provider.store');
     Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
 
-
-    //Route::resource('services',\Provider\ServiceController::class);
-
-
     // Service Buyer routes
     Route::get('/service-buyer/form', [ServiceBuyerController::class, 'create'])->name('service_buyer.form');
     Route::post('/service-buyer/store', [ServiceBuyerController::class, 'store'])->name('service_buyer.store');
@@ -221,6 +217,3 @@ Route::post('reports/custom/generate', [CustomReportController::class, 'generate
 // Payment Export Routes
 Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
 Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');
-
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details');
