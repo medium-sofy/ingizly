@@ -52,7 +52,33 @@ Route::middleware('auth')->group(function () {
     Route::post('/service-buyer/store', [ServiceBuyerController::class, 'store'])->name('service_buyer.store');
 });
 
-// Admin routes
+//@@ Admin routes
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('users/create', [UserController::class, 'store'])->name('users.store');
+    Route::get('users/{users}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('users/{users}/edit', [UserController::class, 'update'])->name('users.update');
+    Route::delete('users/{users}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
+//Admin services list route
+    Route::get('services', [AdminServiceController::class, 'index'])->name('services.index');
+    Route::get('services/create', [AdminServiceController::class, 'create'])->name('services.create');
+    Route::post('services/create', [AdminServiceController::class, 'store'])->name('services.store');
+    Route::get('services/{service}/edit', [AdminServiceController::class,'edit'])->name('services.edit');
+    Route::put('services/{service}/edit', [AdminServiceController::class, 'update'])->name('services.update');
+    Route::delete('services/show/{service}', [AdminServiceController::class, 'destroy'])->name('services.destroy');
+    Route::get('services/show/{service}', [AdminServiceController::class, 'show'])->name('services.show');
+    Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
+    Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+    Route::get('payments', [PaymentController::class, 'index'])->name('payments');
+// Payment Export Routes
+    Route::get('payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('payments.export.pdf');
+    Route::get('payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('payments.export.csv');
+
+});
+
 
 // Service provider
 
@@ -91,26 +117,7 @@ Route::middleware(['auth', 'role:service_provider'])->group(function () {
 
 });
 
-//Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {});
-    // admin routes
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/admin/users/create', [UserController::class, 'store'])->name('admin.users.store');
-    Route::get('/admin/users/{users}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/admin/users/{users}/edit', [UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{users}/destroy', [UserController::class, 'destroy'])->name('admin.users.destroy');
-    // admin services list route
-    Route::get('/admin/services', [AdminServiceController::class, 'index'])->name('admin.services.index');
-    Route::get('admin/services/create', [AdminServiceController::class, 'create'])->name('admin.services.create');
-    Route::post('/admin/services/create', [AdminServiceController::class, 'store'])->name('admin.services.store');
-    Route::get('/admin/services/{service}/edit', [AdminServiceController::class, 'edit'])->name('admin.services.edit');
-    Route::put('/admin/services/{service}/edit', [AdminServiceController::class, 'update'])->name('admin.services.update');
-    Route::delete('/admin/services/show/{service}', [AdminServiceController::class, 'destroy'])->name('admin.services.destroy');
-    Route::get('/admin/services/show/{service}', [AdminServiceController::class, 'show'])->name('admin.services.show');
-    Route::post('/admin/services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
-    Route::post('/admin/services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
-Route::get('/admin/payments/', [PaymentController::class, 'index'])->name('admin.payments');
+
     //// Show single service details
     //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 
@@ -244,6 +251,3 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
 Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
-// Payment Export Routes
-Route::get('/admin/payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('admin.payments.export.pdf');
-Route::get('/admin/payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('admin.payments.export.csv');
