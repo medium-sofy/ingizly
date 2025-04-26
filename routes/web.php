@@ -23,6 +23,7 @@ use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogControlle
 
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentController;
@@ -31,12 +32,13 @@ use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\WelcomeController;
 
+//@@ Home
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
-Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
-Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
-Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
-Route::post('/register',[RegisteredUserController::class]);
 
+//@@ Auth
+Route::post('/register',[RegisteredUserController::class]);
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+// used to choose a specific role, and enter info specific to that role
 Route::middleware('auth')->group(function () {
     Route::get('/choose-role', [RegisteredUserController::class, 'showRoleSelection'])->name('choose.role');
     Route::post('/select-role', [RegisteredUserController::class, 'selectRole'])->name('select.role');
@@ -44,12 +46,42 @@ Route::middleware('auth')->group(function () {
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
     Route::post('/service-provider/store', [ServiceProviderController::class, 'store'])->name('service_provider.store');
-    Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
 
     // Service Buyer routes
     Route::get('/service-buyer/form', [ServiceBuyerController::class, 'create'])->name('service_buyer.form');
     Route::post('/service-buyer/store', [ServiceBuyerController::class, 'store'])->name('service_buyer.store');
 });
+
+// Admin routes
+
+// Service provider
+
+// Service buyer
+
+// Services
+
+// Dashboard
+
+// Profile
+
+// Orders
+
+// Payment
+
+// Notifications
+
+// Reviews
+
+// Reports
+
+// Categories
+
+
+Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
+Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
+Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
+
+
 
 Route::middleware(['auth', 'role:service_provider'])->group(function () {
     Route::get('/service-provider/profile', [ServiceProviderController::class, 'edit'])->name('service_provider.profile.edit');
@@ -109,6 +141,7 @@ Route::middleware('auth')->group(function () {
 // });
 Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->name('provider.')->group(function () {
     Route::resource('services', ServiceProviderCatalogController::class)->names('services');
+    Route::delete('/services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('services.image.destroy');
 });
 
 
