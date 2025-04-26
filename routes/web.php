@@ -31,9 +31,6 @@ use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\WelcomeController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
