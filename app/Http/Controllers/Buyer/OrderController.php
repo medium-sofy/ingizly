@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Buyer;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Service;
-use App\Models\Notification;  
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,6 +50,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Order::class);
         $request->validate([
             'service_id' => 'required|exists:services,id',
             'scheduled_date' => 'required|date|after_or_equal:today',
@@ -99,11 +100,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Check if the order belongs to the authenticated user
-        if ($order->buyer_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
+        $this->authorize('view', $order);
         $order->load('service', 'service.provider.user');
         return view('service_buyer.orders.show', compact('order'));
     }
@@ -111,18 +108,14 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        // Check if the order belongs to the authenticated user
-        if ($order->buyer_id != Auth::id()) {
-            return redirect()->route('buyer.orders.index')
-                ->with('error', 'You are not authorized to cancel this order.');
-        }
-    
+
+        $this->authorize('delete', $order);
         // Check if the order is in pending status
         if ($order->status !== 'pending') {
             return redirect()->route('buyer.orders.index')
                 ->with('error', 'Only pending orders can be cancelled.');
         }
-    
+
         // Update the order status to cancelled
         $order->update(['status' => 'cancelled']);
 
@@ -134,7 +127,7 @@ class OrderController extends Controller
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
-        
+
         return redirect()->route('buyer.orders.index')
             ->with('success', 'Order has been cancelled successfully.');
     }

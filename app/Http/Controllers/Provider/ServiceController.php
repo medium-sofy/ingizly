@@ -64,7 +64,7 @@ class ServiceController extends Controller
 
     public function edit(Service $service)
     {
-        $this->authorizeService($service);
+       $this->authorize('update',$service);
 
         $categories = Category::all();
         $service->load('images');
@@ -74,7 +74,7 @@ class ServiceController extends Controller
 
     public function update(Request $request, Service $service)
     {
-        $this->authorizeService($service);
+        $this->authorize('update',$service);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -124,7 +124,7 @@ class ServiceController extends Controller
 
     public function destroy(Service $service)
     {
-        $this->authorizeService($service);
+        $this->authorize('delete',$service);
 
         try {
             foreach ($service->images as $image) {
@@ -156,9 +156,7 @@ class ServiceController extends Controller
     {
         $image = ServiceImage::findOrFail($id);
 
-        if ($image->service->provider_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('delete',$image->service);
 
         Storage::disk('public')->delete($image->image_url);
         $image->delete();
