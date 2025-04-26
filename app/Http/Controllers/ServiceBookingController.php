@@ -42,8 +42,8 @@ class ServiceBookingController extends Controller
             // Notify provider about new booking
             Notification::create([
                 'user_id' => $service->provider->user_id,
-                'title' => 'New Booking Request',
-                'content' => 'New booking for '.$service->title,
+                'title' => 'New Booking Request #' . $order->id,
+                'content' => 'New booking #'.$order->id.' for '.$service->title.' (Service ID: '.$service->id.')',
                 'is_read' => false,
                 'notification_type' => 'order_update'
             ]);
@@ -51,8 +51,8 @@ class ServiceBookingController extends Controller
             // Notify buyer that booking request was sent
             Notification::create([
                 'user_id' => $user->id,
-                'title' => 'Booking Request Sent',
-                'content' => 'Your booking request for '.$service->title.' has been sent to the provider',
+                'title' => 'Booking Request Sent #' . $order->id,
+                'content' => 'Your booking request #'.$order->id.' for '.$service->title.' has been sent to the provider (Service ID: '.$service->id.')',
                 'is_read' => false,
                 'notification_type' => 'order_update'
             ]);
@@ -85,8 +85,8 @@ class ServiceBookingController extends Controller
         if ($isProvider) {
             Notification::create([
                 'user_id' => $order->buyer_id,
-                'title' => 'Booking Accepted',
-                'content' => "Your booking for '{$order->service->title}' was accepted",
+                'title' => 'Booking Accepted #' . $order->id,
+                'content' => "Your booking #{$order->id} for '{$order->service->title}' was accepted (Service ID: {$order->service_id})",
                 'notification_type' => 'order_update',
                 'is_read' => false
             ]);
@@ -107,8 +107,8 @@ class ServiceBookingController extends Controller
         // Notify the buyer about progress
         Notification::create([
             'user_id' => $order->buyer_id,
-            'title' => 'Service Started',
-            'content' => "Provider has started working on your order for '{$order->service->title}'",
+            'title' => 'Service Started #' . $order->id,
+            'content' => "Provider has started working on your order #{$order->id} for '{$order->service->title}' (Service ID: {$order->service_id})",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -128,8 +128,8 @@ class ServiceBookingController extends Controller
         // Notify the buyer about completion
         Notification::create([
             'user_id' => $order->buyer_id,
-            'title' => 'Service Completed',
-            'content' => "Your order for '{$order->service->title}' has been completed",
+            'title' => 'Service Completed #' . $order->id,
+            'content' => "Your order #{$order->id} for '{$order->service->title}' has been completed (Service ID: {$order->service_id})",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -155,8 +155,8 @@ class ServiceBookingController extends Controller
         
         Notification::create([
             'user_id' => $notificationTo,
-            'title' => 'Order Cancelled',
-            'content' => "Your order for '{$order->service->title}' has been cancelled by the {$cancelledBy}",
+            'title' => 'Order Cancelled #' . $order->id,
+            'content' => "Your order #{$order->id} for '{$order->service->title}' has been cancelled by the {$cancelledBy} (Service ID: {$order->service_id})",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -164,8 +164,8 @@ class ServiceBookingController extends Controller
         // Also notify the cancelling party
         Notification::create([
             'user_id' => $user->id,
-            'title' => 'Order Cancelled',
-            'content' => "You have cancelled your order for '{$order->service->title}'",
+            'title' => 'Order Cancelled #' . $order->id,
+            'content' => "You have cancelled your order #{$order->id} for '{$order->service->title}' (Service ID: {$order->service_id})",
             'notification_type' => 'order_update',
             'is_read' => false
         ]);
@@ -222,8 +222,8 @@ class ServiceBookingController extends Controller
             // Notify buyer about successful payment and order status
             Notification::create([
                 'user_id' => $order->buyer_id,
-                'title' => 'Payment Successful',
-                'content' => "Your payment for '{$order->service->title}' was successful. Your order is now in progress.",
+                'title' => 'Payment Successful #' . $order->id,
+                'content' => "Your payment for order #{$order->id} ('{$order->service->title}') was successful. Your order is now in progress. (Service ID: {$order->service_id})",
                 'notification_type' => 'payment',
                 'is_read' => false
             ]);
@@ -231,8 +231,8 @@ class ServiceBookingController extends Controller
             // Notify provider about payment received
             Notification::create([
                 'user_id' => $order->service->provider->user_id,
-                'title' => 'Payment Received',
-                'content' => "Payment received for order #{$order->id} for '{$order->service->title}'",
+                'title' => 'Payment Received #' . $order->id,
+                'content' => "Payment received for order #{$order->id} for '{$order->service->title}' (Service ID: {$order->service_id})",
                 'notification_type' => 'payment',
                 'is_read' => false
             ]);

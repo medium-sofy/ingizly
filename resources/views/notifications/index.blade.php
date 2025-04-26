@@ -83,10 +83,9 @@
     }
 @endphp
                 
-<a href="{{ $link }}" 
-   class="notification-link block px-6 py-4 hover:bg-gray-50 transition {{ $notification->is_read ? 'bg-white' : 'bg-purple-50' }}"
-   data-notification-id="{{ $notification->id }}" 
-   data-read-url="{{ $markAsReadUrl }}">
+                <a href="{{ $link }}" 
+                   class="notification-link block px-6 py-4 hover:bg-gray-50 transition {{ $notification->is_read ? 'bg-white' : 'bg-purple-50' }}"
+                   data-read-url="{{ $markAsReadUrl }}">
                    
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mr-4">
