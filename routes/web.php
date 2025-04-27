@@ -37,9 +37,8 @@ use App\Http\Controllers\WelcomeController;
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 //@@ Auth
-Route::post('/register',[RegisteredUserController::class]);
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-// used to choose a specific role, and enter info specific to that role
+require __DIR__.'/auth.php';
+    // used to choose a specific role, and enter info specific to that role
 Route::middleware('auth')->group(function () {
     Route::get('/choose-role', [RegisteredUserController::class, 'showRoleSelection'])->name('choose.role');
     Route::post('/select-role', [RegisteredUserController::class, 'selectRole'])->name('select.role');
@@ -173,6 +172,7 @@ Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->n
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
+
 //@@ Notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
@@ -213,7 +213,6 @@ Route::middleware('auth')->group(function () {
 });
 
 
-require __DIR__.'/auth.php';
 
 
 
