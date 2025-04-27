@@ -24,7 +24,6 @@ use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogControlle
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentController;
@@ -96,7 +95,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Custom Reports Routes
     Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
     Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
-
+    // Show single service details
+    // Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 });
 
 //@@ Service provider
@@ -105,27 +105,25 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::put('profile', [ServiceProviderController::class, 'update'])->name('service_provider.profile.update');
     Route::put('profile/password', [ServiceProviderController::class, 'updatePassword'])->name('service_provider.profile.update_password');
     Route::delete('profile', [ServiceProviderController::class, 'deleteAccount'])->name('service_provider.profile.delete');
-    // Provider services
+    // Provider dashboard services
     Route::resource('services', ServiceProviderCatalogController::class)->names('provider.services');
     Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
 
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
-
 });
+
 //@@ Service buyer
 Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.')->group(function () {
     Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
     Route::resource('orders', OrderController::class);
 
-    // Service browsing routes
-
+    // Service buyer dashboard browsing routes
     Route::get('/services', [ServiceBuyerCatalogController::class, 'index'])->name('services.index');
     Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
     Route::get('/services/{service}/order', [ServiceBuyerCatalogController::class, 'order'])->name('services.order');
 });
 
-//@@ Services
-    // home page service details routes
+//@@ Services (Home page view)
 Route::middleware(['auth', 'role:service_buyer'])->group(function () {
     Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
         ->name('service.review.submit');
@@ -197,28 +195,8 @@ Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->na
 Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
 Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
 
-// Reviews
-
-// Reports
-
-// Categories
-
+//@@ Categories
 Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
 Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
-
-    //// Show single service details
-    //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
-
-
-
-
-
-
-
-
-
-
-// Checkout Routes
-
 
