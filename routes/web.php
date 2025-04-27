@@ -156,7 +156,13 @@ Route::get('/dashboard', function () {
     }
     return redirect('/login');
 })->middleware(['auth', 'verified'])->name('dashboard');
-// Profile
+
+//@@ Profile
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
 //@@ Orders
 Route::middleware(['auth', 'role:service_buyer'])->group(function () {
@@ -207,19 +213,12 @@ Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->na
 
 
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+
 
 
 
 
 
 // Checkout Routes
-
-// Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
-// Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
 
 
