@@ -173,14 +173,18 @@ Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->n
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
-// Notifications
+//@@ Notifications
+Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
 
 // Reviews
 
 // Reports
 
 // Categories
-
 
 Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
@@ -218,10 +222,4 @@ require __DIR__.'/auth.php';
 // Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
 // Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
 
-// Notification routes
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
-    Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
-    Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
 
