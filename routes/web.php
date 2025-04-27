@@ -143,8 +143,19 @@ Route::middleware(['auth', 'role:service_buyer'])->group(function () {
     Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
         ->name('service.details');
 });
-// Dashboard
 
+//@@ Dashboard
+Route::get('/dashboard', function () {
+    if (Auth::check()) {
+        return match (Auth::user()->role) {
+            'service_buyer' => redirect()->route('buyer.dashboard'),
+            'service_provider' => redirect()->route('provider.dashboard'),
+            'admin' => redirect()->route('admin.dashboard'),
+            default => redirect('/login'),
+        };
+    }
+    return redirect('/login');
+})->middleware(['auth', 'verified'])->name('dashboard');
 // Profile
 
 //@@ Orders
@@ -194,17 +205,7 @@ Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->na
     //Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 
 
-Route::get('/dashboard', function () {
-    if (Auth::check()) {
-        return match (Auth::user()->role) {
-            'service_buyer' => redirect()->route('buyer.dashboard'),
-            'service_provider' => redirect()->route('provider.dashboard'),
-            'admin' => redirect()->route('admin.dashboard'),
-            default => redirect('/login'),
-        };
-    }
-    return redirect('/login');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
