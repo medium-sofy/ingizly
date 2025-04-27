@@ -276,8 +276,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                                     @if($review->buyer->user->profile_image)
-                                        <img src="{{ asset($review->buyer->user->profile_image) }}" class="w-full h-full object-cover" alt="{{ $review->buyer->user->name }}">
-                                    @else
+                                    <img src="{{ asset('storage/' . $review->buyer->user->profile_image) }}" class="w-full h-full object-cover" alt="{{ $review->buyer->user->name }}">                                    @else
                                         <div class="w-full h-full flex items-center justify-center bg-gray-400 dark:bg-gray-600 text-white">
                                             {{ substr($review->buyer->user->name, 0, 1) }}
                                         </div>
@@ -489,8 +488,8 @@
                                     <div class="flex items-start mb-4">
                                         <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-200 dark:bg-gray-600 mr-4 flex-shrink-0">
                                             @if($service->images && count($service->images) > 0)
-                                                <img src="{{ asset('storage/services/images/' . $service->images[0]->image_url) }}"
-                                                     class="w-full h-full object-cover"
+                                            <img src="{{ asset('storage/' . $service->images[0]->image_url) }}"
+                                            class="w-full h-full object-cover"
                                                      alt="{{ $service->title }}">
                                             @else
                                                 <div class="w-full h-full flex items-center justify-center bg-gray-300 dark:bg-gray-500">
