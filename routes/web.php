@@ -113,15 +113,60 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 
 });
-// Service buyer
+//@@ Service buyer
+Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.')->group(function () {
+    Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('orders', OrderController::class);
 
-// Services
+    // Service browsing routes
 
+    Route::get('/services', [ServiceBuyerCatalogController::class, 'index'])->name('services.index');
+    Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
+    Route::get('/services/{service}/order', [ServiceBuyerCatalogController::class, 'order'])->name('services.order');
+});
+
+//@@ Services
+    // home page service details routes
+Route::middleware(['auth', 'role:service_buyer'])->group(function () {
+    Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
+        ->name('service.review.submit');
+
+    Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'showReportForm'])
+        ->name('service.report.form');
+
+    Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
+        ->name('service.report.submit');
+
+    // Booking routes
+    Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
+        ->name('service.book');
+
+    Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+        ->name('service.details');
+});
 // Dashboard
 
 // Profile
 
-// Orders
+//@@ Orders
+Route::middleware(['auth', 'role:service_buyer'])->group(function () {
+    Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
+        ->name('orders.accept');
+
+    Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
+        ->name('orders.confirm');
+
+    Route::post('/orders/{order}/cancel', [ServiceBookingController::class, 'cancelOrder'])
+        ->name('orders.cancel');
+
+    Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
+        ->name('order.payment');
+});
+
+Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
+    Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
+});
 
 // Payment
 
@@ -166,24 +211,9 @@ Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->n
 Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
-// Service Buyer Routes
-Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.')->group(function () {
-    Route::get('/dashboard', [ServiceBuyerDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('orders', OrderController::class);
 
-    // Service browsing routes
-
-    Route::get('/services', [ServiceBuyerCatalogController::class, 'index'])->name('services.index');
-    Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
-    Route::get('/services/{service}/order', [ServiceBuyerCatalogController::class, 'order'])->name('services.order');
-
-});
 
 // Checkout Routes
-Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('checkout.')->group(function () {
-    Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
-    Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
-});
 
 // Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
 // Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
@@ -196,36 +226,7 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
 
 
 
-Route::middleware(['auth', 'role:service_buyer'])->group(function () {
-Route::post('/services/{serviceId}/review', [ServicedetailsController::class, 'submitReview'])
-     ->name('service.review.submit');
 
-Route::get('/services/{serviceId}/report', [ServicedetailsController::class, 'showReportForm'])
-     ->name('service.report.form');
-
-Route::post('/services/{serviceId}/report', [ServicedetailsController::class, 'submitReport'])
-     ->name('service.report.submit');
-
-     // Booking routes
-Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
-->name('service.book');
-
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-     ->name('service.details');
-
-     Route::post('/orders/{order}/accept', [ServiceBookingController::class, 'acceptOrder'])
-     ->name('orders.accept');
-
- Route::post('/orders/{order}/confirm', [ServiceBookingController::class, 'confirmOrder'])
-     ->name('orders.confirm');
-
-     Route::post('/orders/{order}/cancel', [ServiceBookingController::class, 'cancelOrder'])
-    ->name('orders.cancel');
-
-     Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
-     ->name('order.payment');
-
-    });
 
 // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
