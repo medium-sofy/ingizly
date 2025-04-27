@@ -168,8 +168,11 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('checkout')->name('che
     Route::post('/{order}/process', [CheckoutController::class, 'process'])->name('process');
 });
 
-// Payment
-
+//@@ Payment
+Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');
+Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
+Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
 // Notifications
 
 // Reviews
@@ -207,26 +210,13 @@ Route::middleware('auth')->group(function () {
 
 
 require __DIR__.'/auth.php';
-Route::post('/payment/process', [PaymentController::class, 'paymentProcess'])->name('payment.process');
-Route::match(['GET','POST'],'/payment/callback', [PaymentController::class, 'callBack']);
-Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
-Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
+
 
 
 // Checkout Routes
 
 // Route::post('/paymob/order', [PaymentController::class, 'createOrder']);
 // Route::post('/paymob/payment-key', [PaymentController::class, 'generatePaymentKey']);
-
-
-
-
-// Service Details Routes
-
-
-
-
-
 
 // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
