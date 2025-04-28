@@ -135,102 +135,118 @@
                 </div>
 
                 @auth
-                    @if(auth()->user()->role === 'service_buyer')
-                        @php
-                            $currentUser = auth()->user();
-                            $hasBuyerProfile = $currentUser->serviceBuyer;
-                            $userOrders = $hasBuyerProfile ? $service->orders->where('buyer_id', $currentUser->serviceBuyer->user_id) : collect();
-                            $currentOrder = $userOrders->where('status', '!=', 'cancelled')->sortByDesc('created_at')->first();
-                            $hasCompletedOrder = $userOrders->where('status', 'completed')->isNotEmpty();
-                            $hasReported = $currentUser->violations()->where('service_id', $service->id)->exists();
-                        @endphp
-                        <div class="space-y-3">
-                            @if(!$hasBuyerProfile)
-                                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-3 rounded flex items-center gap-2 text-sm">
-                                    <i class="fas fa-exclamation-circle text-yellow-400 dark:text-yellow-300"></i>
-                                    Complete your <a href="{{ route('service_buyer.form') }}" class="font-medium underline">buyer profile</a> to book services.
-                                </div>
-                            @elseif(!$currentOrder && $service->status === 'active')
-                                @if($hasCompletedOrder)
-                                    <div class="bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 dark:border-gray-500 p-3 rounded flex items-center gap-2 text-sm">
-                                        <i class="fas fa-check-double text-gray-400 dark:text-gray-300"></i>
-                                        Service was previously completed.
-                                    </div>
-                                @endif
-                                <button onclick="openModal('bookingModal')" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                                    <i class="fas fa-calendar-plus mr-2"></i> {{ $hasCompletedOrder ? 'Book Again' : 'Book Now' }}
-                                </button>
-                            @elseif($currentOrder)
-                                <div class="@switch($currentOrder->status)
-                                        @case('pending') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
-                                        @case('accepted') bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-500 @break
-                                        @case('in_progress') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
-                                        @case('completed') bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 dark:border-gray-500 @break
-                                    @endswitch p-3 rounded flex items-center gap-2 text-sm">
-                                    <i class="@switch($currentOrder->status)
-                                            @case('pending') fas fa-clock text-blue-400 dark:text-blue-300 @break
-                                            @case('accepted') fas fa-check-circle text-green-400 dark:text-green-300 @break
-                                            @case('in_progress') fas fa-tasks text-blue-400 dark:text-blue-300 @break
-                                            @case('completed') fas fa-check-double text-gray-400 dark:text-gray-300 @break
-                                        @endswitch"></i>
-                                    <span class="text-gray-800 dark:text-gray-200">
-                                        @switch($currentOrder->status)
-                                            @case('pending') Your booking request is pending approval. @break
-                                            @case('accepted') Your booking has been accepted! Please confirm to proceed. @break
-                                            @case('in_progress') Your service is in progress. Scheduled for {{ $currentOrder->scheduled_date->format('M j') }} at {{ date('g:i A', strtotime($currentOrder->scheduled_time)) }}. @break
-                                            @case('completed') Service completed on {{ $currentOrder->updated_at->format('M j, Y') }}. @break
-                                        @endswitch
-                                    </span>
-                                </div>
-                                @switch($currentOrder->status)
-                                    @case('pending')
-                                        <form action="{{ route('orders.cancel', $currentOrder->id) }}" method="POST" class="mt-2">
-                                            @csrf
-                                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                                                <i class="fas fa-times mr-2"></i> Cancel Booking
-                                            </button>
-                                        </form>
-                                        @break
-                                    @case('accepted')
-                                        <div class="space-y-2 mt-2">
-                                            <form action="{{ route('order.payment', $currentOrder->id) }}" method="GET">
-                                                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                                                    <i class="fas fa-check-double mr-2"></i> Confirm & Pay Now
-                                                </button>
-                                            </form>
-                                            <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-center text-xs text-gray-600 dark:text-gray-300">
-                                                <i class="fas fa-info-circle mr-1"></i> Cancellation not available after acceptance
-                                            </div>
-                                        </div>
-                                        @break
-                                    @case('completed')
-                                        @if($service->status === 'active')
-                                            <button onclick="openModal('bookingModal')" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition mt-2">
-                                                <i class="fas fa-redo mr-2"></i> Book Again
-                                            </button>
-                                        @endif
-                                        @break
-                                @endswitch
-                            @endif
-
-                            @if(!$hasReported)
-                                <a href="{{ route('service.report.form', $service->id) }}" class="border border-red-500 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                                    <i class="fas fa-flag mr-2"></i> Report Service
-                                </a>
-                            @else
-                                <div class="border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 px-6 py-3 rounded-xl flex items-center justify-center">
-                                    <i class="fas fa-flag mr-2"></i> You've already reported this service
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-                @else
-                    <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 p-3 rounded flex items-center gap-2 text-sm">
-                        <i class="fas fa-info-circle text-blue-400 dark:text-blue-300"></i>
-                        <a href="{{ route('login') }}" class="font-medium underline">Login</a> as a service buyer to book this service.
+    @if(auth()->user()->role === 'service_buyer')
+        @php
+            $currentUser = auth()->user();
+            $hasBuyerProfile = $currentUser->serviceBuyer;
+            $userOrders = $hasBuyerProfile ? $service->orders->where('buyer_id', $currentUser->serviceBuyer->user_id) : collect();
+            $currentOrder = $userOrders->where('status', '!=', 'cancelled')->sortByDesc('created_at')->first();
+            $hasCompletedOrder = $userOrders->where('status', 'completed')->isNotEmpty();
+            $hasReported = $currentUser->violations()->where('service_id', $service->id)->exists();
+        @endphp
+        <div class="space-y-3">
+            @if(!$hasBuyerProfile)
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-3 rounded flex items-center gap-2 text-sm">
+                    <i class="fas fa-exclamation-circle text-yellow-400 dark:text-yellow-300"></i>
+                    Complete your <a href="{{ route('service_buyer.form') }}" class="font-medium underline">buyer profile</a> to book services.
+                </div>
+            @elseif(!$currentOrder && $service->status === 'active')
+                @if($hasCompletedOrder)
+                    <div class="bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 dark:border-gray-500 p-3 rounded flex items-center gap-2 text-sm">
+                        <i class="fas fa-check-double text-gray-400 dark:text-gray-300"></i>
+                        Service was previously completed.
                     </div>
-                @endauth
-            </div>
+                @endif
+                <button onclick="openModal('bookingModal')" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+                    <i class="fas fa-calendar-plus mr-2"></i> {{ $hasCompletedOrder ? 'Book Again' : 'Book Now' }}
+                </button>
+            @elseif($currentOrder)
+                <div class="@switch($currentOrder->status)
+                        @case('pending') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
+                        @case('accepted') bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-500 @break
+                        @case('in_progress') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
+                        @case('completed') bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 dark:border-gray-500 @break
+                    @endswitch p-3 rounded flex items-center gap-2 text-sm">
+                    <i class="@switch($currentOrder->status)
+                            @case('pending') fas fa-clock text-blue-400 dark:text-blue-300 @break
+                            @case('accepted') fas fa-check-circle text-green-400 dark:text-green-300 @break
+                            @case('in_progress') fas fa-tasks text-blue-400 dark:text-blue-300 @break
+                            @case('completed') fas fa-check-double text-gray-400 dark:text-gray-300 @break
+                        @endswitch"></i>
+                    <span class="text-gray-800 dark:text-gray-200">
+                        @switch($currentOrder->status)
+                            @case('pending') Your booking request is pending approval. @break
+                            @case('accepted') Your booking has been accepted! Please confirm to proceed. @break
+                            @case('in_progress') Your service is in progress. Scheduled for {{ $currentOrder->scheduled_date->format('M j') }} at {{ date('g:i A', strtotime($currentOrder->scheduled_time)) }}. @break
+                            @case('completed') Service completed on {{ $currentOrder->updated_at->format('M j, Y') }}. @break
+                        @endswitch
+                    </span>
+                </div>
+                @switch($currentOrder->status)
+                    @case('pending')
+                        <form action="{{ route('orders.cancel', $currentOrder->id) }}" method="POST" class="mt-2">
+                            @csrf
+                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+                                <i class="fas fa-times mr-2"></i> Cancel Booking
+                            </button>
+                        </form>
+                        @break
+                    @case('accepted')
+                        <div class="space-y-2 mt-2">
+                            <form action="{{ route('order.payment', $currentOrder->id) }}" method="GET">
+                                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+                                    <i class="fas fa-check-double mr-2"></i> Confirm & Pay Now
+                                </button>
+                            </form>
+                            <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-center text-xs text-gray-600 dark:text-gray-300">
+                                <i class="fas fa-info-circle mr-1"></i> Cancellation not available after acceptance
+                            </div>
+                        </div>
+                        @break
+                    @case('completed')
+                        @if($service->status === 'active')
+                            <button onclick="openModal('bookingModal')" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition mt-2">
+                                <i class="fas fa-redo mr-2"></i> Book Again
+                            </button>
+                        @endif
+                        @break
+                @endswitch
+            @endif
+
+            @php
+                $userReport = $currentUser->violations()
+                    ->where('service_id', $service->id)
+                    ->latest()
+                    ->first();
+                $canReportAgain = !$userReport || in_array($userReport->status, ['resolved', 'dismissed']);
+            @endphp
+
+            @if($canReportAgain)
+                <a href="{{ route('service.report.form', $service->id) }}" class="border border-red-500 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+                    <i class="fas fa-flag mr-2"></i> Report Service
+                </a>
+            @else
+                <div class="border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 px-6 py-3 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-flag mr-2"></i> 
+                    @if($userReport->status === 'pending')
+                        Your report is under review
+                    @elseif($userReport->status === 'investigating')
+                        Your report is being investigated
+                    @else
+                        You've already reported this service
+                    @endif
+                </div>
+            @endif
+        </div>
+    @endif
+@else
+    <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 p-3 rounded flex items-center gap-2 text-sm">
+        <i class="fas fa-info-circle text-blue-400 dark:text-blue-300"></i>
+        <a href="{{ route('login') }}" class="font-medium underline">Login</a> as a service buyer to book this service.
+    </div>
+@endauth
+</div>
+
 
             <!-- Reviews Section -->
             @if($service->reviews && $service->reviews->count() > 0)
