@@ -119,22 +119,30 @@ elseif ($user->role === 'service_provider') {
     $link = route('provider.services.index');
 }
                     // For service buyer
-                    elseif ($user->role === 'service_buyer') {
-                        if ($source === 'dashboard') {
-                            $link = route('buyer.orders.index');
-                        } elseif ($source === 'landing' && $serviceId) {
-                            $link = route('service.details', $serviceId);
-                        } elseif ($orderId) {
-                            $order = \App\Models\Order::find($orderId);
-                            if ($order) {
-                                $link = route('service.details', $order->service_id);
-                            } else {
-                                $link = route('buyer.orders.index');
-                            }
-                        } else {
-                            $link = route('notifications.index');
-                        }
-                    }
+elseif ($user->role === 'service_buyer') {
+    // Handle violation notifications first
+    if ($notification->notification_type === 'system' && $violationId) {
+        $violation = \App\Models\Violation::find($violationId);
+        $link = $violation 
+            ? route('service.details', $violation->service_id)
+            : route('notifications.index');
+    }
+    // Then handle other buyer notifications
+    elseif ($source === 'dashboard') {
+        $link = route('buyer.orders.index');
+    } elseif ($source === 'landing' && $serviceId) {
+        $link = route('service.details', $serviceId);
+    } elseif ($orderId) {
+        $order = \App\Models\Order::find($orderId);
+        if ($order) {
+            $link = route('service.details', $order->service_id);
+        } else {
+            $link = route('buyer.orders.index');
+        }
+    } else {
+        $link = route('notifications.index');
+    }
+}
                     // For admin reports
                     elseif ($user->role === 'admin' && $notification->notification_type === 'system' && $violationId) {
                         $link = route('admin.reports.show', $violationId);

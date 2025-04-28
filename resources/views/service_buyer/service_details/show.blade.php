@@ -214,29 +214,30 @@
             @endif
 
             @php
-                $userReport = $currentUser->violations()
-                    ->where('service_id', $service->id)
-                    ->latest()
-                    ->first();
-                $canReportAgain = !$userReport || in_array($userReport->status, ['resolved', 'dismissed']);
-            @endphp
+    $userReport = $currentUser->violations()
+        ->where('service_id', $service->id)
+        ->latest()
+        ->first();
+    $canReportAgain = !$userReport || in_array($userReport->status, ['resolved', 'dismissed']);
+@endphp
 
-            @if($canReportAgain)
-                <a href="{{ route('service.report.form', $service->id) }}" class="border border-red-500 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                    <i class="fas fa-flag mr-2"></i> Report Service
-                </a>
-            @else
-                <div class="border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 px-6 py-3 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-flag mr-2"></i> 
-                    @if($userReport->status === 'pending')
-                        Your report is under review
-                    @elseif($userReport->status === 'investigating')
-                        Your report is being investigated
-                    @else
-                        You've already reported this service
-                    @endif
-                </div>
-            @endif
+@if($canReportAgain)
+    <a href="{{ route('service.report.form', $service->id) }}" 
+       class="border border-red-500 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+        <i class="fas fa-flag mr-2"></i> Report Service
+    </a>
+@else
+    <div class="border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 px-6 py-3 rounded-xl flex items-center justify-center">
+        <i class="fas fa-flag mr-2"></i> 
+        @if($userReport->status === 'pending')
+            Your report is under review
+        @elseif($userReport->status === 'investigating')
+            Your report is being investigated
+        @else
+            You've already reported this service
+        @endif
+    </div>
+@endif
         </div>
     @endif
 @else

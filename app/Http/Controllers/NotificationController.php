@@ -120,9 +120,8 @@ class NotificationController extends Controller
             }
         }
     
-        // =============================================
-        // SERVICE PROVIDER NOTIFICATIONS (UPDATED)
-        // =============================================
+        // SERVICE PROVIDER NOTIFICATIONS 
+
         if ($user->role === 'service_provider') {
             // Handle all booking/order/review notifications - always go to provider services
             if (str_contains(strtolower($notification->title), 'cancel') || 
@@ -156,9 +155,8 @@ class NotificationController extends Controller
             return route('provider.services.index');
         }
     
-        // =============================================
-        // ADMIN NOTIFICATIONS (ORIGINAL LOGIC)
-        // =============================================
+        // ADMIN NOTIFICATIONS 
+
         if ($user->role === 'admin') {
             // New service pending approval
             if (str_contains($notification->title, 'New Service Pending Approval')) {
@@ -178,9 +176,8 @@ class NotificationController extends Controller
             }
         }
     
-        // =============================================
-        // BUYER NOTIFICATIONS (UPDATED)
-        // =============================================
+        // BUYER NOTIFICATIONS 
+        
         if ($user->role === 'service_buyer') {
             // Order cancellations - check source
             if (str_contains(strtolower($notification->title), 'cancel')) {
