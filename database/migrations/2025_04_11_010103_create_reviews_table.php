@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->constrained('services');
-            $table->foreignId('buyer_id')->constrained('service_buyers','user_id');
-            $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
+            $table->foreignId('buyer_id')->constrained('service_buyers','user_id')->onDelete('cascade');
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->integer('rating')->check('rating >= 1 AND rating <= 5');
             $table->text('comment')->nullable();
             $table->unique(['buyer_id', 'order_id']); // Ensure each buyer can only review an order once

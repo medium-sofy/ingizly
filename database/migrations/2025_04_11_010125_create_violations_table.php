@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('violations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->constrained('services');
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->text('reason');
             $table->enum('status',['pending','investigating','resolved','dismissed'])->default('pending');
             $table->text('admin_note')->nullable();

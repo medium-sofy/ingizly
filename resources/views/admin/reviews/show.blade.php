@@ -105,12 +105,7 @@
                 <form action="{{ route('admin.reviews.update', $review->id) }}" method="POST">
                     @csrf
                     @method('PUT')
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Admin Notes</label>
-                        <textarea name="admin_notes" rows="4"
-                                class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Add notes about this review...">{{ $review->admin_notes }}</textarea>
-                    </div>
+
                     <div class="flex items-center gap-4">
                         <select name="status" class="border border-gray-300 rounded p-2">
                             <option value="pending" {{ $review->status == 'pending' ? 'selected' : '' }}>Pending</option>

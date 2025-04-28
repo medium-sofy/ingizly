@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->constrained('services');
-            $table->foreignId('buyer_id')->constrained('service_buyers','user_id');
+            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
+            $table->foreignId('buyer_id')->constrained('service_buyers','user_id')->onDelete('cascade');
             $table->enum('status',['pending','accepted','in_progress','completed','cancelled'])->default('pending');
             $table->decimal('total_amount', 10, 2);
             $table->date('scheduled_date')->nullable();

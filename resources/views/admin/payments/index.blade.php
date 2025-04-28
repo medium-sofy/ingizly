@@ -10,7 +10,7 @@
                 Add New Payment
             </a> --}}
             <div class="flex space-x-4">
-                <a href="{{ route('reports.custom.index') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
+                <a href="{{ route('admin.reports.custom.index') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
                     <i class="fas fa-chart-bar mr-2"></i>Custom Reports
                 </a>
                 <a href="{{ route('admin.payments.export.pdf') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
@@ -138,16 +138,16 @@
                             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">{{ $payment->created_at->format('M d, Y H:i') }}</td> {{-- Display creation date/time --}}
                             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
-                                    {{-- Add actions like viewing associated order or refund if applicable --}}
+{{--                                    --}}{{-- Add actions like viewing associated order or refund if applicable --}}
 {{--                                    @if($payment->order_id)--}}
 {{--                                        <a href="{{ route('admin.orders.show', $payment->order_id) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-xs">--}}
 {{--                                            View Order--}}
 {{--                                        </a>--}}
 {{--                                    @endif--}}
-                                    {{-- Add a button for refund/view payment details if needed --}}
-                                    {{-- @if($payment->payment_status == 'successful')
-                                        <button class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded text-xs">Refund</button>
-                                    @endif --}}
+{{--                                    --}}{{-- Add a button for refund/view payment details if needed --}}
+{{--                                    --}}{{-- @if($payment->payment_status == 'successful')--}}
+{{--                                        <button class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded text-xs">Refund</button>--}}
+{{--                                    @endif --}}
                                 </div>
                             </td>
                         </tr>

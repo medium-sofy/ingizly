@@ -20,12 +20,7 @@
 
                 <!-- Filter Controls -->
                 <div class="flex flex-wrap items-center gap-4 mb-4">
-                    <!-- Status Filter -->
-                    <select name="status" class="border border-gray-300 rounded p-2">
-                        <option value="">All Statuses</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
+
 
                     <!-- Apply Filters Button -->
                     <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded">
@@ -55,9 +50,7 @@
                             <td class="py-4">
                                 <div class="flex items-center">
                                     @if($category->icon)
-                                        <img src="{{ Storage::url($category->icon) }}"
-                                             alt="{{ $category->name }}"
-                                             class="w-8 h-8 rounded-full mr-3">
+
                                     @endif
                                     <div>
                                         <p class="font-medium">{{ $category->name }}</p>
@@ -106,6 +99,8 @@
                                 </div>
                             </td>
                         </tr>
+                        @error('parent_id')
+                        @enderror
                     @empty
                         <tr>
                             <td colspan="6" class="py-6 text-center text-gray-500">No categories found.</td>
