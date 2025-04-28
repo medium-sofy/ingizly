@@ -76,8 +76,11 @@ class NotificationController extends Controller
             if (json_last_error() === JSON_ERROR_NONE && is_array($decodedContent)) {
                 $source = $decodedContent['source'] ?? null;
                 $contentForRegex = $decodedContent['message'] ?? $notification->content;
+                     // Try to get service_id directly from decoded content if available
+            $serviceId = $decodedContent['service_id'] ?? null;
             } else {
                 $contentForRegex = $notification->content;
+                
             }
         } catch (\Exception $e) {
             $contentForRegex = $notification->content;
@@ -100,11 +103,14 @@ class NotificationController extends Controller
             $orderId = $matches[1] ?? $matches[2] ?? null;
         }
     
+         // Extract IDs from content if not already set
+    if (!$serviceId) {
         if (preg_match('/service id: (\d+)/i', $contentForRegex, $matches)) {
             $serviceId = $matches[1] ?? null;
         } elseif (preg_match('/\(service id: (\d+)\)/i', $contentForRegex, $matches)) {
             $serviceId = $matches[1] ?? null;
         }
+    }
     
         // Get service ID from order if available
         if ($orderId && !$serviceId) {
@@ -119,20 +125,26 @@ class NotificationController extends Controller
         // =============================================
         if ($user->role === 'service_provider') {
             // Handle all booking/order/review notifications - always go to provider services
-            if (str_contains(strtolower($notification->title), 'booking') || 
-                str_contains(strtolower($notification->title), 'order') ||
-                str_contains(strtolower($notification->title), 'review') ||
-                str_contains(strtolower($notification->title), 'cancel') ||
-                $notification->notification_type === 'order_update' ||
-                $notification->notification_type === 'review') {
-                
-                // If we have a specific service ID, go to that service's edit page
-                if ($serviceId) {
-                    return route('provider.services.show', $serviceId);
+            if (str_contains(strtolower($notification->title), 'cancel') || 
+            str_contains(strtolower($notification->title), 'booking') ||
+            str_contains(strtolower($notification->title), 'order') ||
+            str_contains(strtolower($notification->title), 'review') ||
+            $notification->notification_type === 'order_update' ||
+            $notification->notification_type === 'review') {
+            
+            // Try to get service ID from order if available
+            if (!$serviceId && $orderId) {
+                $order = Order::find($orderId);
+                if ($order) {
+                    $serviceId = $order->service_id;
                 }
-                // Otherwise go to services index
-                return route('provider.services.index');
             }
+            
+            if ($serviceId) {
+                return route('provider.services.show', $serviceId);
+            }
+            return route('provider.services.index');
+        }
     
             // Service approval/rejection
             if (str_contains($notification->title, 'Service Approved') || 

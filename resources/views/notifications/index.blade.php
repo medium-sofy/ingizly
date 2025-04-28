@@ -86,11 +86,38 @@
                         $link = route('admin.dashboard');
                     }
                     // Provider - Approval/Rejection Notifications
-                    elseif ($user->role === 'service_provider' && 
-                          (str_contains($notification->title, 'Service Approved') || 
-                           str_contains($notification->title, 'Service Rejected'))) {
-                        $link = route('provider.services.index');
-                    }
+elseif ($user->role === 'service_provider' && 
+      (str_contains($notification->title, 'Service Approved') || 
+       str_contains($notification->title, 'Service Rejected'))) {
+    $link = route('provider.services.index');
+}
+// Provider - Order cancellations, bookings, reviews
+elseif ($user->role === 'service_provider' && 
+      (str_contains(strtolower($notification->title), 'cancel') ||
+       str_contains(strtolower($notification->title), 'booking') ||
+       str_contains(strtolower($notification->title), 'order') ||
+       str_contains(strtolower($notification->title), 'review') ||
+       $notification->notification_type === 'order_update' ||
+       $notification->notification_type === 'review')) {
+    
+    // Try to get service ID from order if available
+    if (!$serviceId && $orderId) {
+        $order = \App\Models\Order::find($orderId);
+        if ($order) {
+            $serviceId = $order->service_id;
+        }
+    }
+    
+    if ($serviceId) {
+        $link = route('provider.services.show', $serviceId);
+    } else {
+        $link = route('provider.services.index');
+    }
+}
+// Default for other provider notifications
+elseif ($user->role === 'service_provider') {
+    $link = route('provider.services.index');
+}
                     // For service buyer
                     elseif ($user->role === 'service_buyer') {
                         if ($source === 'dashboard') {
@@ -216,16 +243,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     credentials: 'same-origin'
                 });
                 
-                if (response.ok) {
-                    // Redirect after successful mark-as-read
-                    window.location.href = url;
-                } else {
-                    console.error('Failed to mark notification as read');
-                    window.location.href = url; // Still redirect even if mark fails
-                }
+                // Always redirect, even if marking as read fails
+                window.location.href = url;
             } catch (error) {
                 console.error('Error:', error);
-                window.location.href = url; // Still redirect on error
+                // Still redirect on error
+                window.location.href = url;
             }
         });
     });
