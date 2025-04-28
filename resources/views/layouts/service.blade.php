@@ -42,7 +42,8 @@
 </head>
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200" data-user-role="{{ Auth::user()->role ?? '' }}">
+
     <!-- Navbar -->
     <header class="bg-white dark:bg-gray-800 shadow-sm animate-fadeIn">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex justify-between items-center">
@@ -57,6 +58,14 @@
                     <a href="#services" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
                     <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
                     <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
+                    @auth
+                <!-- Dashboard Button -->
+                <a href="{{ route('dashboard') }}" 
+                   class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            @endauth
+        </nav>
             </nav>
 
             <!-- Right side (User Controls) -->
@@ -216,124 +225,190 @@
         }
     }
     function notificationDropdown() {
-        return {
-            isOpen: false,
-            unreadCount: 0,
-            notifications: [],
-            isLoading: false,
+    return {
+        isOpen: false,
+        unreadCount: 0,
+        notifications: [],
+        isLoading: false,
 
-            init() {
-                this.fetchUnreadCount();
-                setInterval(() => this.fetchUnreadCount(), 30000);
-            },
+        init() {
+            this.fetchUnreadCount();
+            setInterval(() => this.fetchUnreadCount(), 30000);
+        },
 
-            toggleDropdown() {
-                this.isOpen = !this.isOpen;
-                if (this.isOpen) {
-                    this.fetchNotifications();
-                }
-            },
-
-            async fetchUnreadCount() {
-                try {
-                    const response = await fetch('{{ route("notifications.unread-count") }}');
-                    const data = await response.json();
-                    this.unreadCount = data.count;
-                } catch (error) {
-                    console.error('Error fetching unread count:', error);
-                }
-            },
-
-            async fetchNotifications() {
-                this.isLoading = true;
-                try {
-                    const response = await fetch('{{ route("notifications.fetch") }}');
-                    const data = await response.json();
-                    this.notifications = data.notifications;
-                    this.unreadCount = data.unread_count; // Sync the count
-                } catch (error) {
-                    console.error('Error fetching notifications:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            },
-
-            async markAsRead(notif) {
-                if (notif.is_read) return;
-
-                try {
-                    await fetch(`/notifications/${notif.id}/mark-read`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    notif.is_read = true;
-                    this.unreadCount = Math.max(0, this.unreadCount - 1);
-                } catch (error) {
-                    console.error('Error marking notification as read:', error);
-                }
-            },
-
-            async markAllAsRead() {
-                if (this.unreadCount === 0) return;
-
-                try {
-                    await fetch('{{ route("notifications.mark-all-read") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    // Mark all as read in the UI
-                    this.notifications = this.notifications.map(notif => ({
-                        ...notif,
-                        is_read: true
-                    }));
-                    this.unreadCount = 0;
-                } catch (error) {
-                    console.error('Error marking all notifications as read:', error);
-                }
-            },
-            getNotificationLink(notif) {
-    // If the notification has a link property from the API, use it
-    if (notif.link && notif.link !== '#') {
-        return notif.link;
-    }
-    
-    // Fallback logic (only used if API doesn't provide a link)
-    if (notif.notification_type === 'order_update' && notif.service_id) {
-        return `/services/${notif.service_id}`;
-    }
-    
-    // Default to notifications page if no specific link is found
-    return '/notifications';
-},
-
-            getNotificationIcon(type) {
-                switch(type) {
-                    case 'order_update': return 'bx-cart';
-                    case 'payment': return 'bx-credit-card';
-                    case 'message': return 'bx-message-detail';
-                    case 'review': return 'bx-star';
-                    default: return 'bx-bell';
-                }
-            },
-
-            formatDate(dateString) {
-                const date = new Date(dateString);
-                return date.toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+        toggleDropdown() {
+            this.isOpen = !this.isOpen;
+            if (this.isOpen) {
+                this.fetchNotifications();
             }
+        },
+
+        async fetchUnreadCount() {
+            try {
+                const response = await fetch('{{ route("notifications.unread-count") }}');
+                const data = await response.json();
+                this.unreadCount = data.count;
+            } catch (error) {
+                console.error('Error fetching unread count:', error);
+            }
+        },
+
+        async fetchNotifications() {
+            this.isLoading = true;
+            try {
+                const response = await fetch('{{ route("notifications.fetch") }}');
+                const data = await response.json();
+                this.notifications = data.notifications;
+                this.unreadCount = data.unread_count; // Sync the count
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async markAsRead(notif) {
+            if (notif.is_read) return;
+
+            try {
+                await fetch(`/notifications/${notif.id}/mark-read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                notif.is_read = true;
+                this.unreadCount = Math.max(0, this.unreadCount - 1);
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        },
+
+        async markAllAsRead() {
+            if (this.unreadCount === 0) return;
+
+            try {
+                await fetch('{{ route("notifications.mark-all-read") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Mark all as read in the UI
+                this.notifications = this.notifications.map(notif => ({
+                    ...notif,
+                    is_read: true
+                }));
+                this.unreadCount = 0;
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+            }
+        },
+        
+        getNotificationLink(notif) {
+            // If the notification has a link property from the API, use it
+            if (notif.link && notif.link !== '#') {
+                return notif.link;
+            }
+            
+            // Use the same routing logic as in index.blade.php
+            let link = '#';
+            
+            // Extract IDs from notification content
+            let violationId = null;
+            let reviewId = null;
+            let orderId = null;
+            
+            // Extract violation ID from title or content
+            if ((notif.title && notif.title.match(/violation.*?#(\d+)|report.*?#(\d+)/i))) {
+                const matches = notif.title.match(/violation.*?#(\d+)|report.*?#(\d+)/i);
+                violationId = matches[1] || matches[2];
+            } else if ((notif.content && notif.content.match(/violation.*?#(\d+)|report.*?#(\d+)/i))) {
+                const matches = notif.content.match(/violation.*?#(\d+)|report.*?#(\d+)/i);
+                violationId = matches[1] || matches[2];
+            }
+            
+            // Extract review ID
+            if (notif.content && notif.content.match(/review.*?#(\d+)/i)) {
+                const matches = notif.content.match(/review.*?#(\d+)/i);
+                reviewId = matches[1];
+            }
+            
+            // Extract order ID
+            if (notif.content && notif.content.match(/order.*?#(\d+)|booking.*?#(\d+)/i)) {
+                const matches = notif.content.match(/order.*?#(\d+)|booking.*?#(\d+)/i);
+                orderId = matches[1];
+            }
+            
+            // Extract service ID
+            let serviceId = null;
+            if (notif.content && notif.content.match(/service id: (\d+)/i)) {
+                const matches = notif.content.match(/service id: (\d+)/i);
+                serviceId = matches[1];
+            }
+
+            // Get user role from data attribute or other source
+            const userRole = document.body.getAttribute('data-user-role') || '{{ Auth::user()->role ?? "" }}';
+            
+            // For admin role - direct to specific admin routes
+            if (userRole === 'admin') {
+                if (notif.notification_type === 'system' && violationId) {
+                    return '/admin/reports/' + violationId;
+                } 
+                else if (notif.notification_type === 'review' && reviewId) {
+                    return '/admin/reviews/' + reviewId;
+                }
+                else if (notif.notification_type === 'review' && !reviewId) {
+                    // If we couldn't extract a specific review ID, go to reviews index
+                    return '/admin/reviews';
+                }
+            }
+            // For other roles - existing logic
+            else if (notif.notification_type === 'order_update' || notif.notification_type === 'payment') {
+                if (serviceId) {
+                    return '/services/' + serviceId;
+                } else if (orderId) {
+                    // We may need an API endpoint to get service ID from order ID
+                    return '/orders/' + orderId; 
+                }
+            } 
+            else if (notif.notification_type === 'system' && userRole === 'service_buyer' && violationId) {
+                // For now, redirect to notifications if we don't have service ID
+                return serviceId ? '/services/' + serviceId : '/notifications';
+            } 
+            else if (notif.notification_type === 'review' && userRole === 'service_provider') {
+                return '/provider/services';
+            }
+            
+            // Default to notifications page if no specific link is found
+            return '/notifications';
+        },
+
+        getNotificationIcon(type) {
+            switch(type) {
+                case 'order_update': return 'bx-cart';
+                case 'payment': return 'bx-credit-card';
+                case 'message': return 'bx-message-detail';
+                case 'review': return 'bx-star';
+                case 'system': return 'bx-flag';
+                default: return 'bx-bell';
+            }
+        },
+
+        formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
     }
+}
     </script>
 </body>
 </html>

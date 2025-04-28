@@ -50,6 +50,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Order::class);
         $request->validate([
             'service_id' => 'required|exists:services,id',
             'scheduled_date' => 'required|date|after_or_equal:today',
@@ -76,8 +77,11 @@ class OrderController extends Controller
 
    Notification::create([
         'user_id' => $service->provider->user_id,
-        'title' => 'New Booking Request',
-        'content' => 'New booking for '.$service->title,
+        'title' => 'New Booking Request #' . $order->id,
+        'content' => json_encode([
+            'message' => 'New booking  #'.$order->id.' for '.$service->title.' respond ',
+            'source' => 'dashboard' 
+        ]),
         'is_read' => false,
         'notification_type' => 'order_update'
     ]);
@@ -85,11 +89,14 @@ class OrderController extends Controller
       // Notify buyer that booking request was sent
       Notification::create([
         'user_id' => Auth::id(),
-        'title' => 'Booking Request Sent',
-        'content' => 'Your booking request for '.$service->title.' has been sent to the provider',
-        'is_read' => false,
-        'notification_type' => 'order_update'
-    ]);
+      'title' => 'Booking Request Sent #' . $order->id, 
+    'content' => json_encode([
+        'message' => 'Your booking request #'.$order->id.' for '.$service->title.' has been sent to the provider',
+        'source' => 'dashboard' 
+    ]),
+    'is_read' => false,
+    'notification_type' => 'order_update'
+]);
         // Redirect to checkout
         return redirect()->route('checkout.show', $order->id);
     }
@@ -99,10 +106,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Check if the order belongs to the authenticated user
-        if ($order->buyer_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('view', $order);
 
         $order->load('service', 'service.provider.user');
         return view('service_buyer.orders.show', compact('order'));
@@ -111,11 +115,7 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        // Check if the order belongs to the authenticated user
-        if ($order->buyer_id != Auth::id()) {
-            return redirect()->route('buyer.orders.index')
-                ->with('error', 'You are not authorized to cancel this order.');
-        }
+        $this->authorize('delete', $order);
     
         // Check if the order is in pending status
         if ($order->status !== 'pending') {
@@ -129,12 +129,14 @@ class OrderController extends Controller
 
         Notification::create([
             'user_id' => $order->service->provider->user_id,
-            'title' => 'Order Cancelled',
-            'content' => "The order for '{$order->service->title}' has been cancelled by the buyer",
-            'notification_type' => 'order_update',
-            'is_read' => false
-        ]);
-        
+            'title' => 'Order Cancelled #' . $order->id,
+           'content' => json_encode([
+                    'message' =>"The order for '{ #'.$order->id.'$order->service->title}' has been cancelled by the buyer",
+                    'source' => 'dashboard' 
+                ]),
+                'is_read' => false,
+                'notification_type' => 'order_update'
+            ]);
         return redirect()->route('buyer.orders.index')
             ->with('success', 'Order has been cancelled successfully.');
     }
