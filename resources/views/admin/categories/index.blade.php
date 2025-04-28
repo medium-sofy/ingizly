@@ -55,9 +55,7 @@
                             <td class="py-4">
                                 <div class="flex items-center">
                                     @if($category->icon)
-                                        <img src="{{ Storage::url($category->icon) }}"
-                                             alt="{{ $category->name }}"
-                                             class="w-8 h-8 rounded-full mr-3">
+
                                     @endif
                                     <div>
                                         <p class="font-medium">{{ $category->name }}</p>
