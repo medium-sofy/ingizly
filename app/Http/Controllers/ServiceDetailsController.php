@@ -112,32 +112,28 @@ public function submitReview(Request $request, $serviceId)
     return back()->with('success', 'Review submitted successfully!');
 }
 
-    public function showReportForm($serviceId)
-    {
-        $service = Service::with(['violations' => function($query) {
-            $query->where('user_id', Auth::id());
-        }])->findOrFail($serviceId);
+public function showReportForm($serviceId)
+{
+    $service = Service::with(['violations' => function($query) {
+        $query->where('user_id', Auth::id())
+              ->latest(); // Get the most recent report first
+    }])->findOrFail($serviceId);
 
-        // Check if user has already reported this service
-        if ($service->violations->count() > 0) {
-            return redirect()->route('service.details', $serviceId)
-                            ->with('error', 'You have already reported this service.');
-        }
+    // Check if user has an active report (pending or investigating)
+    $hasActiveReport = $service->violations->contains(function($violation) {
+        return in_array($violation->status, ['pending', 'investigating']);
+    });
 
-        return view('service_buyer.service_details.report_form', compact('service'));
+    if ($hasActiveReport) {
+        return redirect()->route('service.details', $serviceId)
+                        ->with('error', 'You already have an active report for this service.');
     }
 
+    return view('service_buyer.service_details.report_form', compact('service'));
+}
 
     public function submitReport(Request $request, $serviceId)
     {
-        $existingReport = Violation::where('user_id', Auth::id())
-                                ->where('service_id', $serviceId)
-                                ->first();
-
-        if ($existingReport) {
-            return redirect()->route('service.details', $serviceId)
-                            ->with('error', 'You have already reported this service.');
-        }
 
         $request->validate([
             'reason_type' => 'required|string|max:255',
@@ -145,6 +141,16 @@ public function submitReview(Request $request, $serviceId)
             'agree_terms' => 'required|accepted'
         ]);
 
+        $hasActiveReport = Violation::where('user_id', Auth::id())
+                             ->where('service_id', $serviceId)
+                             ->whereIn('status', ['pending', 'investigating'])
+                             ->exists();
+
+    if ($hasActiveReport) {
+        return redirect()->route('service.details', $serviceId)
+                        ->with('error', 'You already have an active report for this service.');
+    }
+    
         $violation = Violation::create([
             'user_id' => Auth::id(),
             'service_id' => $serviceId,
