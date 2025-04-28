@@ -20,12 +20,7 @@
 
                 <!-- Filter Controls -->
                 <div class="flex flex-wrap items-center gap-4 mb-4">
-                    <!-- Status Filter -->
-                    <select name="status" class="border border-gray-300 rounded p-2">
-                        <option value="">All Statuses</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
+
 
                     <!-- Apply Filters Button -->
                     <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded">
