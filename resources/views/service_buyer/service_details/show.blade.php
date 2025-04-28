@@ -357,12 +357,12 @@
                 <div class="p-6">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
-                            @if($service->provider->user->profile_image)
-                            <img src="{{ asset('storage/' . Auth::user()->profile_image) }}"
-                            class="w-full h-full object-cover" alt="{{ $service->provider->user->name }}">
+                            @if($service->provider && $service->provider->user && $service->provider->user->profile_image)
+                                <img src="{{ asset('storage/' . $service->provider->user->profile_image) }}"
+                                     class="w-full h-full object-cover" alt="{{ $service->provider->user->name }}">
                             @else
                                 <div class="w-full h-full flex items-center justify-center bg-gray-400 dark:bg-gray-600 text-white text-2xl">
-                                    {{ substr($service->provider->user->name, 0, 1) }}
+                                    {{ $service->provider && $service->provider->user ? substr($service->provider->user->name, 0, 1) : '?' }}
                                 </div>
                             @endif
                         </div>

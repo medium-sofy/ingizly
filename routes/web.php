@@ -138,8 +138,8 @@ Route::middleware(['auth', 'role:service_buyer'])->group(function () {
     Route::post('/services/{service}/book', [ServiceBookingController::class, 'bookService'])
         ->name('service.book');
 
-    Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-        ->name('service.details');
+    // Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+    //     ->name('service.details');
 });
 
 //@@ Dashboard
@@ -199,4 +199,5 @@ Route::post('/notifications/mark-all-read', [NotificationController::class, 'mar
 Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
 Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
-
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+        ->name('service.details');
