@@ -110,7 +110,11 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::resource('services', ServiceProviderCatalogController::class)->names('provider.services');
     Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
 
+    
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
+
+    Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
+    Route::get('/wallet/download/{payment}', [ServiceProviderDashboardController::class, 'downloadTransaction'])->name('provider.wallet.download');
 });
 
 //@@ Service buyer
