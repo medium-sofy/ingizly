@@ -106,6 +106,8 @@
                                 </div>
                             </td>
                         </tr>
+                        @error('parent_id')
+                        @enderror
                     @empty
                         <tr>
                             <td colspan="6" class="py-6 text-center text-gray-500">No categories found.</td>

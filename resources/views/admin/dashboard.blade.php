@@ -107,13 +107,13 @@
                         </div>
                         {{-- Approval/Rejection Buttons --}}
                         <div class="flex justify-end space-x-2">
-                            <form action="{{ route('services.approve', $service->id) }}" method="POST"> {{-- Adjusted route name assumption --}}
+                            <form action="{{ route('admin.services.approve', $service->id) }}" method="POST"> {{-- Adjusted route name assumption --}}
                                 @csrf
                                 <button type="submit" class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600">
                                     Approve
                                 </button>
                             </form>
-                            <form action="{{ route('services.reject', $service->id) }}" method="POST"> {{-- Adjusted route name assumption --}}
+                            <form action="{{ route('admin.services.reject', $service->id) }}" method="POST"> {{-- Adjusted route name assumption --}}
                                 @csrf
                                 <button type="submit" class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">
                                     Reject
