@@ -95,6 +95,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
 Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+
 // Custom Reports Routes
 Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
 Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
