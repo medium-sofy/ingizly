@@ -145,7 +145,7 @@
                                     <span class="sr-only">Open user menu</span>
                                     @if(Auth::check())
                                         <img class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
-                                             src="{{ asset(Auth::user()->profile_image ?? 'path/to/default/image.jpg') }}"
+                                             src="{{ asset('storage/' . Auth::user()->profile_image) }}"
                                              alt="{{ Auth::user()->name ?? 'User' }}">
                                     @endif
                                 </button>
