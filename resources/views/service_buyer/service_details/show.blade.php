@@ -256,7 +256,7 @@
                     <div class="space-y-2">
                         @for($i = 5; $i >= 1; $i--)
                             <div class="flex items-center gap-2">
-                                <div class="w-8 text-right">{{ $i }} <i class="fas fa-star text-yellow-400 ml-1"></i></div>
+                                <div class="w-8 text-right dark:text-gray-300">{{ $i }} <i class="fas fa-star text-yellow-400 ml-1"></i></div>
                                 <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
                                     @php
                                         $count = $service->reviews->where('rating', $i)->count();
