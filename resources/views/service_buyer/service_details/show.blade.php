@@ -537,6 +537,7 @@
                                             <p class="text-gray-900 dark:text-gray-100">{{ $service->location ?? $service->provider->location }}</p>
                                         </div>
                                     </div>
+                        
                                 </div>
                                 <div class="space-y-4">
                                     <div>
@@ -568,11 +569,18 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="mt-6">
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-150 ease-in-out">
+                        Proceed to Checkout
+                    </button>
+                </div>
                             <div class="modal-footer flex justify-end p-4 border-t dark:border-gray-700">
                                 <button type="button" class="px-6 py-3 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-500 mr-3 transition" onclick="closeModal('bookingModal')">Cancel</button>
                                 <button type="submit" class="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 shadow transition">
                                     <i class="fas fa-paper-plane mr-2"></i> Send Booking Request
                                 </button>
+                                
+              
                             </div>
                         </form>
                     </div>
