@@ -50,7 +50,11 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+    // Store intended URL if coming from a service page
+    if (str_contains(url()->previous(), '/services/')) {
+        session(['url.intended' => url()->previous()]);
     }
+}
 
     /**
      * Ensure the login request is not rate limited.
