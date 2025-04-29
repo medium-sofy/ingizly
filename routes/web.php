@@ -69,6 +69,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('services/{service}/edit', [AdminServiceController::class, 'update'])->name('services.update');
     Route::delete('services/show/{service}', [AdminServiceController::class, 'destroy'])->name('services.destroy');
     Route::get('services/show/{service}', [AdminServiceController::class, 'show'])->name('services.show');
+    Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
+    Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
 
     // Payment Export Routes
     Route::get('payments', [PaymentController::class, 'index'])->name('payments');
@@ -93,8 +95,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Show single service details
     // Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 });
-Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
-Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
 // Custom Reports Routes
 Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
 Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
@@ -110,6 +110,8 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
 
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
+    Route::post('dashboard/orders/{order}/accept', [ServiceProviderDashboardController::class, 'acceptOrder'])->name('provider.dashboard.accept');
+    Route::post('dashboard/orders/{order}/reject', [ServiceProviderDashboardController::class, 'rejectOrder'])->name('provider.dashboard.reject');
 });
 
 //@@ Service buyer

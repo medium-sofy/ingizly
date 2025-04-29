@@ -87,7 +87,7 @@
                                 'pending' => 'bg-yellow-100 text-yellow-800',
                             ];
                         @endphp
-                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium 
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
                             {{ $statusStyles[$service->status] ?? 'bg-gray-100 text-gray-800' }}">
                             {{ ucfirst($service->status) }}
                         </span>
@@ -157,12 +157,18 @@
                 <p class="text-xs sm:text-sm text-gray-500">{{ $order->service->title }} • {{ $order->scheduled_date }}</p>
             </div>
             <div class="flex gap-2">
-                <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs sm:text-sm">
-                    <i class="fas fa-check"></i> Accept
-                </button>
-                <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs sm:text-sm">
-                    <i class="fas fa-times"></i> Reject
-                </button>
+                <form action="{{route('provider.dashboard.accept', $order->id)}}" method="POST">
+                    @csrf
+                    <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs sm:text-sm">
+                        <i class="fas fa-check"></i> Accept
+                    </button>
+                </form>
+                <form action="{{route('provider.dashboard.reject', $order->id)}}" method="POST">
+                    @csrf
+                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs sm:text-sm">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                </form>
             </div>
         </div>
         @empty
