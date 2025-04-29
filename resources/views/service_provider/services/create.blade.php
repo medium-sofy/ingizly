@@ -1,14 +1,14 @@
 @extends('layouts.provider')
 
 @section('content')
-<div class="max-w-4xl mx-auto p-6 sm:p-8 bg-white rounded-lg shadow-md mt-6">
-    <h2 class="text-3xl font-extrabold text-gray-800 mb-6 flex items-center gap-3">
+<div class="max-w-4xl mx-auto p-6 sm:p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md mt-6">
+    <h2 class="text-3xl font-extrabold text-gray-800 dark:text-white mb-6 flex items-center gap-3">
         <i class="fas fa-plus-circle text-blue-500 text-2xl"></i>
         Add New Service
     </h2>
 
     @if($errors->any())
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div class="bg-red-100 dark:bg-red-200/10 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-6">
             <ul class="list-disc list-inside space-y-1">
                 @foreach ($errors->all() as $error)
                     <li class="text-sm">{{ $error }}</li>
@@ -22,16 +22,16 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Service Title</label>
+                <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Title</label>
                 <input type="text" name="title" id="title"
-                       class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+                       class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
                        value="{{ old('title') }}" required>
             </div>
 
             <div>
-                <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                 <select name="category_id" id="category_id"
-                        class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+                        class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
                         required>
                     <option value="">Select a Category</option>
                     @foreach($categories as $cat)
@@ -45,9 +45,9 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label for="service_type" class="block text-sm font-medium text-gray-700 mb-1">Service Type</label>
+                <label for="service_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Type</label>
                 <select name="service_type" id="service_type"
-                        class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+                        class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
                         required>
                     <option value="on_site" {{ old('service_type') == 'on_site' ? 'selected' : '' }}>On Site</option>
                     <option value="remote" {{ old('service_type') == 'remote' ? 'selected' : '' }}>Remote</option>
@@ -56,40 +56,40 @@
             </div>
 
             <div>
-                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price (EGP)</label>
+                <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (EGP)</label>
                 <input type="number" name="price" id="price"
-                       class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+                       class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
                        value="{{ old('price') }}" required>
             </div>
         </div>
 
         <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea name="description" id="description" rows="4"
-                      class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+                      class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
                       required>{{ old('description') }}</textarea>
         </div>
 
         <div>
-            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+            <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
             <input type="text" name="location" id="location"
-                   class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+                   class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
                    value="{{ old('location') }}">
         </div>
 
         <div>
-            <label for="images" class="block text-sm font-medium text-gray-700 mb-1">Service Images</label>
+            <label for="images" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Images</label>
             <input type="file" name="images[]" id="images" multiple accept="image/*"
-                class="w-full border border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition"
+                class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
                 onchange="previewImages(event)">
-            <p class="text-sm text-gray-500 mt-1">You can upload multiple images. (Max size: 2MB each)</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">You can upload multiple images. (Max size: 2MB each)</p>
 
             <div id="preview-container" class="mt-4 flex flex-wrap gap-4 justify-center"></div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4">
             <a href="{{ route('provider.services.index') }}"
-               class="text-sm text-gray-600 hover:text-gray-900 transition">Cancel</a>
+               class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Cancel</a>
             <button type="submit"
                     class="bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow">
                 <i class="fas fa-check-circle mr-1"></i> Create Service
@@ -97,6 +97,7 @@
         </div>
     </form>
 </div>
+
 @push('scripts')
 <script>
     let selectedFiles = [];
@@ -115,7 +116,7 @@
 
                 const img = document.createElement('img');
                 img.src = e.target.result;
-                img.classList.add('w-32', 'h-32', 'object-cover', 'rounded', 'border');
+                img.classList.add('w-32', 'h-32', 'object-cover', 'rounded', 'border', 'border-gray-300', 'dark:border-gray-600');
 
                 const removeBtn = document.createElement('button');
                 removeBtn.innerHTML = '&times;';
@@ -149,7 +150,7 @@
 
                 const img = document.createElement('img');
                 img.src = e.target.result;
-                img.classList.add('w-32', 'h-32', 'object-cover', 'rounded', 'border');
+                img.classList.add('w-32', 'h-32', 'object-cover', 'rounded', 'border', 'border-gray-300', 'dark:border-gray-600');
 
                 const removeBtn = document.createElement('button');
                 removeBtn.innerHTML = '&times;';

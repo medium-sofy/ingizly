@@ -92,13 +92,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Show single service details
     // Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
-});
-Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
+
+    Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
 Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
 
 // Custom Reports Routes
 Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
 Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
+});
+// Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
+// Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
+// // Custom Reports Routes
+// Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
+// Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
 
 //@@ Service provider
 Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(function () {
@@ -108,8 +114,8 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::delete('profile', [ServiceProviderController::class, 'deleteAccount'])->name('service_provider.profile.delete');
     // Provider dashboard services
     Route::resource('services', ServiceProviderCatalogController::class)->names('provider.services');
-    Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
-
+   // Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
+   Route::delete('services/image/{id}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
     
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 
