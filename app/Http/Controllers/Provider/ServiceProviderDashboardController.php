@@ -23,7 +23,7 @@ class ServiceProviderDashboardController extends Controller
         // Basic statistics
         $totalServices = $services->count();
         $totalViews = $services->sum('view_count');
-        $pendingBookings = \App\Models\Order::whereIn('service_id', $services->pluck('id'))
+        $pendingBookings = Order::whereIn('service_id', $services->pluck('id'))
         ->whereIn('status', ['pending', 'accepted'])
         ->count();
         $averageRating = Review::whereIn('service_id', $services->pluck('id'))->avg('rating');
@@ -33,6 +33,7 @@ class ServiceProviderDashboardController extends Controller
             ->whereIn('service_id', $services->pluck('id'))
             ->where('status',  'pending')
             ->latest()
+            ->orderBy('created_at', 'ASC')
             ->take(5)
             ->get();
 
@@ -42,6 +43,7 @@ class ServiceProviderDashboardController extends Controller
             ->latest()
             ->take(5)
             ->get();
+//        $reviewDate = Carbon::timestamp($-)
 
         return view('service_provider.dashboard.index', compact(
             'services',

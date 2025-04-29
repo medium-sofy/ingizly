@@ -92,12 +92,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/reports/{violation}', [ReportController::class, 'show'])->name('reports.show');
     Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
 
+    // Custom Reports Routes
+    Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
+    Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
+
     // Show single service details
     // Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
 });
-// Custom Reports Routes
-Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
-Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
 
 //@@ Service provider
 Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(function () {

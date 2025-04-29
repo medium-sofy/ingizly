@@ -183,8 +183,13 @@
         </h3>
         @forelse($recentReviews as $review)
         <div class="border-b pb-4 mb-4">
-            <p class="font-semibold text-sm sm:text-base">{{ $review->buyer->user->name }}</p>
-            <p class="text-xs sm:text-sm text-yellow-500">Rating: {{ $review->rating }} ★</p>
+            <p class="font-semibold text-sm sm:text-base">{{ $review->service->title }}</p>
+
+            <div class="flex items-center gap-4">
+                <p class="font-semibold text-gray-600 text-xs sm:text-base">{{ $review->buyer->user->name }}</p>
+                <p class="text-xs sm:text-sm text-yellow-600">{{ $review->rating }} ★</p>
+            </div>
+            <p class="text-gray-700 text-sm sm:text-base">{{ Carbon\Carbon::parse($review->created_at)->diffForHumans()}}</p>
             <p class="text-gray-600 text-sm">{{ $review->comment }}</p>
         </div>
         @empty
