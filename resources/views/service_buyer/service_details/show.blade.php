@@ -4,6 +4,36 @@
 
 @push('styles')
 <style>
+
+    /* Image Gallery Styles */
+.thumbnail-item {
+    transition: all 0.2s ease;
+}
+
+.thumbnail-item:hover {
+    transform: scale(1.05);
+}
+
+/* Modal Styles */
+#imageModal .modal-dialog {
+    max-width: 95vw;
+}
+
+#imageModal .modal-content {
+    height: 90vh;
+}
+
+@media (max-width: 768px) {
+    #imageModal .modal-dialog {
+        margin: 0 auto;
+        padding: 10px;
+    }
+}
+
+/*  transitions for zoom */
+#modalImageContent {
+    transition: transform 0.3s ease-out;
+}
     .rating-input {
         display: flex;
         flex-direction: row-reverse;
@@ -66,16 +96,89 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
-            <!-- Service Image -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
-                @if($service->images && count($service->images) > 0)
-                    <img src="{{ asset('storage/' . $service->images[0]->image_url) }}" alt="Service Image" class="service-image w-full">
-                @else
-                    <div class="service-image bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                        <i class="fas fa-image fa-4x text-gray-300 dark:text-gray-500"></i>
-                    </div>
-                @endif
+          <!-- Service Image Gallery -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+    @if($service->images && count($service->images) > 0)
+    
+<!-- Image Gallery Updates -->
+
+<!-- Primary Image Display -->
+<div class="relative group">
+    <img id="primaryImageDisplay" 
+         src="{{ asset('storage/' . ($service->images->where('is_primary', true)->first() ?? $service->images->first())->image_url) }}" 
+         alt="{{ $service->title }}" 
+         class="w-full h-96 object-cover cursor-zoom-in transition duration-300 hover:opacity-95"
+         onclick="openImageModal(this.src)">
+    
+    @if(count($service->images) > 1)
+        <div class="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm flex items-center">
+            <i class="fas fa-camera mr-1.5"></i> {{ count($service->images) }} photos
+        </div>
+    @endif
+</div>
+
+<!-- Thumbnail Gallery - Centered -->
+@if(count($service->images) > 1)
+    <div class="p-3 bg-gray-50 dark:bg-gray-700/50">
+        <div class="flex flex-wrap justify-center gap-2">
+            @foreach($service->images as $image)
+                <div class="relative group thumbnail-item">
+                    <img src="{{ asset('storage/' . $image->image_url) }}" 
+                         alt="Thumbnail {{ $loop->index + 1 }}"
+                         class="w-16 h-16 object-cover rounded-md cursor-pointer border-2 transition-all duration-200
+                                @if($loop->first && !$service->images->where('is_primary', true)->count()) border-blue-500
+                                @elseif($image->is_primary) border-blue-500
+                                @else border-transparent hover:border-gray-300 dark:hover:border-gray-500 @endif"
+                         onclick="changePrimaryImage(this, '{{ asset('storage/' . $image->image_url) }}')">
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+    @else
+        <div class="h-96 bg-gray-100 dark:bg-gray-700 flex items-center justify-center rounded-t-2xl">
+            <div class="text-center">
+                <i class="fas fa-image fa-4x text-gray-300 dark:text-gray-500 mb-3"></i>
+                <p class="text-gray-400 dark:text-gray-400">No images available</p>
             </div>
+        </div>
+    @endif
+</div>
+
+<!--  Image Modal -->
+<div class="modal" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl h-full flex items-center justify-center p-4">
+        <div class="modal-content bg-transparent border-0 shadow-none w-full max-w-6xl">
+            <div class="flex justify-between items-center mb-2">
+                <button type="button" 
+                        class="text-white hover:text-gray-300 bg-black/50 rounded-full p-2"
+                        onclick="zoomImage(0.9)">
+                    <i class="fas fa-search-minus fa-lg"></i>
+                </button>
+                <button type="button" 
+                        class="text-white hover:text-gray-300 bg-black/50 rounded-full p-2 ml-2"
+                        onclick="zoomImage(1.1)">
+                    <i class="fas fa-search-plus fa-lg"></i>
+                </button>
+                <button type="button" 
+                        class="text-white hover:text-gray-300 bg-black/50 rounded-full p-2 ml-auto"
+                        onclick="closeModal('imageModal')">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+            <div class="relative w-full bg-black rounded-lg overflow-hidden" style="height: 80vh;">
+                <img id="modalImageContent" src="" alt="" 
+                     class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full cursor-grab"
+                     style="transition: transform 0.3s; transform-origin: center center;"
+                     ondblclick="resetImageZoom()"
+                     onmousedown="startDrag(event)"
+                     onmousemove="dragImage(event)"
+                     onmouseup="endDrag()"
+                     onmouseleave="endDrag()">
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Service Details -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 space-y-6">
@@ -652,6 +755,79 @@
 
 @push('scripts')
 <script>
+
+let currentScale = 1;
+let isDragging = false;
+let startX, startY, scrollLeft, scrollTop;
+
+function changePrimaryImage(thumbnailElement, imageUrl) {
+    document.getElementById('primaryImageDisplay').src = imageUrl;
+    
+    document.querySelectorAll('.thumbnail-item img').forEach(img => {
+        img.classList.remove('border-blue-500', 'border-2');
+        img.classList.add('border-transparent');
+    });
+    
+    thumbnailElement.classList.add('border-blue-500', 'border-2');
+    thumbnailElement.classList.remove('border-transparent');
+}
+
+function openImageModal(imageUrl) {
+    const modalImg = document.getElementById('modalImageContent');
+    modalImg.src = imageUrl;
+    resetImageZoom();
+    openModal('imageModal');
+}
+
+function zoomImage(factor) {
+    const img = document.getElementById('modalImageContent');
+    currentScale *= factor;
+    img.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
+}
+
+function resetImageZoom() {
+    currentScale = 1;
+    document.getElementById('modalImageContent').style.transform = 'translate(-50%, -50%) scale(1)';
+}
+
+// Image dragging functionality
+function startDrag(e) {
+    const img = document.getElementById('modalImageContent');
+    isDragging = true;
+    startX = e.pageX - img.offsetLeft;
+    startY = e.pageY - img.offsetTop;
+    img.style.cursor = 'grabbing';
+}
+
+function dragImage(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const img = document.getElementById('modalImageContent');
+    const x = e.pageX - img.offsetLeft;
+    const y = e.pageY - img.offsetTop;
+    const walkX = (x - startX) * 2;
+    const walkY = (y - startY) * 2;
+    
+    if (currentScale > 1) {
+        img.style.transform = `translate(calc(-50% + ${walkX}px), calc(-50% + ${walkY}px)) scale(${currentScale})`;
+    }
+}
+
+function endDrag() {
+    isDragging = false;
+    document.getElementById('modalImageContent').style.cursor = 'grab';
+}
+
+
+// Close modal when clicking outside content
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('imageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal('imageModal');
+        }
+    });
+});
+
 function openModal(modalId) {
     document.getElementById(modalId).classList.add('show');
     document.body.style.overflow = 'hidden';
