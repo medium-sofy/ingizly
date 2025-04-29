@@ -16,6 +16,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
+        // Store the previous URL in the session if it's a service details page
+        if (str_contains(url()->previous(), '/services/')) {
+            session(['url.intended' => url()->previous()]);
+        }
         return view('auth.login');
     }
 
@@ -27,6 +31,14 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        // Check if there's an intended URL in the session (like a service details page)
+        if (session()->has('url.intended')) {
+            $intended = session('url.intended');
+            session()->forget('url.intended');
+            return redirect()->to($intended);
+        }
+
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
