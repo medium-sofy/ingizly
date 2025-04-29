@@ -141,6 +141,13 @@
             $hasBuyerProfile = $currentUser->serviceBuyer;
             $userOrders = $hasBuyerProfile ? $service->orders->where('buyer_id', $currentUser->serviceBuyer->user_id) : collect();
             $currentOrder = $userOrders->where('status', '!=', 'cancelled')->sortByDesc('created_at')->first();
+            
+            // Check if there's a successful payment for this order
+            $hasSuccessfulPayment = false;
+            if ($currentOrder) {
+                $hasSuccessfulPayment = $currentOrder->payments()->where('payment_status', 'successful')->exists();
+            }
+            
             $hasCompletedOrder = $userOrders->where('status', 'completed')->isNotEmpty();
             $hasReported = $currentUser->violations()->where('service_id', $service->id)->exists();
         @endphp
@@ -176,7 +183,13 @@
                     <span class="text-gray-800 dark:text-gray-200">
                         @switch($currentOrder->status)
                             @case('pending') Your booking request is pending approval. @break
-                            @case('accepted') Your booking has been accepted! Please confirm to proceed. @break
+                            @case('accepted') 
+                                @if(!$hasSuccessfulPayment)
+                                    Your booking has been accepted! Please confirm to proceed.
+                                @else
+                                    Payment successful! Waiting for provider to start service.
+                                @endif
+                            @break
                             @case('in_progress') Your service is in progress. Scheduled for {{ $currentOrder->scheduled_date->format('M j') }} at {{ date('g:i A', strtotime($currentOrder->scheduled_time)) }}. @break
                             @case('completed') Service completed on {{ $currentOrder->updated_at->format('M j, Y') }}. @break
                         @endswitch
@@ -193,14 +206,18 @@
                         @break
                     @case('accepted')
                         <div class="space-y-2 mt-2">
-                            <form action="{{ route('order.payment', $currentOrder->id) }}" method="GET">
-                                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                                    <i class="fas fa-check-double mr-2"></i> Confirm & Pay Now
-                                </button>
-                            </form>
-                            <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-center text-xs text-gray-600 dark:text-gray-300">
-                                <i class="fas fa-info-circle mr-1"></i> Cancellation not available after acceptance
-                            </div>
+                            @if($hasSuccessfulPayment)
+                                <!-- Payment notification box removed as it's now shown in the status message above -->
+                            @else
+                                <form action="{{ route('order.payment', $currentOrder->id) }}" method="GET">
+                                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+                                        <i class="fas fa-check-double mr-2"></i> Confirm & Pay Now
+                                    </button>
+                                </form>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-center text-xs text-gray-600 dark:text-gray-300">
+                                    <i class="fas fa-info-circle mr-1"></i> Cancellation not available after acceptance
+                                </div>
+                            @endif
                         </div>
                         @break
                     @case('completed')
@@ -212,7 +229,6 @@
                         @break
                 @endswitch
             @endif
-
             @php
     $userReport = $currentUser->violations()
         ->where('service_id', $service->id)
