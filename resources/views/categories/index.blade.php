@@ -31,10 +31,7 @@
                             {{ $category->name }}
                         </h3>
 
-                        <!-- Category Description -->
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                            {{ $category->description ?? 'Explore services in this category.' }}
-                        </p>
+
 
                         <!-- Arrow Icon -->
                         <div class="absolute bottom-4 right-4 text-blue-500 group-hover:text-blue-700 dark:text-blue-400 dark:group-hover:text-blue-200 transition">
