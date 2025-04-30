@@ -55,8 +55,7 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center gap-6 text-base font-medium">
-                    <a href="#services" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
-                    <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
+            <a href="http://127.0.0.1:8000/Allservices" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>                    <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
                     <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
                     @auth
                 <!-- Dashboard Button -->

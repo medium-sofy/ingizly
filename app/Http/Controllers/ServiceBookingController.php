@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\Payment;
 
 class ServiceBookingController extends Controller
 {
@@ -230,34 +231,52 @@ class ServiceBookingController extends Controller
     // This method would be called after successful payment
     public function paymentSuccess(Order $order)
     {
-        // Verify order belongs to user
-        if ($order->buyer_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
+        try {
+            // Verify order belongs to user
+            if ($order->buyer_id != Auth::id()) {
+                abort(403, 'Unauthorized action.');
+            }
+    
+            // Verify payment was actually successful
+            $payment = Payment::where('order_id', $order->id)
+                ->where('payment_status', 'successful')
+                ->first();
+    
+            if (!$payment) {
+                Log::warning('Attempt to access success page for unpaid order #'.$order->id);
+                return redirect()->route('payment.failed')
+                    ->with('error', 'No successful payment found for this order.');
+            }
+    
+            // Only update status if it's still accepted 
+            if ($order->status === 'accepted') {
+                $order->update(['status' => 'in_progress']);
+                
+                // Notify buyer about successful payment and order status
+                Notification::create([
+                    'user_id' => $order->buyer_id,
+                    'title' => 'Payment Successful #' . $order->id,
+                    'content' => "Your payment for order #{$order->id} ('{$order->service->title}') was successful. Your order is now in progress. (Service ID: {$order->service_id})",
+                    'notification_type' => 'payment',
+                    'is_read' => false
+                ]);
+    
+                // Notify provider about payment received
+                Notification::create([
+                    'user_id' => $order->service->provider->user_id,
+                    'title' => 'Payment Received #' . $order->id,
+                    'content' => "Payment received for order #{$order->id} for '{$order->service->title}' (Service ID: {$order->service_id})",
+                    'notification_type' => 'payment',
+                    'is_read' => false
+                ]);
+            }
+    
+            return view('paymob.success', compact('order'));
+    
+        } catch (\Exception $e) {
+            Log::error('Payment success handling failed: '.$e->getMessage());
+            return redirect()->route('payment.failed')
+                ->with('error', 'Error confirming your payment. Please contact support.');
         }
-
-        // Update order status to in_progress if payment was the next step
-        if ($order->status === 'accepted') {
-            $order->update(['status' => 'in_progress']);
-
-            // Notify buyer about successful payment and order status
-            Notification::create([
-                'user_id' => $order->buyer_id,
-                'title' => 'Payment Successful #' . $order->id,
-                'content' => "Your payment for order #{$order->id} ('{$order->service->title}') was successful. Your order is now in progress. (Service ID: {$order->service_id})",
-                'notification_type' => 'payment',
-                'is_read' => false
-            ]);
-
-            // Notify provider about payment received
-            Notification::create([
-                'user_id' => $order->service->provider->user_id,
-                'title' => 'Payment Received #' . $order->id,
-                'content' => "Payment received for order #{$order->id} for '{$order->service->title}' (Service ID: {$order->service_id})",
-                'notification_type' => 'payment',
-                'is_read' => false
-            ]);
-        }
-
-        return view('paymob.success', compact('order'));
     }
 }
