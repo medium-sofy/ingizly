@@ -10,14 +10,20 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
+
+    
     public function index()
     {
+        
         $notifications = Auth::user()->notifications()
             ->orderBy('created_at', 'desc')
             ->paginate(5);
 
+            
         return view('notifications.index', compact('notifications'));
     }
+
+    
 
     public function unreadCount()
     {
@@ -27,13 +33,15 @@ class NotificationController extends Controller
 
     public function fetch()
     {
+
+        
         $notifications = Auth::user()->notifications()
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
             ->map(function ($notification) {
                 $link = $this->getNotificationLink($notification);
-                
+
                 $displayContent = $notification->content;
                 try {
                     $decodedContent = json_decode($notification->content, true);
@@ -43,7 +51,7 @@ class NotificationController extends Controller
                 } catch (\Exception $e) {
                     // Keep original content if parsing fails
                 }
-                
+
                 return [
                     'id' => $notification->id,
                     'title' => $notification->title,
@@ -54,14 +62,16 @@ class NotificationController extends Controller
                     'link' => $link
                 ];
             });
-    
+
         return response()->json([
             'notifications' => $notifications,
             'unread_count' => Auth::user()->notifications()->where('is_read', false)->count()
         ]);
     }
 
-    protected function getNotificationLink($notification)
+
+
+    public function getNotificationLink($notification)
     {
         $user = Auth::user();
         $violationId = null;
@@ -74,43 +84,52 @@ class NotificationController extends Controller
         try {
             $decodedContent = json_decode($notification->content, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decodedContent)) {
+                // Get direct values from JSON if available
                 $source = $decodedContent['source'] ?? null;
+                $serviceId = $decodedContent['service_id'] ?? null;
+                $orderId = $decodedContent['order_id'] ?? null;
+                $reviewId = $decodedContent['review_id'] ?? null;
+                $violationId = $decodedContent['violation_id'] ?? null;
+    
+                // Use the message for display purposes
                 $contentForRegex = $decodedContent['message'] ?? $notification->content;
-                     // Try to get service_id directly from decoded content if available
-            $serviceId = $decodedContent['service_id'] ?? null;
             } else {
                 $contentForRegex = $notification->content;
-                
             }
         } catch (\Exception $e) {
             $contentForRegex = $notification->content;
         }
     
-        // Extract IDs from content
-        if (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->title, $matches)) {
-            $violationId = $matches[1] ?? $matches[2] ?? null;
-        } elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $contentForRegex, $matches)) {
-            $violationId = $matches[1] ?? $matches[2] ?? null;
+        // If direct values were not found, extract from title/content as fallback
+        if (!$violationId) {
+            if (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->title, $matches)) {
+                $violationId = $matches[1] ?? $matches[2] ?? null;
+            } elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $contentForRegex, $matches)) {
+                $violationId = $matches[1] ?? $matches[2] ?? null;
+            }
         }
     
-        if (preg_match('/review.*?#(\d+)/i', $contentForRegex, $matches)) {
-            $reviewId = $matches[1] ?? null;
+        if (!$reviewId) {
+            if (preg_match('/review.*?#(\d+)/i', $contentForRegex, $matches)) {
+                $reviewId = $matches[1] ?? null;
+            }
         }
     
-        if (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $contentForRegex, $matches)) {
-            $orderId = $matches[1] ?? $matches[2] ?? null;
-        } elseif (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $notification->title, $matches)) {
-            $orderId = $matches[1] ?? $matches[2] ?? null;
+        if (!$orderId) {
+            if (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $contentForRegex, $matches)) {
+                $orderId = $matches[1] ?? $matches[2] ?? null;
+            } elseif (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $notification->title, $matches)) {
+                $orderId = $matches[1] ?? $matches[2] ?? null;
+            }
         }
     
-         // Extract IDs from content if not already set
-    if (!$serviceId) {
-        if (preg_match('/service id: (\d+)/i', $contentForRegex, $matches)) {
-            $serviceId = $matches[1] ?? null;
-        } elseif (preg_match('/\(service id: (\d+)\)/i', $contentForRegex, $matches)) {
-            $serviceId = $matches[1] ?? null;
+        if (!$serviceId) {
+            if (preg_match('/service id: (\d+)/i', $contentForRegex, $matches)) {
+                $serviceId = $matches[1] ?? null;
+            } elseif (preg_match('/\(service id: (\d+)\)/i', $contentForRegex, $matches)) {
+                $serviceId = $matches[1] ?? null;
+            }
         }
-    }
     
         // Get service ID from order if available
         if ($orderId && !$serviceId) {
@@ -120,54 +139,48 @@ class NotificationController extends Controller
             }
         }
     
-        // SERVICE PROVIDER NOTIFICATIONS 
-
+        // SERVICE PROVIDER NOTIFICATIONS
         if ($user->role === 'service_provider') {
-            // Handle all booking/order/review notifications - always go to provider services
-            if (str_contains(strtolower($notification->title), 'cancel') || 
-            str_contains(strtolower($notification->title), 'booking') ||
-            str_contains(strtolower($notification->title), 'order') ||
-            str_contains(strtolower($notification->title), 'review') ||
-            $notification->notification_type === 'order_update' ||
-            $notification->notification_type === 'review') {
-            
-            // Try to get service ID from order if available
-            if (!$serviceId && $orderId) {
-                $order = Order::find($orderId);
-                if ($order) {
-                    $serviceId = $order->service_id;
-                }
+            // Handle booking/order notifications - direct to Recent Bookings section
+            if (str_contains(strtolower($notification->title), 'booking') ||
+                str_contains(strtolower($notification->title), 'order') ||
+                str_contains(strtolower($notification->title), 'cancel') ||
+                str_contains(strtolower($notification->title), 'payment') ||
+                $notification->notification_type === 'order_update' ||
+                $notification->notification_type === 'payment') {
+                
+                return route('provider.dashboard') . '#recent-bookings';
             }
-            
-            if ($serviceId) {
-                return route('provider.services.show', $serviceId);
-            }
-            return route('provider.services.index');
-        }
     
+            // Handle review notifications - direct to Recent Reviews section
+            if (str_contains(strtolower($notification->title), 'review') ||
+                $notification->notification_type === 'review') {
+                
+                return route('provider.dashboard') . '#recent-reviews';
+            }
+            
             // Service approval/rejection
-            if (str_contains($notification->title, 'Service Approved') || 
+            if (str_contains($notification->title, 'Service Approved') ||
                 str_contains($notification->title, 'Service Rejected')) {
                 return route('provider.services.index');
             }
     
             // Default for any other provider notifications
-            return route('provider.services.index');
+            return route('provider.dashboard');
         }
     
-        // ADMIN NOTIFICATIONS 
-
+        // ADMIN NOTIFICATIONS
         if ($user->role === 'admin') {
             // New service pending approval
             if (str_contains($notification->title, 'New Service Pending Approval')) {
                 return route('admin.dashboard');
             }
-            
+    
             // Violation reports
             if ($violationId && $notification->notification_type === 'system') {
                 return route('admin.reports.show', $violationId);
             }
-            
+    
             // Reviews
             if ($reviewId && $notification->notification_type === 'review') {
                 return route('admin.reviews.show', $reviewId);
@@ -176,35 +189,39 @@ class NotificationController extends Controller
             }
         }
     
-        // BUYER NOTIFICATIONS 
-        
+        // BUYER NOTIFICATIONS
         if ($user->role === 'service_buyer') {
             // Order cancellations - check source
             if (str_contains(strtolower($notification->title), 'cancel')) {
                 if ($source === 'dashboard') {
                     return route('buyer.orders.index');
                 }
-                
+    
                 if ($serviceId) {
                     return route('service.details', $serviceId);
                 }
-                
+    
                 return route('buyer.orders.index');
             }
-            
+    
             // Booking requests
-            if (str_contains($notification->title, 'Booking Request')) {
+            if (str_contains(strtolower($notification->title), 'booking') ||
+                str_contains(strtolower($notification->title), 'service') ||
+                str_contains(strtolower($notification->title), 'payment') ||
+                $notification->notification_type === 'order_update' ||
+                $notification->notification_type === 'payment') {
+    
                 if ($source === 'dashboard') {
                     return route('buyer.orders.index');
                 }
-                
+    
                 if ($serviceId) {
                     return route('service.details', $serviceId);
                 }
-                
+    
                 return route('buyer.orders.index');
             }
-            
+    
             // Violation notifications
             if ($violationId && $notification->notification_type === 'system') {
                 $violation = Violation::find($violationId);
@@ -225,16 +242,18 @@ class NotificationController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function markAllRead(Request $request)  
+    public function markAllRead(Request $request)
     {
         Auth::user()->notifications()
             ->where('is_read', false)
             ->update(['is_read' => true]);
-        
+
         if ($request->wantsJson()) {
             return response()->json(['success' => true]);
         }
-        
+
         return redirect()->back()->with('success', 'All notifications have been marked as read');
     }
+
+    
 }

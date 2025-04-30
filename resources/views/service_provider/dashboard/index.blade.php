@@ -148,7 +148,7 @@
 
     {{-- Recent Bookings --}}
 
-<div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded mb-8">
+<div id="recent-bookings" class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded mb-8">
     <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
         <i class="fas fa-calendar-alt text-green-500 mr-2"></i> Recent Bookings
     </h3>
@@ -179,7 +179,7 @@
 </div>
 
     {{-- Recent Reviews --}}
-    <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
+    <div id="recent-reviews" class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
         <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
             <i class="fas fa-comments text-yellow-500 mr-2"></i> Recent Reviews
         </h3>

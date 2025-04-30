@@ -59,23 +59,39 @@ class ServiceProviderDashboardController extends Controller
     }
 
 
+
     public function acceptOrder(Order $order)
     {
+        // Verify provider owns this order
         $providerName = $order->service->provider->user->name;
         $order->update(['status' => 'accepted']);
-
+    
+           // Delete any existing acceptance notifications for this order
+        Notification::where('user_id', $order->buyer_id)
+            ->where('notification_type', 'order_update')
+            ->where(function($query) use ($order) {
+                $query->where('content', 'like', '%"order_id":"'.$order->id.'"%')
+                      ->orWhere('content', 'like', '%'.$order->service->title.'%');
+            })
+            ->delete();
+    
+        // Create single standardized notification
         Notification::create([
             'user_id' => $order->buyer_id,
-            'title' => 'The provider '. $providerName .' accepted your order #' . $order->id,
+            'title' => 'Booking Accepted',
             'content' => json_encode([
-                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been accepted (Service ID: {$order->service_id})",
-                'source' => 'landing'
+                'message' => "Your booking for '{$order->service->title}' has been accepted please go to the service and complete the buying process",
+                'order_id' => $order->id,
+                'service_id' => $order->service_id,
+                'source' => 'provider_dashboard'
             ]),
             'is_read' => false,
             'notification_type' => 'order_update'
         ]);
-        return redirect()->back()->with('success', 'Order has been Accepted');
+    
+        return redirect()->back()->with('success', 'Order accepted successfully');
     }
+
 
     public function rejectOrder(Order $order)
     {
@@ -83,9 +99,9 @@ class ServiceProviderDashboardController extends Controller
         $order->update(['status' => 'rejected']);
         Notification::create([
             'user_id' => $order->buyer_id,
-            'title' => 'The provider '. $providerName .' rejected your order #' . $order->id,
+            'title' => 'Booking Rejected',
             'content' => json_encode([
-                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been rejected (Service ID: {$order->service_id})",
+                'message' =>  "Your booking for '{$order->service->title}' has been rejected by {$providerName}.",
                 'source' => 'landing'
             ]),
             'is_read' => false,
