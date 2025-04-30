@@ -74,7 +74,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('service_buyer.profile.edit') }}" class="flex items-center px-4 py-3 rounded hover:bg-green-700">
+                    <a href="{{ route('service_buyer.profile.edit') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700 dark:hover:bg-gray-700">
 
                         <i class="fas fa-user mr-3"></i> Profile
                     </a>

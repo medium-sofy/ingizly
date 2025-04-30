@@ -7,23 +7,49 @@
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-6 text-base font-medium">
-            <a href="#services" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
-            <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
-            <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
+        <a href="{{ route('services.all') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
+        <a href="{{ url('/#about') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
+        <a href="{{ url('/#contact') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
         </nav>
 
         <!-- Right side (User Info + Theme Toggle) -->
         <div class="flex items-center gap-4">
             @auth
-                <!-- User Profile (Hidden on Mobile) -->
-                <div class="hidden md:flex items-center gap-2">
-                    <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                         alt="Profile Picture" 
-                         class="w-10 h-10 rounded-full object-cover">
-                    <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
+                <!-- Dashboard Button -->
+                <a href="{{ route('dashboard') }}" 
+                   class="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+
+                <!-- User Info Dropdown -->
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
+                        <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
+                             alt="Profile Picture" 
+                             class="w-10 h-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600">
+                        <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
+                        <i class="fas fa-chevron-down text-sm text-gray-600 dark:text-gray-300"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" @click.away="open = false"
+                         x-transition
+                         class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
+                        <a href="{{ auth()->user()->role === 'service_provider' ? route('service_provider.profile.edit') : route('service_buyer.profile.edit') }}"
+                           class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             @else
-                <!-- Login and Sign Up (Hidden on Mobile) -->
+                <!-- Login and Sign Up -->
                 <div class="hidden md:flex items-center gap-4">
                     <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Login</a>
                     @if (Route::has('register'))
@@ -32,10 +58,16 @@
                 </div>
             @endauth
 
-            <!-- Theme Toggle (Uses Global ThemeSwitcher) -->
+            <!-- Theme Toggle -->
             <button @click="toggleTheme"
                     class="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                <span x-text="darkMode ? '☀ Light Mode' : '🌙 Dark Mode'"></span>
+                    <template x-if="darkMode">
+    <i class="fas fa-sun text-yellow-400 text-lg"></i>
+</template>
+<template x-if="!darkMode">
+    <i class="fas fa-moon text-gray-600 dark:text-gray-300 text-lg"></i>
+</template>
+
             </button>
         </div>
     </div>
