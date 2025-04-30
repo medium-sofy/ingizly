@@ -1,90 +1,91 @@
+
 @extends('layouts.buyer')
 
 @section('content')
-<div class="p-4 sm:p-6 bg-gray-100">
-    <h2 class="text-2xl sm:text-3xl font-bold mb-6 flex items-center">
-        <i class="fas fa-tachometer-alt text-green-500 mr-3"></i> Dashboard
+<div class="p-6 sm:p-8 bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen">
+    <h2 class="text-3xl font-bold mb-8 flex items-center text-gray-800 dark:text-gray-100">
+        <i class="fas fa-tachometer-alt text-blue-500 mr-3"></i> Dashboard
     </h2>
 
     {{-- Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <div class="bg-white p-4 sm:p-6 shadow rounded flex items-center">
-            <i class="fas fa-shopping-cart text-green-500 text-2xl sm:text-3xl mr-3 sm:mr-4"></i>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg flex items-center">
+            <i class="fas fa-shopping-cart text-blue-500 text-3xl mr-4"></i>
             <div>
-                <p class="text-gray-500 text-sm sm:text-base">Total Orders</p>
-                <h3 class="text-xl sm:text-2xl font-semibold">{{ $totalOrders }}</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Orders</p>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ $totalOrders }}</h3>
             </div>
         </div>
-        <div class="bg-white p-4 sm:p-6 shadow rounded flex items-center">
-            <i class="fas fa-clock text-yellow-500 text-2xl sm:text-3xl mr-3 sm:mr-4"></i>
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg flex items-center">
+            <i class="fas fa-clock text-yellow-500 text-3xl mr-4"></i>
             <div>
-                <p class="text-gray-500 text-sm sm:text-base">Pending Orders</p>
-                <h3 class="text-xl sm:text-2xl font-semibold">{{ $pendingOrders }}</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Pending Orders</p>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ $pendingOrders }}</h3>
             </div>
         </div>
-        <div class="bg-white p-4 sm:p-6 shadow rounded flex items-center">
-            <i class="fas fa-check-circle text-blue-500 text-2xl sm:text-3xl mr-3 sm:mr-4"></i>
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg flex items-center">
+            <i class="fas fa-check-circle text-green-500 text-3xl mr-4"></i>
             <div>
-                <p class="text-gray-500 text-sm sm:text-base">Completed Orders</p>
-                <h3 class="text-xl sm:text-2xl font-semibold">{{ $completedOrders }}</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Completed Orders</p>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ $completedOrders }}</h3>
             </div>
         </div>
-        <div class="bg-white p-4 sm:p-6 shadow rounded flex items-center">
-            <i class="fas fa-money-bill-wave text-green-500 text-2xl sm:text-3xl mr-3 sm:mr-4"></i>
+        <div class="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg flex items-center">
+            <i class="fas fa-money-bill-wave text-blue-500 text-3xl mr-4"></i>
             <div>
-                <p class="text-gray-500 text-sm sm:text-base">Total Spent</p>
-                <h3 class="text-xl sm:text-2xl font-semibold">{{ $totalSpent }} EGP</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Spent</p>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ $totalSpent }} EGP</h3>
             </div>
         </div>
     </div>
 
     {{-- Recent Orders --}}
-    <div class="bg-white shadow rounded-lg mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-800">Recent Orders</h3>
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 bg-blue-500 dark:bg-blue-600 text-white">
+            <h3 class="text-lg font-bold">Recent Orders</h3>
         </div>
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Service</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Provider</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
                     @forelse($recentOrders as $order)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ $order->service->title }}</div>
+                            <div class="text-sm font-medium text-gray-800 dark:text-gray-100">{{ $order->service->title }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $order->service->provider->user->name }}</div>
+                            <div class="text-sm text-gray-800 dark:text-gray-100">{{ $order->service->provider->user->name }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">{{ $order->created_at->format('M d, Y') }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $order->created_at->format('M d, Y') }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {{ $order->status == 'completed' ? 'bg-green-100 text-green-800' : 
-                                   ($order->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                   'bg-blue-100 text-blue-800') }}">
+                                {{ $order->status == 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 
+                                   ($order->status == 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : 
+                                   'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300') }}">
                                 {{ ucfirst($order->status) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                             {{ $order->total_amount }} EGP
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('buyer.orders.show', $order->id) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
+                            <a href="{{ route('buyer.orders.show', $order->id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-500">View</a>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                             No recent orders found.
                         </td>
                     </tr>
@@ -92,8 +93,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200">
-            <a href="{{ route('buyer.orders.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <div class="px-6 py-4 bg-gray-100 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+            <a href="{{ route('buyer.orders.index') }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-500">
                 View all orders <span aria-hidden="true">&rarr;</span>
             </a>
         </div>
