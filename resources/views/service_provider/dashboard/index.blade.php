@@ -198,9 +198,7 @@
         <p class="text-gray-500 text-sm">No recent reviews found.</p>
         @endforelse
     </div>
-    @empty
-    <p class="text-gray-500 dark:text-gray-400 text-sm">No recent reviews found.</p>
-    @endforelse
+  
 </div>
 </div>
 
