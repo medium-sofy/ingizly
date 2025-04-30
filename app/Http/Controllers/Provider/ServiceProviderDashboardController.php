@@ -63,14 +63,10 @@ class ServiceProviderDashboardController extends Controller
     public function acceptOrder(Order $order)
     {
         // Verify provider owns this order
-        if ($order->service->provider->user_id != Auth::id()) {
-            return back()->with('error', 'Unauthorized action');
-        }
-    
-        // Update order status
+        $providerName = $order->service->provider->user->name;
         $order->update(['status' => 'accepted']);
     
-        // Delete any existing acceptance notifications for this order
+           // Delete any existing acceptance notifications for this order
         Notification::where('user_id', $order->buyer_id)
             ->where('notification_type', 'order_update')
             ->where(function($query) use ($order) {
