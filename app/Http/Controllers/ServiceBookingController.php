@@ -43,7 +43,7 @@ class ServiceBookingController extends Controller
             // Notify provider about new booking
             Notification::create([
                 'user_id' => $service->provider->user_id,
-                'title' => 'New Booking Request #' . $order->id,
+                'title' => 'New Booking Request',
                 'content' => json_encode([
                     'message' => 'New booking for your service '.$service->title,
                     'source' => 'landing',

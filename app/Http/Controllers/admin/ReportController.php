@@ -66,14 +66,29 @@ class ReportController extends Controller
             'admin_notes' => $request->admin_notes
         ]);
 
-      // Notify buyer about status change
-      if ($oldStatus != $request->status) {
+      /// Notify buyer about status change
+    if ($oldStatus != $request->status) {
         $serviceTitle = $violation->service->title;
         
+        // Create a more professional message based on the status
+        $statusMessages = [
+            'pending' => "We've received your report regarding '{$serviceTitle}' and it's currently under review.",
+            'investigating' => "Your report regarding '{$serviceTitle}' is now being investigated by our team.",
+            'resolved' => "Your report regarding '{$serviceTitle}' has been resolved. Thank you for helping us maintain our community standards.",
+            'dismissed' => "After careful review, we've determined that your report regarding '{$serviceTitle}' doesn't violate our policies."
+        ];
+
+        $message = $statusMessages[$request->status] ?? "The status of your report regarding '{$serviceTitle}' has been updated to {$request->status}.";
+
         Notification::create([
             'user_id' => $violation->user_id,
-            'title' => 'Violation Report Update #' . $violation->id,
-            'content' => "Your violation report #{$violation->id} for '{$serviceTitle}' has been {$request->status}",
+            'title' => 'Report Status Update',
+            'content' => json_encode([
+                'message' => $message,
+                'violation_id' => $violation->id,
+                'service_id' => $violation->service_id,
+                'status' => $request->status
+            ]),
             'notification_type' => 'system',
             'is_read' => false
         ]);
@@ -82,5 +97,4 @@ class ReportController extends Controller
     return redirect()->route('admin.reports.index')
         ->with('success', 'Violation status updated successfully.');
 }
-
 }

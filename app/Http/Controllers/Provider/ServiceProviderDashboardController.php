@@ -59,7 +59,7 @@ class ServiceProviderDashboardController extends Controller
     }
 
 
-    // In ServiceProviderDashboardController
+
     public function acceptOrder(Order $order)
     {
         // Verify provider owns this order
@@ -82,9 +82,9 @@ class ServiceProviderDashboardController extends Controller
         // Create single standardized notification
         Notification::create([
             'user_id' => $order->buyer_id,
-            'title' => 'Booking Accepted #' . $order->id,
+            'title' => 'Booking Accepted',
             'content' => json_encode([
-                'message' => "Your booking for '{$order->service->title}' has been accepted",
+                'message' => "Your booking for '{$order->service->title}' has been accepted please go to the service and complete the buying process",
                 'order_id' => $order->id,
                 'service_id' => $order->service_id,
                 'source' => 'provider_dashboard'
@@ -103,9 +103,9 @@ class ServiceProviderDashboardController extends Controller
         $order->update(['status' => 'rejected']);
         Notification::create([
             'user_id' => $order->buyer_id,
-            'title' => 'The provider '. $providerName .' rejected your order #' . $order->id,
+            'title' => 'Booking Rejected',
             'content' => json_encode([
-                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been rejected (Service ID: {$order->service_id})",
+                'message' =>  "Your booking for '{$order->service->title}' has been rejected by {$providerName}.",
                 'source' => 'landing'
             ]),
             'is_read' => false,

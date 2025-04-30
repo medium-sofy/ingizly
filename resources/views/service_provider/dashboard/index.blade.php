@@ -88,7 +88,7 @@
                             ];
                         @endphp
 
-                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium 
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
                             {{ $statusStyles[$service->status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">
                             {{ ucfirst($service->status) }}
                         </span>
@@ -148,7 +148,7 @@
 
     {{-- Recent Bookings --}}
 
-<div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded mb-8">
+<div id="recent-bookings" class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded mb-8">
     <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
         <i class="fas fa-calendar-alt text-green-500 mr-2"></i> Recent Bookings
     </h3>
@@ -173,13 +173,14 @@
          </form>
         </div>
     </div>
+
     @empty
     <p class="text-gray-500 dark:text-gray-400 text-sm">No recent bookings found.</p>
     @endforelse
 </div>
 
     {{-- Recent Reviews --}}
-    <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
+    <div id="recent-reviews" class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
         <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
             <i class="fas fa-comments text-yellow-500 mr-2"></i> Recent Reviews
         </h3>
@@ -198,10 +199,6 @@
         <p class="text-gray-500 text-sm">No recent reviews found.</p>
         @endforelse
     </div>
-    @empty
-    <p class="text-gray-500 dark:text-gray-400 text-sm">No recent reviews found.</p>
-    @endforelse
 </div>
-</div>
-
+ 
 @endsection
