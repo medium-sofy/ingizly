@@ -121,8 +121,9 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
     Route::post('dashboard/orders/{order}/accept', [ServiceProviderDashboardController::class, 'acceptOrder'])->name('provider.dashboard.accept');
     Route::post('dashboard/orders/{order}/reject', [ServiceProviderDashboardController::class, 'rejectOrder'])->name('provider.dashboard.reject');
-    Route::resource('bookings', ProviderBookingsController::class)->names('provider.bookings'); 
 
+    Route::resource('bookings', ProviderBookingsController::class)->names('provider.bookings');
+    Route::post('bookings/{order}',[ ProviderBookingsController::class, 'startService'])->name('provider.service.start');
     Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
     Route::get('/wallet/download/{payment}', [ServiceProviderDashboardController::class, 'downloadTransaction'])->name('provider.wallet.download');
 });

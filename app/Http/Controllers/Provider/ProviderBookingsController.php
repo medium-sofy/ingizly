@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Provider;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Order;
+use App\Models\Notification;
 
 class ProviderBookingsController extends Controller
 {
@@ -48,7 +49,8 @@ class ProviderBookingsController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        $order = Order::with('services');
+        return view('service_provider.dashboard.bookings.show', compact('order'));
     }
 
     /**
@@ -73,5 +75,24 @@ class ProviderBookingsController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function startService(Order $order)
+    {
+        $providerName = $order->service->provider->user->name;
+        $order->update(["status" => 'in_progress']);
+        // Notify the buyer that the service has started
+        Notification::create([
+            'user_id' => $order->buyer_id,
+            'title' => 'The provider '. $providerName .' has started working on your order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "You order #{$order->id} for '{$order->service->title}' is in progress (Service ID: {$order->service_id})",
+                'source' => 'landing'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+
+        return redirect()->back()->with('success', 'Order has been started');
     }
 }
