@@ -61,7 +61,8 @@ class NotificationController extends Controller
         ]);
     }
 
-    protected function getNotificationLink($notification)
+
+protected function getNotificationLink($notification)
 {
     $user = Auth::user();
     $violationId = null;
