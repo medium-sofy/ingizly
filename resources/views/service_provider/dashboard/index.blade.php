@@ -87,6 +87,7 @@
                                 'pending' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
                             ];
                         @endphp
+
                         <span class="inline-block px-3 py-1 rounded-full text-xs font-medium 
                             {{ $statusStyles[$service->status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">
                             {{ ucfirst($service->status) }}
@@ -146,7 +147,7 @@
     </div>
 
     {{-- Recent Bookings --}}
- 
+
 <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded mb-8">
     <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
         <i class="fas fa-calendar-alt text-green-500 mr-2"></i> Recent Bookings
@@ -158,12 +159,18 @@
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{{ $order->service->title }} • {{ $order->scheduled_date }}</p>
         </div>
         <div class="flex gap-2">
+        <form action="{{route('provider.dashboard.accept', $order->id)}}" method="POST">
+                    @csrf
             <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs sm:text-sm transition">
                 <i class="fas fa-check"></i> Accept
             </button>
+         </form>
+         <form action="{{route('provider.dashboard.reject', $order->id)}}" method="POST">
+                    @csrf
             <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs sm:text-sm transition">
                 <i class="fas fa-times"></i> Reject
             </button>
+         </form>
         </div>
     </div>
     @empty
@@ -172,16 +179,24 @@
 </div>
 
     {{-- Recent Reviews --}}
+    <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
+        <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
+            <i class="fas fa-comments text-yellow-500 mr-2"></i> Recent Reviews
+        </h3>
+        @forelse($recentReviews as $review)
+        <div class="border-b pb-4 mb-4 border-gray-200 dark:border-gray-600">
+            <p class="font-semibold text-sm sm:text-base">{{ $review->service->title }}</p>
 
-<div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
-    <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
-        <i class="fas fa-comments text-yellow-500 mr-2"></i> Recent Reviews
-    </h3>
-    @forelse($recentReviews as $review)
-    <div class="border-b pb-4 mb-4 border-gray-200 dark:border-gray-600">
-        <p class="font-semibold text-sm sm:text-base text-gray-800 dark:text-gray-100">{{ $review->buyer->user->name }}</p>
-        <p class="text-xs sm:text-sm text-yellow-500">Rating: {{ $review->rating }} ★</p>
-        <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $review->comment }}</p>
+            <div class="flex items-center gap-4">
+                <p class="font-semibold text-gray-600 text-xs sm:text-base text-gray-800 dark:text-gray-100">{{ $review->buyer->user->name }}</p>
+                <p class="text-xs sm:text-sm text-yellow-600">{{ $review->rating }} ★</p>
+            </div>
+            <p class="text-gray-700 dark:text-gray-500 text-sm sm:text-base">{{ Carbon\Carbon::parse($review->created_at)->diffForHumans()}}</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $review->comment }}</p>
+        </div>
+        @empty
+        <p class="text-gray-500 text-sm">No recent reviews found.</p>
+        @endforelse
     </div>
     @empty
     <p class="text-gray-500 dark:text-gray-400 text-sm">No recent reviews found.</p>

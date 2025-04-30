@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Provider;
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Order;
@@ -24,15 +25,17 @@ class ServiceProviderDashboardController extends Controller
         // Basic statistics
         $totalServices = $services->count();
         $totalViews = $services->sum('view_count');
-        $pendingBookings = \App\Models\Order::whereIn('service_id', $services->pluck('id'))
-        ->whereIn('status', ['pending', 'accepted']) 
+        $pendingBookings = Order::whereIn('service_id', $services->pluck('id'))
+        ->whereIn('status', ['pending', 'accepted'])
         ->count();
         $averageRating = Review::whereIn('service_id', $services->pluck('id'))->avg('rating');
 
         // Recent Bookings
         $recentOrders = Order::with(['service', 'buyer.user'])
             ->whereIn('service_id', $services->pluck('id'))
+            ->where('status',  'pending')
             ->latest()
+            ->orderBy('created_at', 'ASC')
             ->take(5)
             ->get();
 
@@ -42,6 +45,7 @@ class ServiceProviderDashboardController extends Controller
             ->latest()
             ->take(5)
             ->get();
+//        $reviewDate = Carbon::timestamp($-)
 
         return view('service_provider.dashboard.index', compact(
             'services',
@@ -54,6 +58,41 @@ class ServiceProviderDashboardController extends Controller
         ));
     }
 
+
+    public function acceptOrder(Order $order)
+    {
+        $providerName = $order->service->provider->user->name;
+        $order->update(['status' => 'accepted']);
+
+        Notification::create([
+            'user_id' => $order->buyer_id,
+            'title' => 'The provider '. $providerName .' accepted your order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been accepted (Service ID: {$order->service_id})",
+                'source' => 'landing'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        return redirect()->back()->with('success', 'Order has been Accepted');
+    }
+
+    public function rejectOrder(Order $order)
+    {
+        $providerName = $order->service->provider->user->name;
+        $order->update(['status' => 'rejected']);
+        Notification::create([
+            'user_id' => $order->buyer_id,
+            'title' => 'The provider '. $providerName .' rejected your order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been rejected (Service ID: {$order->service_id})",
+                'source' => 'landing'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        return redirect()->back()->with('success', 'Order has been Rejected');
+    }
     public function create()
     {
         abort(404); // Not used for dashboard

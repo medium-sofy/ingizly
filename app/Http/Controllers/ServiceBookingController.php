@@ -20,11 +20,11 @@ class ServiceBookingController extends Controller
             'scheduled_time' => 'required|string',
             'special_instructions' => 'nullable|string|max:1000',
         ]);
-    
+
         DB::beginTransaction();
         try {
             $user = Auth::user();
-            
+
             if (!$user->serviceBuyer) {
                 return back()->with('error', 'You need to complete your buyer profile first.');
             }
@@ -39,32 +39,32 @@ class ServiceBookingController extends Controller
                 'scheduled_time' => $request->scheduled_time,
                 'special_instructions' => $request->special_instructions,
             ]);
-    
+
             // Notify provider about new booking
             Notification::create([
                 'user_id' => $service->provider->user_id,
                 'title' => 'New Booking Request #' . $order->id,
                 'content' => json_encode([
                     'message' => 'New booking #'.$order->id.' for '.$service->title.' (Service ID: '.$service->id.')',
-                    'source' => 'landing' 
+                    'source' => 'landing'
                 ]),
                 'is_read' => false,
                 'notification_type' => 'order_update'
             ]);
-            
+
             // Notify buyer that booking request was sent
             Notification::create([
                 'user_id' => $user->id,
                 'title' => 'Booking Request Sent #' . $order->id,
                 'content' => json_encode([
                     'message' => 'Your booking request #'.$order->id.' for '.$service->title.' has been sent to the provider (Service ID: '.$service->id.')',
-                    'source' => 'landing' 
+                    'source' => 'landing'
                 ]),
                 'is_read' => false,
                 'notification_type' => 'order_update'
             ]);
             DB::commit();
-            
+
             return redirect()->route('service.details', $service->id)
                 ->with('success', 'Booking request sent successfully!');
 
@@ -80,13 +80,13 @@ class ServiceBookingController extends Controller
         // Allow manual updates or provider acceptance
         $isManualUpdate = request()->has('manual_update') && request('manual_update') === 'true';
         $isProvider = $order->service->provider->user_id == Auth::id();
-        
+
         if (!$isManualUpdate && !$isProvider) {
             return back()->with('error', 'Unauthorized action');
         }
-    
+
         $order->update(['status' => 'accepted']);
-    
+
         // Only notify buyer if the provider accepted (not for manual updates by buyer)
         if ($isProvider) {
             Notification::create([
@@ -94,13 +94,13 @@ class ServiceBookingController extends Controller
                 'title' => 'Booking Accepted #' . $order->id,
               'content' => json_encode([
                     'message' => "Your booking #{$order->id} for '{$order->service->title}' was accepted (Service ID: {$order->service_id}",
-                    'source' => 'landing' 
+                    'source' => 'landing'
                 ]),
                 'is_read' => false,
                 'notification_type' => 'order_update'
             ]);
         }
-    
+
         return back()->with('success', 'Order accepted!');
     }
 
@@ -119,7 +119,7 @@ class ServiceBookingController extends Controller
             'title' => 'Service Started #' . $order->id,
            'content' => json_encode([
                     'message' =>  "Provider has started working on your order #{$order->id} for '{$order->service->title}' (Service ID: {$order->service_id})",
-                    'source' => 'landing' 
+                    'source' => 'landing'
                 ]),
                 'is_read' => false,
                 'notification_type' => 'order_update'
@@ -143,7 +143,7 @@ class ServiceBookingController extends Controller
             'title' => 'Service Completed #' . $order->id,
 'content' => json_encode([
                     'message' =>  "Your order #{$order->id} for '{$order->service->title}' has been completed (Service ID: {$order->service_id})",
-                    'source' => 'landing' 
+                    'source' => 'landing'
                 ]),
                 'is_read' => false,
                 'notification_type' => 'order_update'
@@ -166,13 +166,13 @@ class ServiceBookingController extends Controller
         // Notify the other party about cancellation
         $notificationTo = $isBuyer ? $order->service->provider->user_id : $order->buyer_id;
         $cancelledBy = $isBuyer ? 'buyer' : 'provider';
-        
+
         Notification::create([
             'user_id' => $notificationTo,
             'title' => 'Order Cancelled #' . $order->id,
             'content' => json_encode([
                 'message' => "Your order #{$order->id} for '{$order->service->title}' has been cancelled by the {$cancelledBy} (Service ID: {$order->service_id})",
-                'source' => 'dashboard' 
+                'source' => 'dashboard'
             ]),
             'is_read' => false,
             'notification_type' => 'order_update'
@@ -185,7 +185,7 @@ class ServiceBookingController extends Controller
             'title' => 'Order Cancelled #' . $order->id,
            'content' => json_encode([
                     'message' =>  "You have cancelled your order #{$order->id} for '{$order->service->title}' (Service ID: {$order->service_id})",
-                    'source' => 'landing' 
+                    'source' => 'landing'
                 ]),
                 'is_read' => false,
                 'notification_type' => 'order_update'
@@ -209,7 +209,7 @@ class ServiceBookingController extends Controller
 
         // Load required relationships
         $order->load('service', 'service.provider.user');
-        
+
         // Prepare payment data
         $data = [
             "amount_cents" => $order->total_amount * 100,
