@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Service Buyer Dashboard')</title>
-    
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-  
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         html, body {
-            overflow-x: hidden !important; 
+            overflow-x: hidden !important;
         }
         [x-cloak] {
             display: none;
@@ -22,9 +22,9 @@
 
     <div x-data="{ sidebarOpen: false }" class="flex h-full w-full relative" x-cloak>
         <!-- Sidebar -->
-        <div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" 
+        <div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
             class="bg-green-600 text-white w-64 fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:flex md:flex-col">
-            
+
             <!-- Sidebar Header -->
             <div class="flex items-center justify-between p-4 border-b border-green-700">
                 <div class="flex items-center">
@@ -53,20 +53,20 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-3 rounded hover:bg-green-700">
+                    <a href="{{ route('service_buyer.profile.edit') }}" class="flex items-center px-4 py-3 rounded hover:bg-green-700">
                         <i class="fas fa-user mr-3"></i> Profile
                     </a>
                 </li>
 
                 <li>
                     <!-- Notifications -->
-            
-    <x-notification-bell 
+
+    <x-notification-bell
         :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()"
         hoverColor="hover:bg-green-700"
     />
 </li>
-                
+
                 <li>
                     <a href="#" class="flex items-center px-4 py-3 rounded hover:bg-green-700">
                         <i class="fas fa-cog mr-3"></i> Settings
