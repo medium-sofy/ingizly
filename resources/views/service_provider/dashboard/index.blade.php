@@ -88,7 +88,7 @@
                             ];
                         @endphp
 
-                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium 
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
                             {{ $statusStyles[$service->status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">
                             {{ ucfirst($service->status) }}
                         </span>
@@ -193,10 +193,6 @@
             </div>
             <p class="text-gray-700 dark:text-gray-500 text-sm sm:text-base">{{ Carbon\Carbon::parse($review->created_at)->diffForHumans()}}</p>
             <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $review->comment }}</p>
-        </div>
-        @empty
-        <p class="text-gray-500 text-sm">No recent reviews found.</p>
-        @endforelse
     </div>
     @empty
     <p class="text-gray-500 dark:text-gray-400 text-sm">No recent reviews found.</p>

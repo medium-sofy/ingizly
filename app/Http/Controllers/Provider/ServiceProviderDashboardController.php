@@ -93,35 +93,6 @@ class ServiceProviderDashboardController extends Controller
         ]);
         return redirect()->back()->with('success', 'Order has been Rejected');
     }
-    public function create()
-    {
-        abort(404); // Not used for dashboard
-    }
-
-    public function store(Request $request)
-    {
-        abort(404); // Not used for dashboard
-    }
-
-    public function show(string $id)
-    {
-        abort(404); // Not used for dashboard
-    }
-
-    public function edit(string $id)
-    {
-        abort(404); // Not used for dashboard
-    }
-
-    public function update(Request $request, string $id)
-    {
-        abort(404); // Not used for dashboard
-    }
-
-    public function destroy(string $id)
-    {
-        abort(404); // Not used for dashboard
-    }
 
     public function wallet()
     {

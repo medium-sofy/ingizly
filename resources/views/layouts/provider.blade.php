@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" 
-      x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', sidebarOpen: false }" 
-      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))" 
+<html lang="en"
+      x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', sidebarOpen: false }"
+      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))"
       :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
@@ -66,7 +66,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
+                    <a href="{{ route('bookings.index') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-calendar-check mr-3"></i> Bookings
                     </a>
                 </li>
@@ -81,9 +81,9 @@
                     </a>
                 </li>
                 <li>
-                    <x-notification-bell 
-                        :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()" 
-                        hoverColor="hover:bg-blue-700" 
+                    <x-notification-bell
+                        :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()"
+                        hoverColor="hover:bg-blue-700"
                     />
                 </li>
                 <li>

@@ -24,7 +24,7 @@ use App\Http\Controllers\Buyer\ServiceBuyerProfile;
 
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
-
+use App\Http\Controllers\Provider\ProviderBookingsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentController;
@@ -121,7 +121,8 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
     Route::post('dashboard/orders/{order}/accept', [ServiceProviderDashboardController::class, 'acceptOrder'])->name('provider.dashboard.accept');
     Route::post('dashboard/orders/{order}/reject', [ServiceProviderDashboardController::class, 'rejectOrder'])->name('provider.dashboard.reject');
-    
+    Route::resource('bookings', ProviderBookingsController::class); 
+
     Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
     Route::get('/wallet/download/{payment}', [ServiceProviderDashboardController::class, 'downloadTransaction'])->name('provider.wallet.download');
 });
