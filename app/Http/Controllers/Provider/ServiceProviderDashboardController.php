@@ -59,23 +59,43 @@ class ServiceProviderDashboardController extends Controller
     }
 
 
+    // In ServiceProviderDashboardController
     public function acceptOrder(Order $order)
     {
-        $providerName = $order->service->provider->user->name;
+        // Verify provider owns this order
+        if ($order->service->provider->user_id != Auth::id()) {
+            return back()->with('error', 'Unauthorized action');
+        }
+    
+        // Update order status
         $order->update(['status' => 'accepted']);
-
+    
+        // Delete any existing acceptance notifications for this order
+        Notification::where('user_id', $order->buyer_id)
+            ->where('notification_type', 'order_update')
+            ->where(function($query) use ($order) {
+                $query->where('content', 'like', '%"order_id":"'.$order->id.'"%')
+                      ->orWhere('content', 'like', '%'.$order->service->title.'%');
+            })
+            ->delete();
+    
+        // Create single standardized notification
         Notification::create([
             'user_id' => $order->buyer_id,
-            'title' => 'The provider '. $providerName .' accepted your order #' . $order->id,
+            'title' => 'Booking Accepted #' . $order->id,
             'content' => json_encode([
-                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been accepted (Service ID: {$order->service_id})",
-                'source' => 'landing'
+                'message' => "Your booking for '{$order->service->title}' has been accepted",
+                'order_id' => $order->id,
+                'service_id' => $order->service_id,
+                'source' => 'provider_dashboard'
             ]),
             'is_read' => false,
             'notification_type' => 'order_update'
         ]);
-        return redirect()->back()->with('success', 'Order has been Accepted');
+    
+        return redirect()->back()->with('success', 'Order accepted successfully');
     }
+
 
     public function rejectOrder(Order $order)
     {

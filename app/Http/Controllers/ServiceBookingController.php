@@ -45,7 +45,7 @@ class ServiceBookingController extends Controller
                 'user_id' => $service->provider->user_id,
                 'title' => 'New Booking Request #' . $order->id,
                 'content' => json_encode([
-                    'message' => 'New booking for "'.$service->title."' (Service ID: '.$service->id.')'",
+                    'message' => 'New booking for your service '.$service->title,
                     'source' => 'landing',
                     'order_id' => $order->id,
                     'service_id' => $service->id
@@ -59,7 +59,7 @@ class ServiceBookingController extends Controller
                 'user_id' => $user->id,
                 'title' => 'Booking Request Sent',
                 'content' => json_encode([
-                    'message' => 'Your booking request for "'.$service->title.'" has been sent to the provider we will notify you when he',
+                    'message' => 'Your booking request for "'.$service->title.'" has been sent to the provider we will notify you when he respond',
                     'source' => 'landing',
                     'order_id' => $order->id,
                     'service_id' => $service->id
@@ -77,21 +77,6 @@ class ServiceBookingController extends Controller
             Log::error('Booking failed: '.$e->getMessage());
             return back()->with('error', 'Booking failed. Please try again.');
         }
-    }
-
-    public function acceptOrder(Order $order)
-    {
-        // Allow manual updates or provider acceptance
-        $isManualUpdate = request()->has('manual_update') && request('manual_update') === 'true';
-        $isProvider = $order->service->provider->user_id == Auth::id();
-
-        if (!$isManualUpdate && !$isProvider) {
-            return back()->with('error', 'Unauthorized action');
-        }
-
-        $order->update(['status' => 'accepted']);
-
-        return back()->with('success', 'Order accepted!');
     }
     public function markInProgress(Order $order)
     {

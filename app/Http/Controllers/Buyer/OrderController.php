@@ -73,31 +73,7 @@ class OrderController extends Controller
             'special_instructions' => $request->special_instructions,
         ]);
 
-              // Notify provider that he has booking request
-
-   Notification::create([
-        'user_id' => $service->provider->user_id,
-        'title' => 'New Booking Request #' . $order->id,
-        'content' => json_encode([
-            'message' => 'New booking  #'.$order->id.' for '.$service->title.' respond ',
-            'source' => 'dashboard'
-        ]),
-        'is_read' => false,
-        'notification_type' => 'order_update'
-    ]);
-
-      // Notify buyer that booking request was sent
-      Notification::create([
-        'user_id' => Auth::id(),
-      'title' => 'Booking Request Sent #' . $order->id,
-    'content' => json_encode([
-        'message' => 'Your booking request #'.$order->id.' for '.$service->title.' has been sent to the provider',
-        'source' => 'dashboard'
-    ]),
-    'is_read' => false,
-    'notification_type' => 'order_update'
-]);
-        // Redirect to checkout
+        
         return redirect()->route('checkout.show', $order->id);
     }
 
@@ -125,18 +101,6 @@ class OrderController extends Controller
 
         // Update the order status to cancelled
         $order->update(['status' => 'cancelled']);
-
-
-        Notification::create([
-            'user_id' => $order->service->provider->user_id,
-            'title' => 'Order Cancelled #' . $order->id,
-           'content' => json_encode([
-                    'message' =>"The order for '{ #'.$order->id.'$order->service->title}' has been cancelled by the buyer",
-                    'source' => 'dashboard'
-                ]),
-                'is_read' => false,
-                'notification_type' => 'order_update'
-            ]);
         return redirect()->route('buyer.orders.index')
             ->with('success', 'Order has been cancelled successfully.');
     }
