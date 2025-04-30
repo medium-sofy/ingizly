@@ -30,6 +30,134 @@
             @forelse ($notifications as $notification)
                 @php
                     $markAsReadUrl = route('notifications.mark-read', $notification->id);
+
+                    // Create a link using NotificationController's logic
+                    $user = auth()->user();
+                    $violationId = null;
+                    $reviewId = null;
+                    $orderId = null;
+                    $serviceId = null;
+                    $source = null;
+                    
+                    // Try to decode JSON content for source information
+                    try {
+                        $decodedContent = json_decode($notification->content, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($decodedContent)) {
+                            $source = $decodedContent['source'] ?? null;
+                            $displayContent = $decodedContent['message'] ?? $notification->content;
+                            $contentForRegex = $displayContent;
+                        } else {
+                            $displayContent = $notification->content;
+                            $contentForRegex = $notification->content;
+                        }
+                    } catch (\Exception $e) {
+                        $displayContent = $notification->content;
+                        $contentForRegex = $notification->content;
+                    }
+                    
+                    // Extract violation ID from title or content
+                    if (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $notification->title, $matches)) {
+                        $violationId = $matches[1] ?? $matches[2] ?? null;
+                    } elseif (preg_match('/violation.*?#(\d+)|report.*?#(\d+)/i', $contentForRegex, $matches)) {
+                        $violationId = $matches[1] ?? $matches[2] ?? null;
+                    }
+                    
+                    // Extract review ID
+                    if (preg_match('/review.*?#(\d+)/i', $contentForRegex, $matches)) {
+                        $reviewId = $matches[1] ?? null;
+                    }
+                    
+                    // Extract order ID
+                    if (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $contentForRegex, $matches)) {
+                        $orderId = $matches[1] ?? $matches[2] ?? null;
+                    } elseif (preg_match('/order.*?#(\d+)|booking.*?#(\d+)/i', $notification->title, $matches)) {
+                        $orderId = $matches[1] ?? $matches[2] ?? null;
+                    }
+                    
+                    // Extract service ID
+                    if (preg_match('/service id: (\d+)/i', $contentForRegex, $matches)) {
+                        $serviceId = $matches[1] ?? null;
+                    } elseif (preg_match('/\(service id: (\d+)\)/i', $contentForRegex, $matches)) {
+                        $serviceId = $matches[1] ?? null;
+                    }
+                    
+                    // Admin - New Service Notification
+                    if ($user->role === 'admin' && str_contains($notification->title, 'New Service Pending Approval')) {
+                        $link = route('admin.dashboard');
+                    }
+                    // Provider - Approval/Rejection Notifications
+elseif ($user->role === 'service_provider' && 
+      (str_contains($notification->title, 'Service Approved') || 
+       str_contains($notification->title, 'Service Rejected'))) {
+    $link = route('provider.services.index');
+}
+// Provider - Order cancellations, bookings, reviews
+elseif ($user->role === 'service_provider' && 
+      (str_contains(strtolower($notification->title), 'cancel') ||
+       str_contains(strtolower($notification->title), 'booking') ||
+       str_contains(strtolower($notification->title), 'order') ||
+       str_contains(strtolower($notification->title), 'review') ||
+       $notification->notification_type === 'order_update' ||
+       $notification->notification_type === 'review')) {
+    
+    // Try to get service ID from order if available
+    if (!$serviceId && $orderId) {
+        $order = \App\Models\Order::find($orderId);
+        if ($order) {
+            $serviceId = $order->service_id;
+        }
+    }
+    
+    if ($serviceId) {
+        $link = route('provider.services.show', $serviceId);
+    } else {
+        $link = route('provider.services.index');
+    }
+}
+// Default for other provider notifications
+elseif ($user->role === 'service_provider') {
+    $link = route('provider.services.index');
+}
+                    // For service buyer
+elseif ($user->role === 'service_buyer') {
+    // Handle violation notifications first
+    if ($notification->notification_type === 'system' && $violationId) {
+        $violation = \App\Models\Violation::find($violationId);
+        $link = $violation 
+            ? route('service.details', $violation->service_id)
+            : route('notifications.index');
+    }
+    // Then handle other buyer notifications
+    elseif ($source === 'dashboard') {
+        $link = route('buyer.orders.index');
+    } elseif ($source === 'landing' && $serviceId) {
+        $link = route('service.details', $serviceId);
+    } elseif ($orderId) {
+        $order = \App\Models\Order::find($orderId);
+        if ($order) {
+            $link = route('service.details', $order->service_id);
+        } else {
+            $link = route('buyer.orders.index');
+        }
+    } else {
+        $link = route('notifications.index');
+    }
+}
+                    // For admin reports
+                    elseif ($user->role === 'admin' && $notification->notification_type === 'system' && $violationId) {
+                        $link = route('admin.reports.show', $violationId);
+                    }
+                    // For admin reviews
+                    elseif ($user->role === 'admin' && $notification->notification_type === 'review' && $reviewId) {
+                        $link = route('admin.reviews.show', $reviewId);
+                    }
+                    elseif ($user->role === 'admin' && $notification->notification_type === 'review' && !$reviewId) {
+                        $link = route('admin.reviews.index');
+                    }
+                    // Default
+                    else {
+                        $link = route('notifications.index');
+                    }
                     
                     // Create a link using NotificationController's logic
                     $user = auth()->user();

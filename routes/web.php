@@ -20,6 +20,7 @@ use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ServiceBuyerDashboardController;
 use App\Http\Controllers\Buyer\ServiceController as ServiceBuyerCatalogController;
+use App\Http\Controllers\Buyer\ServiceBuyerProfile;
 
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
@@ -116,7 +117,7 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::resource('services', ServiceProviderCatalogController::class)->names('provider.services');
    // Route::delete('services/image/{image}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
    Route::delete('services/image/{id}', [ServiceProviderCatalogController::class, 'destroyImage'])->name('provider.services.image.destroy');
-    
+
     Route::get('dashboard', [ServiceProviderDashboardController::class, 'index'])->name('provider.dashboard');
 
     Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
@@ -133,6 +134,14 @@ Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->name('buyer.
     Route::get('/services/{service}', [ServiceBuyerCatalogController::class, 'show'])->name('services.show');
     Route::get('/services/{service}/order', [ServiceBuyerCatalogController::class, 'order'])->name('services.order');
 });
+// Service buyer profile routes
+Route::middleware(['auth', 'role:service_buyer'])->prefix('buyer')->group(function () {
+    Route::get('/profile', [ServiceBuyerProfile::class, 'edit'])->name('service_buyer.profile.edit');
+    Route::put('/profile', [ServiceBuyerProfile::class, 'update'])->name('service_buyer.profile.update');
+    Route::put('/profile/password', [ServiceBuyerProfile::class, 'updatePassword'])->name('service_buyer.profile.update_password');
+    Route::delete('/profile', [ServiceBuyerProfile::class, 'destroy'])->name('service_buyer.profile.delete');
+});
+
 
 //@@ Services (Home page view)
 Route::middleware(['auth', 'role:service_buyer'])->group(function () {
@@ -212,3 +221,4 @@ Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->
 Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
 Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
         ->name('service.details');
+
