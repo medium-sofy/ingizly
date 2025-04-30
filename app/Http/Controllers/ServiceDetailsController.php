@@ -88,7 +88,9 @@ public function submitReview(Request $request, $serviceId)
     Notification::create([
         'user_id' => $service->provider_id, 
         'title' => 'New Review Received',
-        'content' => "You received a new review for your service '{$service->title}'",
+        'content' => json_encode([
+            'message' => "You received a new {$validated['rating']}-star review for your service '{$service->title}'"
+        ]),
         'notification_type' => 'review',
         'is_read' => false
     ]);
@@ -99,7 +101,11 @@ public function submitReview(Request $request, $serviceId)
         Notification::create([
             'user_id' => $admin->id,
             'title' => 'New Review Submitted',
-            'content' => "A new review #{$reviewId} was submitted for service '{$service->title}' by user " . auth()->user()->name,
+            'content' => json_encode([
+                'message' => "A customer submitted a new review for service '{$service->title}'",
+                'service_id' => $serviceId,
+                'review_id' => $reviewId
+            ]),
             'notification_type' => 'review',
             'is_read' => false
         ]);
@@ -164,8 +170,12 @@ public function showReportForm($serviceId)
         if ($admin) {
             Notification::create([
                 'user_id' => $admin->id,
-                'title' => 'New Violation Reported',
-                'content' => "New violation report #{$violation->id} for service '{$serviceTitle}' by user " . Auth::user()->name,
+                'title' => 'New Service Report',
+                'content' => json_encode([
+                    'message' => "A customer reported an issue with service '{$serviceTitle}' (Reason: {$request->reason_type})",
+                    'service_id' => $serviceId,
+                    'violation_id' => $violation->id
+                ]),
                 'notification_type' => 'system',
                 'is_read' => false
             ]);
