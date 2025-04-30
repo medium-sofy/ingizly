@@ -45,9 +45,11 @@
                :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
             <!-- Logo & Close Button -->
             <div class="p-6 border-b border-blue-700 flex justify-between items-center">
-                <h2 class="text-2xl font-bold flex items-center">
-                    <i class="fas fa-cogs mr-3"></i> Ingizly
-                </h2>
+                <a href="/">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fas fa-cogs mr-3"></i> Ingizly
+                    </h2>
+                </a>
                 <button @click="sidebarOpen = false" class="md:hidden text-white">
                     <i class="fas fa-times"></i>
                 </button>
@@ -66,7 +68,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('bookings.index') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
+                    <a href="{{ route('provider.bookings.index') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-calendar-check mr-3"></i> Bookings
                     </a>
                 </li>
