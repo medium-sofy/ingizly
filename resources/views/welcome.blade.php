@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Find trusted local service providers on Ingilzy. Browse, book, and review all in one place.">
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
-
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>Ingizly - Find Trusted Services</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://unpkg.com/alpinejs" defer></script>
@@ -23,97 +22,82 @@
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans leading-relaxed">
 
     <!-- Navbar -->
-<header class="bg-white dark:bg-gray-800 shadow-md animate-fadeIn" x-data="{ menuOpen: false }">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-        <!-- Logo -->
-        <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
+    <header class="bg-white dark:bg-gray-800 shadow-md animate-fadeIn relative z-40" x-data="{ menuOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
 
-        <!-- Desktop Navigation -->
-        <nav class="hidden md:flex items-center gap-6 text-base font-medium">
-            <a href="{{ route('services.all') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
-            <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
-            <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
-            @auth
-                <!-- Dashboard Button -->
-                <a href="{{ route('dashboard') }}" 
-                   class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-            @endauth
-        </nav>
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-6 text-base font-medium">
+                <a href="{{ route('services.all') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
+                <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
+                <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
+                @auth
+                    <!-- Dashboard Button -->
+                    <a href="{{ route('dashboard') }}" 
+                       class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                @endauth
+            </nav>
 
-        <!-- Right Side (User Info + Theme Toggle) -->
-        <div class="flex items-center gap-4">
-            @auth
-                <!-- User Info -->
-                <div class="hidden md:flex items-center gap-2">
-                    <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                         alt="Profile Picture" 
-                         class="w-10 h-10 rounded-full object-cover">
-                    <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
-                </div>
-            @else
-                <!-- Login and Sign Up -->
-                <div class="hidden md:flex items-center gap-4">
-                    <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Login</a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition">Sign Up</a>
-                    @endif
-                </div>
-            @endauth
+            <!-- Right Side (User Info + Theme Toggle) -->
+            <div class="flex items-center gap-4">
+                @auth
+                    <!-- User Info -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
+                            <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
+                                 alt="Profile Picture" 
+                                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600">
+                            <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
+                            <i class="fas fa-chevron-down text-sm text-gray-600 dark:text-gray-300"></i>
+                        </button>
 
-            <!-- Theme Toggle -->
-            <button @click="toggleTheme"
-                    class="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                <span x-text="darkMode ? '☀ ' : '🌙 '"></span>
-            </button>
-        </div>
+                        <!-- Dropdown Menu -->
+                        <div x-show="open" @click.away="open = false"
+                             x-transition
+                             class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
+                            <a href="{{ auth()->user()->role === 'service_provider' ? route('service_provider.profile.edit') : route('service_buyer.profile.edit') }}"
+                               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-user mr-2"></i> Profile
+                            </a>
+                            
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+@else
+                    <!-- Login and Sign Up -->
+                    <div class="hidden md:flex items-center gap-4">
+                        <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Login</a>
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition">Sign Up</a>
+                        @endif
+                    </div>
+                @endauth
 
-        <!-- Mobile Menu Toggle -->
-        <div class="md:hidden">
-            <button @click="menuOpen = !menuOpen" class="text-gray-700 dark:text-gray-200 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path x-show="!menuOpen" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                    <path x-show="menuOpen" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-    </div>
-
-    <!-- Mobile Navigation Menu -->
-    <nav x-show="menuOpen" x-transition class="md:hidden px-4 pb-4 space-y-2 bg-white dark:bg-gray-800">
-        <a href="#services" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Explore Services</a>
-        <a href="#about" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">About Us</a>
-        <a href="#contact" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Contact</a>
-        @auth
-            <!-- Dashboard Link -->
-            <a href="{{ route('dashboard') }}" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Dashboard</a>
-
-            <!-- User Info -->
-            <div class="flex items-center gap-2 py-2">
-                <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                     alt="Profile Picture" 
-                     class="w-8 h-8 rounded-full object-cover">
-                <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
+                <!-- Theme Toggle Button -->
+                <button @click="toggleTheme" class="p-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    <span x-show="!darkMode" class="flex items-center">
+                        <i class="fas fa-moon"></i> <!-- Light Mode Icon -->
+                    </span>
+                    <span x-show="darkMode" class="flex items-center">
+                        <i class="fas fa-sun"></i> <!-- Dark Mode Icon -->
+                    </span>
+                </button>
             </div>
-        @else
-            <!-- Login and Sign Up -->
-            <a href="{{ route('login') }}" class="block w-full text-center py-2 border border-gray-300 dark:border-gray-600 rounded text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Login</a>
-            @if (Route::has('register'))
-                <a href="{{ route('register') }}" class="block w-full text-center py-2 bg-blue-600 dark:bg-blue-500 text-white rounded text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition">Sign Up</a>
-            @endif
-        @endauth
-        <button @click="toggleTheme"
-                class="w-full text-left py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition">
-            <span x-text="darkMode ? '☀ Light Mode' : '🌙 Dark Mode'"></span>
-        </button>
-    </nav>
-</header>
-
+        </div>
+    </header>
 
     <!-- Hero Section -->
     <section class="relative bg-cover bg-center py-20 sm:py-24 md:py-32 animate-fadeIn dark:text-gray-100"
-             style="background-image: url('{{ asset('images/hero-image1.png') }}');">
+             style="background-image: url('{{ asset('images/hero-image1.png') }}'); z-index: 0;">
         <div class="absolute inset-0 bg-white bg-opacity-70 dark:bg-gray-900 dark:bg-opacity-30 backdrop-blur-md"></div>
         <div class="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6">
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
@@ -326,7 +310,7 @@
                 </li>
                 <li class="flex items-start">
                     <span class="text-green-500 mr-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     </span>
@@ -537,8 +521,8 @@
             <div>
                 <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="#services" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a></li>
-                    <li><a href="#about" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a></li>
+                    <li><a href="{{ route('services.all') }}"  class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a></li>
+                    <li><a href="#about" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition" >About Us</a></li>
                     <li><a href="#faq" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">FAQs</a></li>
                     <li><a href="#contact" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a></li>
                 </ul>
