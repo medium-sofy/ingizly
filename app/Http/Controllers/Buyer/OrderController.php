@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Buyer;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Service;
-use App\Models\Notification;  
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -80,7 +80,7 @@ class OrderController extends Controller
         'title' => 'New Booking Request #' . $order->id,
         'content' => json_encode([
             'message' => 'New booking  #'.$order->id.' for '.$service->title.' respond ',
-            'source' => 'dashboard' 
+            'source' => 'dashboard'
         ]),
         'is_read' => false,
         'notification_type' => 'order_update'
@@ -89,10 +89,10 @@ class OrderController extends Controller
       // Notify buyer that booking request was sent
       Notification::create([
         'user_id' => Auth::id(),
-      'title' => 'Booking Request Sent #' . $order->id, 
+      'title' => 'Booking Request Sent #' . $order->id,
     'content' => json_encode([
         'message' => 'Your booking request #'.$order->id.' for '.$service->title.' has been sent to the provider',
-        'source' => 'dashboard' 
+        'source' => 'dashboard'
     ]),
     'is_read' => false,
     'notification_type' => 'order_update'
@@ -116,13 +116,13 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         $this->authorize('delete', $order);
-    
+
         // Check if the order is in pending status
         if ($order->status !== 'pending') {
             return redirect()->route('buyer.orders.index')
                 ->with('error', 'Only pending orders can be cancelled.');
         }
-    
+
         // Update the order status to cancelled
         $order->update(['status' => 'cancelled']);
 
@@ -132,7 +132,7 @@ class OrderController extends Controller
             'title' => 'Order Cancelled #' . $order->id,
            'content' => json_encode([
                     'message' =>"The order for '{ #'.$order->id.'$order->service->title}' has been cancelled by the buyer",
-                    'source' => 'dashboard' 
+                    'source' => 'dashboard'
                 ]),
                 'is_read' => false,
                 'notification_type' => 'order_update'

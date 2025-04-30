@@ -59,7 +59,7 @@
                     <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
                     @auth
                 <!-- Dashboard Button -->
-                <a href="{{ route('dashboard') }}" 
+                <a href="{{ route('dashboard') }}"
                    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
@@ -306,21 +306,21 @@
                 console.error('Error marking all notifications as read:', error);
             }
         },
-        
+
         getNotificationLink(notif) {
             // If the notification has a link property from the API, use it
             if (notif.link && notif.link !== '#') {
                 return notif.link;
             }
-            
+
             // Use the same routing logic as in index.blade.php
             let link = '#';
-            
+
             // Extract IDs from notification content
             let violationId = null;
             let reviewId = null;
             let orderId = null;
-            
+
             // Extract violation ID from title or content
             if ((notif.title && notif.title.match(/violation.*?#(\d+)|report.*?#(\d+)/i))) {
                 const matches = notif.title.match(/violation.*?#(\d+)|report.*?#(\d+)/i);
@@ -329,19 +329,19 @@
                 const matches = notif.content.match(/violation.*?#(\d+)|report.*?#(\d+)/i);
                 violationId = matches[1] || matches[2];
             }
-            
+
             // Extract review ID
             if (notif.content && notif.content.match(/review.*?#(\d+)/i)) {
                 const matches = notif.content.match(/review.*?#(\d+)/i);
                 reviewId = matches[1];
             }
-            
+
             // Extract order ID
             if (notif.content && notif.content.match(/order.*?#(\d+)|booking.*?#(\d+)/i)) {
                 const matches = notif.content.match(/order.*?#(\d+)|booking.*?#(\d+)/i);
                 orderId = matches[1];
             }
-            
+
             // Extract service ID
             let serviceId = null;
             if (notif.content && notif.content.match(/service id: (\d+)/i)) {
@@ -351,12 +351,20 @@
 
             // Get user role from data attribute or other source
             const userRole = document.body.getAttribute('data-user-role') || '{{ Auth::user()->role ?? "" }}';
-            
+
+                // Special handling for booking accepted notifications
+    if (userRole === 'service_buyer' &&
+        notif.title.includes('Booking Accepted') &&
+        notif.service_id) {
+        return `/services/${notif.service_id}`;
+    }
+
+
             // For admin role - direct to specific admin routes
             if (userRole === 'admin') {
                 if (notif.notification_type === 'system' && violationId) {
                     return '/admin/reports/' + violationId;
-                } 
+                }
                 else if (notif.notification_type === 'review' && reviewId) {
                     return '/admin/reviews/' + reviewId;
                 }
@@ -371,17 +379,17 @@
                     return '/services/' + serviceId;
                 } else if (orderId) {
                     // We may need an API endpoint to get service ID from order ID
-                    return '/orders/' + orderId; 
+                    return '/orders/' + orderId;
                 }
-            } 
+            }
             else if (notif.notification_type === 'system' && userRole === 'service_buyer' && violationId) {
                 // For now, redirect to notifications if we don't have service ID
                 return serviceId ? '/services/' + serviceId : '/notifications';
-            } 
+            }
             else if (notif.notification_type === 'review' && userRole === 'service_provider') {
                 return '/provider/services';
             }
-            
+
             // Default to notifications page if no specific link is found
             return '/notifications';
         },
