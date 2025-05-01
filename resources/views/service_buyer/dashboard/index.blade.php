@@ -69,10 +69,22 @@
                             <div class="text-sm text-gray-500 dark:text-gray-400">{{ $order->created_at->format('M d, Y') }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                {{ $order->status == 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 
-                                   ($order->status == 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : 
-                                   'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300') }}">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                @switch($order->status)
+                                    @case('completed')
+                                        bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300
+                                        @break
+                                    @case('pending')
+                                        bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
+                                        @break
+                                    @case('cancelled')
+                                    @case('disapproved')
+                                        bg-purple-100 text-red-800 dark:bg-red-900 dark:text-red-300
+                                        @break
+                                    @default
+                                        bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300
+                                @endswitch
+                            ">
                                 {{ ucfirst($order->status) }}
                             </span>
                         </td>
@@ -80,6 +92,16 @@
                             {{ $order->total_amount }} EGP
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            @if($order->status == 'pending_approval')
+                                <form action="{{ route('buyer.orders.approve', $order->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit"  class="text-green-800 bg-green-200 p-1 border rounded-xl mr-2 dark:text-green-800 hover:underline">Approve</button>
+                                </form>
+                                <form action="{{ route('buyer.orders.reject', $order->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" onclick="return confirm('Are you sure you want to Reject this order?')" class="text-red-800 bg-red-200 p-1 border rounded-xl mr-2 dark:text-red-800 hover:underline">Reject</button>
+                                </form>
+                            @endif
                             <a href="{{ route('buyer.orders.show', $order->id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-500">View</a>
                         </td>
                     </tr>

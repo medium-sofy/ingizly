@@ -279,4 +279,68 @@ class ServiceBookingController extends Controller
                 ->with('error', 'Error confirming your payment. Please contact support.');
         }
     }
+    
+    public function approveService(Order $order)
+    {
+        // dd($order);
+        $providerName = $order->service->provider->user->name;
+        $buyerName = $order->buyer->user->name;
+        $order->update(["status" => 'completed']);
+        // Notify the provider that the service was approved
+        Notification::create([
+            'user_id' => $order->service->provider->user->id,
+            'title' => 'The buyer '. $buyerName .' has approved your service. order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "You service '{$order->service->title}' was approved. (Service ID: {$order->service_id})",
+                'source' => 'dashboard'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        // Notify the buyer that the service was approved successfully
+        Notification::create([
+            'user_id' => $order->buyer_id,
+            'title' => 'Your approved the service successfully. order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "The provider '{$providerName}' was notified about your approval of service '{$order->service->title}'. (Service ID: {$order->service_id})",
+                'source' => 'dashboard'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        
+        return redirect()->back()->with('success', 'Your service was approved successfully');
+    }
+    public function rejectService(Order $order)
+    {
+        // dd($order);
+        $providerName = $order->service->provider->user->name;
+        $buyerName = $order->buyer->user->name;
+        $order->update(["status" => 'disapproved']);
+        // Notify the provider that the service was disapproved
+        Notification::create([
+            'user_id' => $order->service->provider->user->id,
+            'title' => 'The buyer '. $buyerName .' has disapproved your service. order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "You service '{$order->service->title}' was disapproved. (Service ID: {$order->service_id})",
+                'source' => 'dashboard'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        // Notify the buyer that the service was approved successfully
+        Notification::create([
+            'user_id' => $order->buyer_id,
+            'title' => 'Your disapproved the service successfully. order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "The provider '{$providerName}' was notified about your disapproval of service '{$order->service->title}'. (Service ID: {$order->service_id})",
+                'source' => 'dashboard'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        
+        return redirect()->back()->with('success', 'Your service was approved successfully');
+
+    }
 }
