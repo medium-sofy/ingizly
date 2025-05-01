@@ -123,7 +123,9 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::post('dashboard/orders/{order}/reject', [ServiceProviderDashboardController::class, 'rejectOrder'])->name('provider.dashboard.reject');
 
     Route::resource('bookings', ProviderBookingsController::class)->names('provider.bookings');
-    Route::post('bookings/{order}',[ ProviderBookingsController::class, 'startService'])->name('provider.service.start');
+    Route::post('bookings/{order}/start',[ ProviderBookingsController::class, 'startService'])->name('provider.service.start');
+    Route::post('bookings/{order}/complete',[ ProviderBookingsController::class, 'completeService'])->name('provider.service.complete');
+    
     Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
     Route::get('/wallet/download/{payment}', [ServiceProviderDashboardController::class, 'downloadTransaction'])->name('provider.wallet.download');
 });
@@ -165,6 +167,9 @@ Route::middleware(['auth', 'role:service_buyer'])->group(function () {
     // Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
     //     ->name('service.details');
 });
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+    ->name('service.details');
+
 
 //@@ Dashboard
 Route::get('/dashboard', function () {
@@ -197,6 +202,12 @@ Route::middleware(['auth', 'role:service_buyer'])->group(function () {
     Route::post('/orders/{order}/cancel', [ServiceBookingController::class, 'cancelOrder'])
         ->name('orders.cancel');
 
+    Route::post('/orders/{order}/approve', [ServiceBookingController::class, 'approveService'])
+        ->name('buyer.orders.approve');
+
+    Route::post('/orders/{order}/reject', [ServiceBookingController::class, 'rejectService'])
+        ->name('buyer.orders.reject');
+
     Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
         ->name('order.payment');
 });
@@ -223,6 +234,3 @@ Route::post('/notifications/mark-all-read', [NotificationController::class, 'mar
 Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
 Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-        ->name('service.details');
-
