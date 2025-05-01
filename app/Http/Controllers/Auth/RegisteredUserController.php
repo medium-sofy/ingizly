@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendOtpMail;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class RegisteredUserController extends Controller
 {
@@ -37,6 +40,7 @@ class RegisteredUserController extends Controller
 
 
         ]);
+
         // Handle Image Upload
         $imagePath = null;
         if ($request->hasFile('profile_image')) {
@@ -50,12 +54,24 @@ class RegisteredUserController extends Controller
             'profile_image' => $imagePath,
         ]);
 
-        event(new Registered($user));
+        //event(new Registered($user));
 
-        Auth::login($user); //==> this is to test how to make auth after chossing role
+       // Generate and store OTP
+        $otp = rand(100000, 999999);
+        $user->update([
+            'email_otp' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinutes(10),
+        ]);
 
-        return redirect()->route('choose.role');
+        // Send OTP to user's email
+        Mail::to($user->email)->send(new SendOtpMail($otp));
+
+        // Log the user in and redirect to OTP form
+        Auth::login($user);
+
+        return redirect()->route('verify.otp.form')->with('status', 'OTP sent to your email.');
     }
+
     /**
      * Show the role selection page.
      */

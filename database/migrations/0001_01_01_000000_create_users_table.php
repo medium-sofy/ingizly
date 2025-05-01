@@ -21,6 +21,8 @@ return new class extends Migration
             $table->boolean('is_email_verified')->default(false);
             $table->string('profile_image')->nullable();
             $table->timestamp('last_login')->nullable();
+            $table->string('email_otp')->nullable();
+            $table->timestamp('otp_expires_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

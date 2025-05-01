@@ -32,9 +32,17 @@ use App\Http\Controllers\PublicCategoryController;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\Auth\OtpController;
 
 //@@ Home
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+
+Route::middleware('auth')->group(function () {
+    Route::get('verify-otp', [OtpController::class, 'showForm'])->name('verify.otp.form');
+    Route::post('/verify-otp', [OtpController::class, 'verify'])->name('verify.otp');
+    Route::post('/resend-otp', [OtpController::class, 'resend'])->name('resend.otp');
+});
+
 
 //@@ Auth
 require __DIR__.'/auth.php';
@@ -42,6 +50,9 @@ require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
     Route::get('/choose-role', [RegisteredUserController::class, 'showRoleSelection'])->name('choose.role');
     Route::post('/select-role', [RegisteredUserController::class, 'selectRole'])->name('select.role');
+
+
+  
 
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
