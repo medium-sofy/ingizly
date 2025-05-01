@@ -13,7 +13,7 @@ class CustomReportController extends Controller
 {
     public function index()
     {
-        return view('admin.reports.custom.index');
+        return view('admin.payments.custom.index');
     }
 
     public function generate(Request $request)
@@ -40,7 +40,7 @@ class CustomReportController extends Controller
             default => collect([])
         };
 
-        return view('admin.reports.custom.results', compact('data', 'reportType'));
+        return view('admin.payments.custom.results', compact('data', 'reportType'));
     }
 
     private function getUserTransactions($userId, $startDate, $endDate)
@@ -65,11 +65,14 @@ class CustomReportController extends Controller
                     'amount' => $payment->amount,
                     'currency' => $payment->currency,
                     'payment_status' => $payment->payment_status, // Use the correct column name
+                    'payment_gateway' => $payment->payment_gateway,
+                    'transaction_id' => $payment->transaction_id,
                     'created_at' => $payment->created_at,
                     'user' => $payment->order->buyer->name, // Access the buyer's name
                     'service' => $payment->order->service->title,
                     'provider' => $payment->order->service->provider->user->name, // Assuming service has provider and provider has user relation
                     'order_id' => $payment->order_id // Include order ID
+
                 ];
             });
     }
