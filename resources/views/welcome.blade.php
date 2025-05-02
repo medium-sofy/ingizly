@@ -34,7 +34,7 @@
                 <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
                 @auth
                     <!-- Dashboard Button -->
-                    <a href="{{ route('dashboard') }}" 
+                    <a href="{{ route('dashboard') }}"
                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
                         <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
@@ -47,8 +47,8 @@
                     <!-- User Info -->
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
-                            <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                                 alt="Profile Picture" 
+                            <img src="{{ asset('storage/' . Auth::user()->profile_image) }}"
+                                 alt="Profile Picture"
                                  class="w-10 h-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600">
                             <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
                             <i class="fas fa-chevron-down text-sm text-gray-600 dark:text-gray-300"></i>
@@ -62,7 +62,7 @@
                                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <i class="fas fa-user mr-2"></i> Profile
                             </a>
-                            
+
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
@@ -94,6 +94,18 @@
             </div>
         </div>
     </header>
+    @if (session('status'))
+        <div
+            x-data="{ show: true }"
+            x-show="show"
+            x-init="setTimeout(() => show = false, 4000)"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mt-4"
+            role="alert"
+        >
+            <strong class="font-bold">Success!</strong>
+            <span class="block sm:inline">{{ session('status') }}</span>
+        </div>
+    @endif
 
     <!-- Hero Section -->
     <section class="relative bg-cover bg-center py-20 sm:py-24 md:py-32 animate-fadeIn dark:text-gray-100"
@@ -215,7 +227,7 @@
   </div>
 </section>
 
-    
+
 
     <!-- Popular Categories -->
 <section class="py-20 bg-gradient-to-b from-gray-100 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -236,7 +248,7 @@
             @foreach ($popularCategories as $category)
                 <a href="{{ route('categories.show', $category->id) }}"
                    class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl hover:scale-[1.03] hover:shadow-2xl transition-transform duration-300 ease-out transform hover:-translate-y-1">
-                    
+
                     <!-- Category Icon and Tag -->
                     <div class="flex items-center justify-between mb-4">
                         <div class="text-3xl text-blue-600 dark:text-blue-400">
@@ -451,7 +463,7 @@
                 ['question' => 'What payment methods are supported?', 'answer' => 'We support secure payments via credit cards, digital wallets, and bank transfers.']
             ] as $index => $faq)
                 <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow transition-shadow duration-300 hover:shadow-md">
-                    <button 
+                    <button
                         @click="selected === {{ $index }} ? selected = null : selected = {{ $index }}"
                         class="w-full flex justify-between items-center p-5 text-left"
                     >

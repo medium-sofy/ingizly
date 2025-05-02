@@ -60,6 +60,7 @@
                     {{ session('info') }}
                 </div>
             @endif
+            <x-email-verification-alert />
 
             {{-- Added check for active route for better UX --}}
             <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">

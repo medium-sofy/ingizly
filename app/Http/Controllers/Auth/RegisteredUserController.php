@@ -52,15 +52,22 @@ class RegisteredUserController extends Controller
 
         ], $messages);
         $response = Http::get('http://apilayer.net/api/check', [
-            'access_key' => 'b35f9b609f02670893d7fbe12a087a47',
+            'access_key' => env('MAILBOXLAYER_API_KEY'),
             'email' => $request->email,
             'smtp' => 1,
             'format' => 1,
         ]);
 
-        if (!$response->ok() || !$response['smtp_check']) {
-            return back()->withErrors(['email' => 'This email address seems invalid or unreachable. Please enter a working email.'])->withInput();
+        $data = $response->json();
+
+        if (
+            !$response->ok() ||
+            !isset($data['smtp_check']) ||
+            !$data['smtp_check']
+        ) {
+            return back()->withErrors(['email' => 'This email address seems invalid or unreachable. Please enter a working email'])->withInput();
         }
+
         // Handle Image Upload
         $imagePath = null;
         if ($request->hasFile('profile_image')) {

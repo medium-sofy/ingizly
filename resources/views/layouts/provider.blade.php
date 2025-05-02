@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" 
-      x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', sidebarOpen: false }" 
-      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))" 
+<html lang="en"
+      x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', sidebarOpen: false }"
+      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))"
       :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
@@ -55,6 +55,7 @@
 
             <!-- Navigation -->
             <ul class="flex-1 p-4 space-y-4 overflow-y-auto">
+                <x-email-verification-alert />
                 <li>
                     <a href="{{ route('provider.dashboard') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-home mr-3"></i> Overview
@@ -81,9 +82,9 @@
                     </a>
                 </li>
                 <li>
-                    <x-notification-bell 
-                        :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()" 
-                        hoverColor="hover:bg-blue-700" 
+                    <x-notification-bell
+                        :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()"
+                        hoverColor="hover:bg-blue-700"
                     />
                 </li>
                 <li>

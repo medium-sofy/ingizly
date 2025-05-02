@@ -16,7 +16,7 @@ class OtpController extends Controller
     public function showForm()
     {
 
-       
+
 
         return view('auth.verify-otp');
     }
@@ -44,7 +44,9 @@ class OtpController extends Controller
                 'email_otp' => null,
                 'otp_expires_at' => null,
             ]);
-
+            if ($user->role) {
+                return redirect()->route('welcome')->with('status', 'Email verified successfully.');
+            }
             return redirect()->route('choose.role')->with('status', 'Email verified successfully.');
         }
 
