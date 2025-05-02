@@ -17,27 +17,7 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        .unread-indicator {
-            position: absolute;
-            top: -0.25rem;
-            right: -0.25rem;
-            width: 1.25rem;
-            height: 1.25rem;
-            background-color: #ef4444;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: white;
-        }
-        .notification-panel {
-            width: 28rem;
-            max-height: 32rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
+        
     </style>
     @stack('styles')
 </head>

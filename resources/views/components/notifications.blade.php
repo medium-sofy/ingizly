@@ -1,4 +1,4 @@
-<style>/* Add these to your app.css or keep in component */
+<style>
 .unread-indicator {
     position: absolute;
     top: -0.25rem;
@@ -246,7 +246,6 @@ function notificationDropdown() {
                 if (serviceId) {
                     return '/services/' + serviceId;
                 } else if (orderId) {
-                    // We may need an API endpoint to get service ID from order ID
                     return '/orders/' + orderId;
                 }
             }
