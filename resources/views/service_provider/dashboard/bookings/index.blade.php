@@ -39,10 +39,11 @@
                                         @elseif($order->status == 'accepted') bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
                                         @elseif($order->status == 'rejected') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
                                         @elseif($order->status == 'in_progress') bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200
+                                        @elseif($order->status == 'pending_approval') bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200
                                         @elseif($order->status == 'completed') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-                                        @elseif($order->status == 'cancelled') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                                        @elseif($order->status == 'disapproved') bg-purple-100 text-red-800 dark:bg-red-900 dark:text-red-300
                                         @endif">
-                                        {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                        {{ ucfirst(str_replace('_', ' ', $order->status == 'accepted' ? 'Payment pending' : $order->status)) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
@@ -71,7 +72,7 @@
                                                     <span>Reject</span>
                                                 </button>
                                             </form>
-                                        @elseif($order->status == 'accepted')
+                                        @elseif($order->status == 'accepted' && $order->hasSuccessfulPayment())
                                             <form action=" {{route('provider.service.start',$order->id)}} " method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit" class="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-full text-xs transition duration-300 shadow-sm">
@@ -82,9 +83,9 @@
                                                 </button>
                                             </form>
                                         @elseif($order->status == 'in_progress')
-                                            <form method="POST" class="inline">
+                                            <form action="{{ route('provider.service.complete', $order->id) }}" method="POST" class="inline">
                                                 @csrf
-                                                <button type="button" class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-full text-xs transition duration-300 shadow-sm">
+                                                <button type="submit" class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-full text-xs transition duration-300 shadow-sm">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                                     </svg>
@@ -126,7 +127,7 @@
                                 @elseif($order->status == 'completed') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
                                 @elseif($order->status == 'cancelled') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
                                 @endif">
-                                {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                        {{ ucfirst(str_replace('_', ' ', $order->status == 'accepted' ? 'Payment pending' : $order->status)) }}
                             </span>
                         </div>
 
@@ -159,7 +160,7 @@
                                         <span>Reject</span>
                                     </button>
                                 </form>
-                            @elseif($order->status == 'accepted')
+                            @elseif($order->status == 'accepted' && $order->hasSuccessfulPayment())
                                 <form action="{{ route('provider.dashboard.reject', $order->id) }}" method="POST" class="inline">
                                     @csrf
                                     <button type="submit" class="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-full text-xs transition duration-300 shadow-sm">
@@ -170,9 +171,9 @@
                                     </button>
                                 </form>
                             @elseif($order->status == 'in_progress')
-                                <form method="POST" class="inline">
+                                <form action="{{ route('provider.service.complete', $order->id) }}" method="POST" class="inline">
                                     @csrf
-                                    <input type="button" class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-full text-xs transition duration-300 shadow-sm">
+                                    <input type="submit" class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-full text-xs transition duration-300 shadow-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                         </svg>
