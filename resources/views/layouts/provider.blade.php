@@ -72,11 +72,7 @@
                         <i class="fas fa-calendar-check mr-3"></i> Bookings
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
-                        <i class="fas fa-star mr-3"></i> Reviews
-                    </a>
-                </li>
+
                 <li>
                     <a href="{{ route('provider.wallet') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-wallet mr-3"></i> Your Wallet
