@@ -160,6 +160,10 @@ class ServiceBookingController extends Controller
         if (!$isBuyer && !$isProvider) {
             return back()->with('error', 'Unauthorized action');
         }
+        
+        if ($order->status == 'accepted') {
+            return back()->with('error', 'Can\'t cancel accepted orders');
+        }
 
         $order->update(['status' => 'cancelled']);
 
