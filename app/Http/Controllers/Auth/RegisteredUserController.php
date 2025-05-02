@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+
 
 class RegisteredUserController extends Controller
 {
@@ -32,8 +34,8 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
 
-   
-    
+
+
     {
         $messages = [
             'name.regex' => 'Name must contain only letters.',
@@ -49,11 +51,22 @@ class RegisteredUserController extends Controller
 
 
         ], $messages);
+        $response = Http::get('http://apilayer.net/api/check', [
+            'access_key' => 'b35f9b609f02670893d7fbe12a087a47',
+            'email' => $request->email,
+            'smtp' => 1,
+            'format' => 1,
+        ]);
 
+        if (!$response->ok() || !$response['smtp_check']) {
+            return back()->withErrors(['email' => 'This email address seems invalid or unreachable. Please enter a working email.'])->withInput();
+        }
         // Handle Image Upload
         $imagePath = null;
         if ($request->hasFile('profile_image')) {
             $imagePath = $request->file('profile_image')->store('user_images', 'public');
+        }else{
+            $imagePath = 'avatar/avatar.png';
         }
 
         $user = User::create([
