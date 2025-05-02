@@ -24,7 +24,7 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 @import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
 </style>
-<div class="relative" x-data="notificationDropdown()" x-init="init()">
+<div class="relative z-50" x-data="notificationDropdown()" x-init="init()"> 
     <button @click="toggleDropdown()"
             class="p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition focus:outline-none">
         <i class='bx bx-bell text-xl'></i>
@@ -40,6 +40,7 @@
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
          class="notification-panel absolute right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+    
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Notifications</h3>
             <div class="flex space-x-4">

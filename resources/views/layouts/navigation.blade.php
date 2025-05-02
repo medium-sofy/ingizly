@@ -1,6 +1,7 @@
 <script src="https://unpkg.com/alpinejs" defer></script>
-
-<header class="bg-white dark:bg-gray-800 shadow-sm animate-fadeIn" x-data="{ darkMode: false }">
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<header class="bg-white dark:bg-gray-800 shadow-sm animate-fadeIn relative z-40" x-data="{ darkMode: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex justify-between items-center">
         <!-- Logo -->
         <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
@@ -20,6 +21,7 @@
                    class="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
+                <x-notifications />
 
                 <!-- User Info Dropdown -->
                 <div x-data="{ open: false }" class="relative">
@@ -72,3 +74,4 @@
         </div>
     </div>
 </header>
+@stack('scripts')
