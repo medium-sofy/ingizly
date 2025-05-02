@@ -8,7 +8,9 @@
     <title>Ingizly - Find Trusted Services</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -44,6 +46,9 @@
             <!-- Right Side (User Info + Theme Toggle) -->
             <div class="flex items-center gap-4">
                 @auth
+
+                <x-notifications />
+
                     <!-- User Info -->
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
@@ -585,6 +590,7 @@
             }
         }
     </script>
+@stack('scripts')
 
 </body>
 </html>
