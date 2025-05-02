@@ -31,15 +31,24 @@ class RegisteredUserController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
+
+   
+    
     {
+        $messages = [
+            'name.regex' => 'Name must contain only letters.',
+            'profile_image.max' => 'Image must not exceed 2MB.',
+            'profile_image.mimes' => 'Only JPG, JPEG, or PNG images are allowed.',
+            'password.min' => 'Password must be at least 8 characters.',
+        ];
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'regex:/^[\pL\s\-]+$/u', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // Max 2MB
+            'password' =>  ['required', 'confirmed', 'min:8'],
+            'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], // Max 5MB
 
 
-        ]);
+        ], $messages);
 
         // Handle Image Upload
         $imagePath = null;

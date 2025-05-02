@@ -27,8 +27,39 @@ class ServiceController extends Controller
         return view('service_provider.services.create', compact('categories'));
     }
 
-    public function store(Request $request)
+     public function store(Request $request)
+    
+
+    // {
+    //     $validated = $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'category_id' => 'required|exists:categories,id',
+    //         'description' => 'required|string',
+    //         'price' => 'required|numeric',
+    //         'location' => 'nullable|string|max:255',
+    //         'service_type' => 'required|in:on_site,remote,bussiness_based',
+    //         'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    //     ]);
+
+    //     $service = Service::create([
+    //         'provider_id' => Auth::id(),
+    //         'title' => $validated['title'],
+    //         'category_id' => $validated['category_id'],
+    //         'description' => $validated['description'],
+    //         'price' => $validated['price'],
+    //         'location' => $validated['location'],
+    //         'status' => 'pending',
+    //         'view_count' => 0,
+    //         'service_type' => $validated['service_type'],
+    //     ]);
     {
+        $provider = Auth::user()->serviceProvider;
+    
+        if (!$provider) {
+            return redirect()->route('service_provider.form') 
+                             ->with('error', 'You need to complete your provider profile before creating a service.');
+        }
+    
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
@@ -38,9 +69,9 @@ class ServiceController extends Controller
             'service_type' => 'required|in:on_site,remote,bussiness_based',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-
+    
         $service = Service::create([
-            'provider_id' => Auth::id(),
+            'provider_id' => $provider->user_id,
             'title' => $validated['title'],
             'category_id' => $validated['category_id'],
             'description' => $validated['description'],
@@ -50,7 +81,6 @@ class ServiceController extends Controller
             'view_count' => 0,
             'service_type' => $validated['service_type'],
         ]);
-
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
                 $imagePath = $image->store('service_images', 'public');
