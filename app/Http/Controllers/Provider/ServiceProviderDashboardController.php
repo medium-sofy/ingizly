@@ -68,7 +68,7 @@ class ServiceProviderDashboardController extends Controller
             'user_id' => $order->buyer_id,
             'title' => 'The provider '. $providerName .' accepted your order #' . $order->id,
             'content' => json_encode([
-                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been accepted (Service ID: {$order->service_id})",
+                'message' =>  "Please proceed to pay for service '{$order->service->title}' (Service ID: {$order->service_id})",
                 'source' => 'landing'
             ]),
             'is_read' => false,
