@@ -15,6 +15,9 @@ class OtpController extends Controller
      */
     public function showForm()
     {
+        if (Auth::check() && Auth::user()->is_email_verified){
+            return redirect()->route('welcome')->with('status', 'you are already verified.');
+        }
 
 
 
