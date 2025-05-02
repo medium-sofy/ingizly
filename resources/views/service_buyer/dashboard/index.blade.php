@@ -53,7 +53,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
@@ -85,13 +85,14 @@
                                         bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300
                                 @endswitch
                             ">
-                                {{ ucfirst($order->status) }}
+                                {{ ucfirst(str_replace('_', ' ', $order->status == 'accepted' ? 'Payment pending' : $order->status)) }}
+
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                             {{ $order->total_amount }} EGP
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td class="px-6 py-4 whitespace-nowrap text-center flex justify-center text-sm font-medium">
                             @if($order->status == 'pending_approval')
                                 <form action="{{ route('buyer.orders.approve', $order->id) }}" method="POST" class="inline">
                                     @csrf
@@ -102,7 +103,23 @@
                                     <button type="submit" onclick="return confirm('Are you sure you want to Reject this order?')" class="text-red-800 bg-red-200 p-1 border rounded-xl mr-2 dark:text-red-800 hover:underline">Reject</button>
                                 </form>
                             @endif
-                            <a href="{{ route('buyer.orders.show', $order->id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-500">View</a>
+                            @if($order->status == 'accepted')
+                                <div class="flex items-center space-x-2">
+                                    <form action="{{ route('order.payment', $order->id) }}" method="GET" class="flex-shrink-0">
+                                        <button type="submit" class="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-1.5 rounded-lg flex items-center justify-center shadow transition text-xs">
+                                            <i class="fas fa-credit-card mr-1"></i> Pay Now
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('buyer.orders.show', $order->id) }}" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center justify-center shadow transition text-xs">
+                                        <i class="fas fa-eye mr-1"></i> View
+                                    </a>
+                                    <span class="text-xs bg-amber-300 px-3 py-1.5 rounded rounded-xl text-amber-800 dark:text-amber-400 flex items-center">
+                                        <i class="fas fa-lock-alt mr-1"></i> No cancellation
+                                    </span>
+                                </div>
+                            @else
+                                <a href="{{ route('buyer.orders.show', $order->id) }}" class="text-center text-blue-600 dark:text-blue-400 hover:underline mr-4">View</a>
+                            @endif        
                         </td>
                     </tr>
                     @empty
