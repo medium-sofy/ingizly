@@ -386,7 +386,7 @@
 
             <!-- Reviews Section -->
             @if($service->reviews && $service->reviews->count() > 0)
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"  id="reviews">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Customer Reviews</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 pb-8 md:pb-0 pr-0 md:pr-8">
@@ -468,7 +468,7 @@
                             ->exists();
                     @endphp
                     @if($hasCompletedOrder)
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mt-8">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mt-8  id="reviews">
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Write a Review</h3>
                             <form action="{{ route('service.review.submit', $service->id) }}" method="POST" id="reviewForm">
                                 @csrf
