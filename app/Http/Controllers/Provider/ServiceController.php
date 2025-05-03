@@ -27,31 +27,7 @@ class ServiceController extends Controller
         return view('service_provider.services.create', compact('categories'));
     }
 
-     public function store(Request $request)
-
-
-    // {
-    //     $validated = $request->validate([
-    //         'title' => 'required|string|max:255',
-    //         'category_id' => 'required|exists:categories,id',
-    //         'description' => 'required|string',
-    //         'price' => 'required|numeric',
-    //         'location' => 'nullable|string|max:255',
-    //         'service_type' => 'required|in:on_site,remote,bussiness_based',
-    //         'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    //     ]);
-
-    //     $service = Service::create([
-    //         'provider_id' => Auth::id(),
-    //         'title' => $validated['title'],
-    //         'category_id' => $validated['category_id'],
-    //         'description' => $validated['description'],
-    //         'price' => $validated['price'],
-    //         'location' => $validated['location'],
-    //         'status' => 'pending',
-    //         'view_count' => 0,
-    //         'service_type' => $validated['service_type'],
-    //     ]);
+    public function store(Request $request)
     {
         $provider = Auth::user()->serviceProvider;
 
@@ -63,7 +39,7 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'required|string',
+            'description' => 'required|string|max:1000',
             'price' => 'required|numeric',
             'location' => 'nullable|string|max:255',
             'service_type' => 'required|in:on_site,remote,bussiness_based',
@@ -81,6 +57,7 @@ class ServiceController extends Controller
             'view_count' => 0,
             'service_type' => $validated['service_type'],
         ]);
+
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
                 $imagePath = $image->store('service_images', 'public');
@@ -89,6 +66,13 @@ class ServiceController extends Controller
                     'is_primary' => $index === 0,
                 ]);
             }
+        } else {
+            
+            $defaultPath = 'service_images/default.png'; // Make sure this exists in public/storage/service_images/
+            $service->images()->create([
+                'image_url' => $defaultPath,
+                'is_primary' => true,
+            ]);
         }
 
         $admin = User::where('role', 'admin')->first();
@@ -96,7 +80,7 @@ class ServiceController extends Controller
             DB::table('notifications')->insert([
                 'user_id' => $admin->id,
                 'title' => 'New Service Pending Approval',
-                'content' => 'New service "'.$service->title.'" needs review',
+                'content' => 'New service "' . $service->title . '" needs review',
                 'notification_type' => 'system',
                 'is_read' => false,
                 'created_at' => now(),
@@ -109,7 +93,7 @@ class ServiceController extends Controller
 
     public function edit(Service $service)
     {
-       $this->authorize('update',$service);
+        $this->authorize('update', $service);
 
         $categories = Category::all();
         $service->load('images');
@@ -119,7 +103,7 @@ class ServiceController extends Controller
 
     public function update(Request $request, Service $service)
     {
-        $this->authorize('update',$service);
+        $this->authorize('update', $service);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -169,7 +153,7 @@ class ServiceController extends Controller
 
     public function destroy(Service $service)
     {
-        $this->authorize('delete',$service);
+        $this->authorize('delete', $service);
 
         try {
             foreach ($service->images as $image) {
@@ -201,7 +185,7 @@ class ServiceController extends Controller
     {
         $image = ServiceImage::findOrFail($id);
 
-        $this->authorize('delete',$image->service);
+        $this->authorize('delete', $image->service);
 
         Storage::disk('public')->delete($image->image_url);
         $image->delete();
