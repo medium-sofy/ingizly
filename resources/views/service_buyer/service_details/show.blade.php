@@ -99,17 +99,17 @@
           <!-- Service Image Gallery -->
 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
     @if($service->images && count($service->images) > 0)
-    
+
 <!-- Image Gallery Updates -->
 
 <!-- Primary Image Display -->
 <div class="relative group">
-    <img id="primaryImageDisplay" 
-         src="{{ asset('storage/' . ($service->images->where('is_primary', true)->first() ?? $service->images->first())->image_url) }}" 
-         alt="{{ $service->title }}" 
+    <img id="primaryImageDisplay"
+         src="{{ asset('storage/' . ($service->images->where('is_primary', true)->first() ?? $service->images->first())->image_url) }}"
+         alt="{{ $service->title }}"
          class="w-full h-96 object-cover cursor-zoom-in transition duration-300 hover:opacity-95"
          onclick="openImageModal(this.src)">
-    
+
     @if(count($service->images) > 1)
         <div class="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm flex items-center">
             <i class="fas fa-camera mr-1.5"></i> {{ count($service->images) }} photos
@@ -123,7 +123,7 @@
         <div class="flex flex-wrap justify-center gap-2">
             @foreach($service->images as $image)
                 <div class="relative group thumbnail-item">
-                    <img src="{{ asset('storage/' . $image->image_url) }}" 
+                    <img src="{{ asset('storage/' . $image->image_url) }}"
                          alt="Thumbnail {{ $loop->index + 1 }}"
                          class="w-16 h-16 object-cover rounded-md cursor-pointer border-2 transition-all duration-200
                                 @if($loop->first && !$service->images->where('is_primary', true)->count()) border-blue-500
@@ -150,24 +150,24 @@
     <div class="modal-dialog modal-xl h-full flex items-center justify-center p-4">
         <div class="modal-content bg-transparent border-0 shadow-none w-full max-w-6xl">
             <div class="flex justify-between items-center mb-2">
-                <button type="button" 
+                <button type="button"
                         class="text-white hover:text-gray-300 bg-black/50 rounded-full p-2"
                         onclick="zoomImage(0.9)">
                     <i class="fas fa-search-minus fa-lg"></i>
                 </button>
-                <button type="button" 
+                <button type="button"
                         class="text-white hover:text-gray-300 bg-black/50 rounded-full p-2 ml-2"
                         onclick="zoomImage(1.1)">
                     <i class="fas fa-search-plus fa-lg"></i>
                 </button>
-                <button type="button" 
+                <button type="button"
                         class="text-white hover:text-gray-300 bg-black/50 rounded-full p-2 ml-auto"
                         onclick="closeModal('imageModal')">
                     <i class="fas fa-times fa-lg"></i>
                 </button>
             </div>
             <div class="relative w-full bg-black rounded-lg overflow-hidden" style="height: 80vh;">
-                <img id="modalImageContent" src="" alt="" 
+                <img id="modalImageContent" src="" alt=""
                      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full cursor-grab"
                      style="transition: transform 0.3s; transform-origin: center center;"
                      ondblclick="resetImageZoom()"
@@ -244,13 +244,13 @@
             $hasBuyerProfile = $currentUser->serviceBuyer;
             $userOrders = $hasBuyerProfile ? $service->orders->where('buyer_id', $currentUser->serviceBuyer->user_id) : collect();
             $currentOrder = $userOrders->where('status', '!=', 'cancelled')->sortByDesc('created_at')->first();
-            
+
             // Check if there's a successful payment for this order
             $hasSuccessfulPayment = false;
             if ($currentOrder) {
                 $hasSuccessfulPayment = $currentOrder->payments()->where('payment_status', 'successful')->exists();
             }
-            
+
             $hasCompletedOrder = $userOrders->where('status', 'completed')->isNotEmpty();
             $hasReported = $currentUser->violations()->where('service_id', $service->id)->exists();
         @endphp
@@ -270,67 +270,83 @@
                 <button onclick="openModal('bookingModal')" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
                     <i class="fas fa-calendar-plus mr-2"></i> {{ $hasCompletedOrder ? 'Book Again' : 'Book Now' }}
                 </button>
-            @elseif($currentOrder)
-                <div class="@switch($currentOrder->status)
-                        @case('pending') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
-                        @case('accepted') bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-500 @break
-                        @case('in_progress') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
-                        @case('completed') bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 dark:border-gray-500 @break
-                    @endswitch p-3 rounded flex items-center gap-2 text-sm">
-                    <i class="@switch($currentOrder->status)
-                            @case('pending') fas fa-clock text-blue-400 dark:text-blue-300 @break
-                            @case('accepted') fas fa-check-circle text-green-400 dark:text-green-300 @break
-                            @case('in_progress') fas fa-tasks text-blue-400 dark:text-blue-300 @break
-                            @case('completed') fas fa-check-double text-gray-400 dark:text-gray-300 @break
-                        @endswitch"></i>
-                    <span class="text-gray-800 dark:text-gray-200">
-                        @switch($currentOrder->status)
-                            @case('pending') Your booking request is pending approval. @break
-                            @case('accepted') 
-                                @if(!$hasSuccessfulPayment)
-                                    Your booking has been accepted! Please confirm to proceed.
-                                @else
-                                    Payment successful! Waiting for provider to start service.
-                                @endif
+                @elseif($currentOrder)
+                    <div class="@switch($currentOrder->status)
+                            @case('pending') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
+                            @case('accepted') bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-500 @break
+                            @case('in_progress') bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 @break
+                            @case('completed') bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 dark:border-gray-500 @break
+                            @case('pending_approval') bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-400 dark:border-purple-500 @break
+                        @endswitch p-3 rounded flex items-center gap-2 text-sm">
+                        <i class="@switch($currentOrder->status)
+                                @case('pending') fas fa-clock text-blue-400 dark:text-blue-300 @break
+                                @case('payment_pending') fas fa-check-circle text-green-400 dark:text-green-300 @break
+                                @case('in_progress') fas fa-tasks text-blue-400 dark:text-blue-300 @break
+                                @case('completed') fas fa-check-double text-gray-400 dark:text-gray-300 @break
+                                @case('pending_approval') fas fa-clipboard-check text-purple-500 dark:text-purple-300 @break
+                            @endswitch"></i>
+                        <span class="text-gray-800 dark:text-gray-200">
+                            @switch($currentOrder->status)
+                                @case('pending') Your booking request is pending approval. @break
+                                @case('accepted')
+                                    @if(!$hasSuccessfulPayment)
+                                        Your booking has been accepted! Please confirm to proceed.
+                                    @else
+                                        Payment successful! Waiting for provider to start service.
+                                    @endif
+                                @break
+                                @case('in_progress') Your service is in progress. Scheduled for {{ $currentOrder->scheduled_date->format('M j') }} at {{ date('g:i A', strtotime($currentOrder->scheduled_time)) }}. @break
+                                @case('pending_approval') The provider has marked the service as complete. Please review and approve. @break
+                                @case('completed') Service completed on {{ $currentOrder->updated_at->format('M j, Y') }}. @break
+                            @endswitch
+                        </span>
+                    </div>
+                    @switch($currentOrder->status)
+                        @case('pending')
+                            <form action="{{ route('orders.cancel', $currentOrder->id) }}" method="POST" class="mt-2">
+                                @csrf
+                                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+                                    <i class="fas fa-times mr-2"></i> Cancel Booking
+                                </button>
+                            </form>
                             @break
-                            @case('in_progress') Your service is in progress. Scheduled for {{ $currentOrder->scheduled_date->format('M j') }} at {{ date('g:i A', strtotime($currentOrder->scheduled_time)) }}. @break
-                            @case('completed') Service completed on {{ $currentOrder->updated_at->format('M j, Y') }}. @break
-                        @endswitch
-                    </span>
-                </div>
-                @switch($currentOrder->status)
-                    @case('pending')
-                        <form action="{{ route('orders.cancel', $currentOrder->id) }}" method="POST" class="mt-2">
-                            @csrf
-                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                                <i class="fas fa-times mr-2"></i> Cancel Booking
-                            </button>
-                        </form>
-                        @break
-                    @case('accepted')
-                        <div class="space-y-2 mt-2">
-                            @if($hasSuccessfulPayment)
-                                <!-- Payment notification box removed as it's now shown in the status message above -->
-                            @else
-                                <form action="{{ route('order.payment', $currentOrder->id) }}" method="GET">
-                                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
-                                        <i class="fas fa-check-double mr-2"></i> Confirm & Pay Now
+                        @case('accepted')
+                            <div class="space-y-2 mt-2">
+                                @if($hasSuccessfulPayment)
+                                    <!-- Payment notification box removed as it's now shown in the status message above -->
+                                @else
+                                    <form action="{{ route('order.payment', $currentOrder->id) }}" method="GET">
+                                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
+                                            <i class="fas fa-check-double mr-2"></i> Confirm & Pay Now
+                                        </button>
+                                    </form>
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-center text-xs text-gray-600 dark:text-gray-300">
+                                        <i class="fas fa-info-circle mr-1"></i> Cancellation not available after acceptance
+                                    </div>
+                                @endif
+                            </div>
+                            @break
+                        @case('pending_approval')
+                            <div class="flex gap-3 mt-3">
+                                <form action="{{ route('orders.confirm', $currentOrder->id) }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-4 py-2 rounded-xl flex items-center justify-center shadow transition">
+                                        <i class="fas fa-check-circle mr-2"></i> Approve Completion
                                     </button>
                                 </form>
-                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-center text-xs text-gray-600 dark:text-gray-300">
-                                    <i class="fas fa-info-circle mr-1"></i> Cancellation not available after acceptance
-                                </div>
+                                <a href="{{ route('buyer.orders.show', $currentOrder->id) }}" class="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center justify-center shadow transition">
+                                    <i class="fas fa-eye mr-2"></i> View Details
+                                </a>
+                            </div>
+                            @break
+                        @case('completed')
+                            @if($service->status === 'active')
+                                <button onclick="openModal('bookingModal')" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition mt-2">
+                                    <i class="fas fa-redo mr-2"></i> Book Again
+                                </button>
                             @endif
-                        </div>
-                        @break
-                    @case('completed')
-                        @if($service->status === 'active')
-                            <button onclick="openModal('bookingModal')" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow transition mt-2">
-                                <i class="fas fa-redo mr-2"></i> Book Again
-                            </button>
-                        @endif
-                        @break
-                @endswitch
+                            @break
+                    @endswitch
             @endif
             @php
     $userReport = $currentUser->violations()
@@ -341,13 +357,13 @@
 @endphp
 
 @if($canReportAgain)
-    <a href="{{ route('service.report.form', $service->id) }}" 
+    <a href="{{ route('service.report.form', $service->id) }}"
        class="border border-red-500 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-6 py-3 rounded-xl flex items-center justify-center shadow transition">
         <i class="fas fa-flag mr-2"></i> Report Service
     </a>
 @else
     <div class="border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 px-6 py-3 rounded-xl flex items-center justify-center">
-        <i class="fas fa-flag mr-2"></i> 
+        <i class="fas fa-flag mr-2"></i>
         @if($userReport->status === 'pending')
             Your report is under review
         @elseif($userReport->status === 'investigating')
@@ -688,7 +704,7 @@
                                             <p class="text-gray-900 dark:text-gray-100">{{ $service->location ?? $service->provider->location }}</p>
                                         </div>
                                     </div>
-                        
+
                                 </div>
                                 <div class="space-y-4">
                                     <div>
@@ -726,8 +742,8 @@
                                 <button type="submit" class="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 shadow transition">
                                     <i class="fas fa-paper-plane mr-2"></i> Send Booking Request
                                 </button>
-                                
-              
+
+
                             </div>
                         </form>
                     </div>
@@ -773,12 +789,12 @@ let startX, startY, scrollLeft, scrollTop;
 
 function changePrimaryImage(thumbnailElement, imageUrl) {
     document.getElementById('primaryImageDisplay').src = imageUrl;
-    
+
     document.querySelectorAll('.thumbnail-item img').forEach(img => {
         img.classList.remove('border-blue-500', 'border-2');
         img.classList.add('border-transparent');
     });
-    
+
     thumbnailElement.classList.add('border-blue-500', 'border-2');
     thumbnailElement.classList.remove('border-transparent');
 }
@@ -818,7 +834,7 @@ function dragImage(e) {
     const y = e.pageY - img.offsetTop;
     const walkX = (x - startX) * 2;
     const walkY = (y - startY) * 2;
-    
+
     if (currentScale > 1) {
         img.style.transform = `translate(calc(-50% + ${walkX}px), calc(-50% + ${walkY}px)) scale(${currentScale})`;
     }
