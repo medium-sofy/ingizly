@@ -567,10 +567,25 @@
                             <span class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
                                 <i class="fas fa-phone-alt text-blue-600 dark:text-blue-400"></i>
                             </span>
-                            <div>
-                                <h4 class="font-medium text-gray-900 dark:text-gray-100">Contact</h4>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $service->provider->phone_number }}</p>
-                            </div>
+                         @auth
+    <div class="flex items-start gap-3">
+      
+        <div>
+            <h4 class="font-medium text-gray-900 dark:text-gray-100">Contact</h4>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $service->provider->phone_number }}</p>
+        </div>
+    </div>
+@else
+    <div class="flex items-start gap-3">
+      
+        <div>
+            <h4 class="font-medium text-gray-900 dark:text-gray-100">Contact</h4>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+                <a href="{{ route('login') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Login</a> to view contact details
+            </p>
+        </div>
+    </div>
+@endauth
                         </div>
                     </div>
                     @if($service->provider->bio)
@@ -721,11 +736,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-6">
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-150 ease-in-out">
-                        Proceed to Checkout
-                    </button>
-                </div>
+                
                             <div class="modal-footer flex justify-end p-4 border-t dark:border-gray-700">
                                 <button type="button" class="px-6 py-3 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-500 mr-3 transition" onclick="closeModal('bookingModal')">Cancel</button>
                                 <button type="submit" class="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 shadow transition">

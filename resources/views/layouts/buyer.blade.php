@@ -19,26 +19,26 @@
     </style>
     <script src="//unpkg.com/alpinejs" defer></script>
 </head>
-<body 
-    x-data="{ 
-        sidebarOpen: false, 
-        darkMode: localStorage.getItem('theme') === 'dark', 
-        toggleTheme() { 
-            this.darkMode = !this.darkMode; 
-            localStorage.setItem('theme', this.darkMode ? 'dark' : 'light'); 
-            document.documentElement.classList.toggle('dark', this.darkMode); 
-        } 
-    }" 
-    x-init="document.documentElement.classList.toggle('dark', darkMode)" 
+<body
+    x-data="{
+        sidebarOpen: false,
+        darkMode: localStorage.getItem('theme') === 'dark',
+        toggleTheme() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
+            document.documentElement.classList.toggle('dark', this.darkMode);
+        }
+    }"
+    x-init="document.documentElement.classList.toggle('dark', darkMode)"
     class="bg-gray-100 dark:bg-gray-900 font-sans h-screen w-screen"
 >
 
     <div class="flex h-full w-full relative" x-cloak>
         <!-- Sidebar -->
 
-        <div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" 
+        <div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
             class="bg-blue-600 dark:bg-gray-800 text-white dark:text-gray-200 w-64 fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:flex md:flex-col">
-            
+
 
             <!-- Sidebar Header -->
             <div class="flex items-center justify-between p-4 border-b border-blue-700 dark:border-gray-700">
@@ -53,6 +53,8 @@
 
             <!-- Navigation Links -->
             <ul class="flex-1 p-4 space-y-4 overflow-y-auto">
+                <x-email-verification-alert />
+
                 <li>
                     <a href="http://127.0.0.1:8000/" class="flex items-center px-4 py-3 rounded hover:bg-blue-700 dark:hover:bg-gray-700">
                         <i class="fas fa-home mr-3"></i> Home
@@ -74,14 +76,14 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('service_buyer.profile.edit') }}" class="flex items-center px-4 py-3 rounded hover:bg-green-700">
+                    <a href="{{ route('service_buyer.profile.edit') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700 dark:hover:bg-gray-700">
 
                         <i class="fas fa-user mr-3"></i> Profile
                     </a>
                 </li>
                 <li>
 
-                    <x-notification-bell 
+                    <x-notification-bell
                         :unreadCount="auth()->user()->notifications()->where('is_read', false)->count()"
                         hoverColor="hover:bg-blue-700 dark:hover:bg-gray-700"
                     />
@@ -95,6 +97,7 @@
                         <span x-text="darkMode ? 'Light Mode' : 'Dark Mode'"></span>
                     </button>
                 </li>
+
             </ul>
 
             <!-- Logout -->

@@ -343,8 +343,12 @@ class UserController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             // Log::error($e->getMessage());
-            return redirect()->route('admin.users.index')
-                ->with('error', 'Failed to delete user. Error: ' . $e->getMessage());
+            return redirect()->route('admin.users.index')->with(
+                'error',
+                $e->getCode() === '23000'
+                    ? 'This user cannot be deleted because it has existing orders & services.'
+                    : 'An error occurred while deleting the service.'
+            );
         }
     }
 

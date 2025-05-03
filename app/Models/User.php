@@ -24,6 +24,8 @@ class User extends Authenticatable
         'role',
         'is_email_verified',
         'profile_image',
+        'email_otp',
+        'otp_expires_at',
         'last_login',
     ];
 

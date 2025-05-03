@@ -1,4 +1,4 @@
-@extends('layouts.app') {{-- Assuming layouts.app includes Tailwind CSS --}}
+@extends('layouts.sidbar') {{-- Assuming layouts.app includes Tailwind CSS --}}
 
 @section('content')
 <div class="py-4"> {{-- Added py-4 for vertical padding, similar to payments index --}}
@@ -12,7 +12,7 @@
                 </div>
 
                 <div class="p-6"> {{-- Added padding inside the card body area --}}
-                    <form action="{{ route('reports.custom.generate') }}" method="POST">
+                    <form action="{{ route('admin.reports.custom.generate') }}" method="POST">
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> {{-- Replaced row and col-md-6 with grid layout --}}
 

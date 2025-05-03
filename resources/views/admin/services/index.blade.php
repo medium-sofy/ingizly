@@ -77,7 +77,6 @@
                         <th class="py-3 text-left font-medium text-gray-700">Service Details</th>
                         <th class="py-3 text-left font-medium text-gray-700">Provider</th>
                         <th class="py-3 text-left font-medium text-gray-700">Price</th>
-                        <th class="py-3 text-left font-medium text-gray-700">Rating</th>
                         <th class="py-3 text-left font-medium text-gray-700">Views</th>
                         <th class="py-3 text-left font-medium text-gray-700">Category</th>
                         <th class="py-3 text-left font-medium text-gray-700">Actions</th>
@@ -107,7 +106,6 @@
                                 </div>
                             </td>
                             <td class="py-4">${{ number_format($service->price) }}</td>
-                            <td class="py-4">{{ $service->rating }}/5</td>
                             <td class="py-4">{{ number_format($service->views) }}</td>
                             <td class="py-4">{{ $service->category->name ?? 'No Category' }}</td>
                             <td class="py-4">

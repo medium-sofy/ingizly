@@ -137,6 +137,7 @@
                         </div>
                     </td>
                 </tr>
+
                 @empty
                 <tr>
                     <td colspan="5" class="text-center text-gray-500 dark:text-gray-400 p-3">No services found.</td>
@@ -148,7 +149,7 @@
 
     {{-- Recent Bookings --}}
 
-<div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded mb-8">
+<div id="recent-bookings" class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded mb-8">
     <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
         <i class="fas fa-calendar-alt text-green-500 mr-2"></i> Recent Bookings
     </h3>
@@ -179,7 +180,7 @@
 </div>
 
     {{-- Recent Reviews --}}
-    <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
+    <div id="recent-reviews" class="bg-white dark:bg-gray-800 p-4 sm:p-6 shadow rounded">
         <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center text-gray-800 dark:text-gray-100">
             <i class="fas fa-comments text-yellow-500 mr-2"></i> Recent Reviews
         </h3>
@@ -194,9 +195,9 @@
             <p class="text-gray-700 dark:text-gray-500 text-sm sm:text-base">{{ Carbon\Carbon::parse($review->created_at)->diffForHumans()}}</p>
             <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $review->comment }}</p>
     </div>
-    @empty
-    <p class="text-gray-500 dark:text-gray-400 text-sm">No recent reviews found.</p>
-    @endforelse
+
+  
+
 </div>
 </div>
 
