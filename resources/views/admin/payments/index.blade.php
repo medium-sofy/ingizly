@@ -138,18 +138,19 @@
                             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">{{ $payment->created_at->format('M d, Y H:i') }}</td> {{-- Display creation date/time --}}
                             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
-{{--                                    --}}{{-- Add actions like viewing associated order or refund if applicable --}}
-{{--                                    @if($payment->order_id)--}}
-{{--                                        <a href="{{ route('admin.orders.show', $payment->order_id) }}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-xs">--}}
-{{--                                            View Order--}}
-{{--                                        </a>--}}
-{{--                                    @endif--}}
-{{--                                    --}}{{-- Add a button for refund/view payment details if needed --}}
-{{--                                    --}}{{-- @if($payment->payment_status == 'successful')--}}
-{{--                                        <button class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded text-xs">Refund</button>--}}
-{{--                                    @endif --}}
+                                    @if($payment->payment_status === 'successful')
+                                        <form action="{{ route('admin.payments.refund', $payment->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to refund this payment?');">
+                                            @csrf
+                                            <input type="hidden" name="transaction_id" value="{{ $payment->transaction_id }}">
+                                            <input type="hidden" name="amount_cents" value="{{ $payment->amount * 100 }}">
+                                            <button type="submit" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded text-xs">
+                                                Refund
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
