@@ -20,7 +20,7 @@ class OrderPolicy
         }
 
         // Allow service providers to view orders for their services
-        if ($user->serviceProvider && $user->serviceProvider->id === $order->service->provider_id) {
+        if ($user->serviceProvider && $user->serviceProvider->user_id === $order->service->provider_id) {
             return true;
         }
 

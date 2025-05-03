@@ -28,7 +28,7 @@ class ServiceController extends Controller
     }
 
      public function store(Request $request)
-    
+
 
     // {
     //     $validated = $request->validate([
@@ -54,12 +54,12 @@ class ServiceController extends Controller
     //     ]);
     {
         $provider = Auth::user()->serviceProvider;
-    
+
         if (!$provider) {
-            return redirect()->route('service_provider.form') 
+            return redirect()->route('service_provider.form')
                              ->with('error', 'You need to complete your provider profile before creating a service.');
         }
-    
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
@@ -69,7 +69,7 @@ class ServiceController extends Controller
             'service_type' => 'required|in:on_site,remote,bussiness_based',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-    
+
         $service = Service::create([
             'provider_id' => $provider->user_id,
             'title' => $validated['title'],
@@ -103,7 +103,7 @@ class ServiceController extends Controller
                 'updated_at' => now()
             ]);
         }
-    
+
         return redirect()->route('provider.services.index')->with('success', 'Service created successfully.');
     }
 

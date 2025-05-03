@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -23,218 +23,218 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans leading-relaxed">
 
-    <!-- Navbar -->
-    <header class="bg-white dark:bg-gray-800 shadow-md animate-fadeIn relative z-40" x-data="{ menuOpen: false }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-            <!-- Logo -->
-            <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
+<!-- Navbar -->
+<header class="bg-white dark:bg-gray-800 shadow-md animate-fadeIn relative z-40" x-data="{ menuOpen: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+        <!-- Logo -->
+        <a href="/" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">Ingizly</a>
 
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex items-center gap-6 text-base font-medium">
-                <a href="{{ route('services.all') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
-                <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
-                <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
-                @auth
-                    <!-- Dashboard Button -->
-                    <a href="{{ route('dashboard') }}"
-                       class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
-                @endauth
-            </nav>
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-6 text-base font-medium">
+            <a href="{{ route('services.all') }}" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Explore Services</a>
+            <a href="#about" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">About Us</a>
+            <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
+            @auth
+                <!-- Dashboard Button -->
+                <a href="{{ route('dashboard') }}"
+                   class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            @endauth
+        </nav>
 
-            <!-- Right Side (User Info + Theme Toggle) -->
-            <div class="flex items-center gap-4">
-                @auth
+        <!-- Right Side (User Info + Theme Toggle) -->
+        <div class="flex items-center gap-4">
+            @auth
 
                 <x-notifications />
 
-                    <!-- User Info -->
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
-                            <img src="{{ asset('storage/' . Auth::user()->profile_image) }}"
-                                 alt="Profile Picture"
-                                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600">
-                            <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
-                            <i class="fas fa-chevron-down text-sm text-gray-600 dark:text-gray-300"></i>
-                        </button>
+                <!-- User Info -->
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
+                        <img src="{{ asset('storage/' . Auth::user()->profile_image) }}"
+                             alt="Profile Picture"
+                             class="w-10 h-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600">
+                        <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
+                        <i class="fas fa-chevron-down text-sm text-gray-600 dark:text-gray-300"></i>
+                    </button>
 
-                        <!-- Dropdown Menu -->
-                        <div x-show="open" @click.away="open = false"
-                             x-transition
-                             class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
-                            <a href="{{ auth()->user()->role === 'service_provider' ? route('service_provider.profile.edit') : route('service_buyer.profile.edit') }}"
-                               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <i class="fas fa-user mr-2"></i> Profile
-                            </a>
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" @click.away="open = false"
+                         x-transition
+                         class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
+                        <a href="{{ auth()->user()->role === 'service_provider' ? route('service_provider.profile.edit') : route('service_buyer.profile.edit') }}"
+                           class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
 
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit"
-                                        class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                                </button>
-                            </form>
-                        </div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                            </button>
+                        </form>
                     </div>
-@else
-                    <!-- Login and Sign Up -->
-                    <div class="hidden md:flex items-center gap-4">
-                        <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Login</a>
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition">Sign Up</a>
-                        @endif
-                    </div>
-                @endauth
+                </div>
+            @else
+                <!-- Login and Sign Up -->
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">Login</a>
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition">Sign Up</a>
+                    @endif
+                </div>
+            @endauth
 
-                <!-- Theme Toggle Button -->
-                <button @click="toggleTheme" class="p-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+            <!-- Theme Toggle Button -->
+            <button @click="toggleTheme" class="p-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     <span x-show="!darkMode" class="flex items-center">
                         <i class="fas fa-moon"></i> <!-- Light Mode Icon -->
                     </span>
-                    <span x-show="darkMode" class="flex items-center">
+                <span x-show="darkMode" class="flex items-center">
                         <i class="fas fa-sun"></i> <!-- Dark Mode Icon -->
                     </span>
+            </button>
+        </div>
+    </div>
+</header>
+@if (session('status'))
+    <div
+        x-data="{ show: true }"
+        x-show="show"
+        x-init="setTimeout(() => show = false, 4000)"
+        class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mt-4"
+        role="alert"
+    >
+        <strong class="font-bold">Success!</strong>
+        <span class="block sm:inline">{{ session('status') }}</span>
+    </div>
+@endif
+
+<!-- Hero Section -->
+<section class="relative bg-cover bg-center py-20 sm:py-24 md:py-32 animate-fadeIn dark:text-gray-100"
+         style="background-image: url('{{ asset('images/hero-image1.png') }}'); z-index: 0;">
+    <div class="absolute inset-0 bg-white bg-opacity-70 dark:bg-gray-900 dark:bg-opacity-30 backdrop-blur-md"></div>
+    <div class="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+            Find Trusted Services in Seconds
+        </h1>
+        <p class="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-10">
+            Thousands of small businesses use <span class="text-blue-600 dark:text-blue-400 font-semibold">Ingizly</span> to turn ideas into action.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+            <a href="{{ route('services.all') }}"
+               class="px-6 py-3 sm:px-8 sm:py-4 text-lg font-semibold bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition">
+                Explore Services
+            </a>
+            <a href="{{ route('register') }}"
+               class="px-6 py-3 sm:px-8 sm:py-4 text-lg font-semibold text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+                Join as Provider
+            </a>
+        </div>
+
+        <!-- Search Card -->
+        <form method="GET" action="{{ route('home.search') }}"
+              class="bg-white dark:bg-gray-800 bg-opacity-90 backdrop-blur-lg p-6 sm:p-10 rounded-xl shadow-2xl w-full max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- Category -->
+                <div x-data="{ open: false, selected: '', selectedId: '' }" class="relative">
+                    <label class="block text-sm font-semibold mb-2">Category</label>
+                    <button type="button" @click="open = !open"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-left text-gray-800 dark:text-gray-200">
+                        <span x-text="selected || 'Select Category'"></span>
+                    </button>
+                    <input type="hidden" name="category" :value="selectedId">
+
+                    <div x-show="open" @click.outside="open = false"
+                         class="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        <ul class="text-sm text-gray-800 dark:text-gray-200">
+                            <li @click="selected = 'All Categories'; selectedId = ''; open = false"
+                                class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">All Categories</li>
+                            @foreach ($allCategories as $category)
+                                <li @click="selected = '{{ $category->name }}'; selectedId = '{{ $category->id }}'; open = false"
+                                    class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">{{ $category->name }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Service -->
+                <div>
+                    <label for="service" class="block text-sm font-semibold mb-2">Service</label>
+                    <input type="text" id="service" name="service" placeholder="e.g. Barber, Tutor"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label for="location" class="block text-sm font-semibold mb-2">Location</label>
+                    <input type="text" id="location" name="location" placeholder="City"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <button type="submit"
+                        class="w-full px-6 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-lg">
+                    🔍 Search
                 </button>
             </div>
-        </div>
-    </header>
-    @if (session('status'))
-        <div
-            x-data="{ show: true }"
-            x-show="show"
-            x-init="setTimeout(() => show = false, 4000)"
-            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mt-4"
-            role="alert"
-        >
-            <strong class="font-bold">Success!</strong>
-            <span class="block sm:inline">{{ session('status') }}</span>
-        </div>
-    @endif
+        </form>
+    </div>
+</section>
 
-    <!-- Hero Section -->
-    <section class="relative bg-cover bg-center py-20 sm:py-24 md:py-32 animate-fadeIn dark:text-gray-100"
-             style="background-image: url('{{ asset('images/hero-image1.png') }}'); z-index: 0;">
-        <div class="absolute inset-0 bg-white bg-opacity-70 dark:bg-gray-900 dark:bg-opacity-30 backdrop-blur-md"></div>
-        <div class="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6">
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
-                Find Trusted Services in Seconds
-            </h1>
-            <p class="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-10">
-                Thousands of small businesses use <span class="text-blue-600 dark:text-blue-400 font-semibold">Ingizly</span> to turn ideas into action.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-                <a href="{{ route('services.all') }}"
-                   class="px-6 py-3 sm:px-8 sm:py-4 text-lg font-semibold bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition">
-                    Explore Services
-                </a>
-                <a href="{{ route('register') }}"
-                   class="px-6 py-3 sm:px-8 sm:py-4 text-lg font-semibold text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:bg-blue-50 dark:hover:bg-gray-700 transition">
-                    Join as Provider
-                </a>
+<!-- How It Works -->
+<section class="relative py-20 bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl md:text-5xl font-extrabold text-gray-700 dark:text-white mb-6 animate-fadeIn">
+            How It Works
+        </h2>
+        <p class="text-lg text-gray-700 dark:text-gray-300 mb-16 max-w-2xl mx-auto animate-fadeIn delay-100">
+            A simple 3-step journey to connect with trusted professionals or share your own skills effortlessly.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 animate-fadeIn delay-200">
+            <!-- Step 1 -->
+            <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-8 rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition duration-300">
+                <div class="text-blue-600 dark:text-blue-400 text-4xl mb-4">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Browse</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Explore thousands of services tailored to your needs by category, keywords, or location.
+                </p>
             </div>
 
-            <!-- Search Card -->
-            <form method="GET"
-                  class="bg-white dark:bg-gray-800 bg-opacity-90 backdrop-blur-lg p-6 sm:p-10 rounded-xl shadow-2xl w-full max-w-4xl mx-auto">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    <!-- Category -->
-                    <div x-data="{ open: false, selected: '', selectedId: '' }" class="relative">
-                        <label class="block text-sm font-semibold mb-2">Category</label>
-                        <button type="button" @click="open = !open"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-left text-gray-800 dark:text-gray-200">
-                            <span x-text="selected || 'Select Category'"></span>
-                        </button>
-                        <input type="hidden" name="category" :value="selectedId">
-
-                        <div x-show="open" @click.outside="open = false"
-                             class="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            <ul class="text-sm text-gray-800 dark:text-gray-200">
-                                <li @click="selected = 'All Categories'; selectedId = ''; open = false"
-                                    class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">All Categories</li>
-                                @foreach ($allCategories as $category)
-                                    <li @click="selected = '{{ $category->name }}'; selectedId = '{{ $category->id }}'; open = false"
-                                        class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">{{ $category->name }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Service -->
-                    <div>
-                        <label for="service" class="block text-sm font-semibold mb-2">Service</label>
-                        <input type="text" id="service" name="service" placeholder="e.g. Barber, Tutor"
-                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <!-- Location -->
-                    <div>
-                        <label for="location" class="block text-sm font-semibold mb-2">Location</label>
-                        <input type="text" id="location" name="location" placeholder="City"
-                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
+            <!-- Step 2 -->
+            <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-8 rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition duration-300">
+                <div class="text-blue-600 dark:text-blue-400 text-4xl mb-4">
+                    <i class="fas fa-calendar-check"></i>
                 </div>
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Book</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Choose your provider, check availability, and book your appointment in just a few clicks.
+                </p>
+            </div>
 
-                <div class="mt-8">
-                    <button type="submit"
-                            class="w-full px-6 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-lg">
-                        🔍 Search
-                    </button>
+            <!-- Step 3 -->
+            <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-8 rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition duration-300">
+                <div class="text-blue-600 dark:text-blue-400 text-4xl mb-4">
+                    <i class="fas fa-star"></i>
                 </div>
-            </form>
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Review</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Share your experience and help build a trusted community by rating your service.
+                </p>
+            </div>
         </div>
-    </section>
-
-   <!-- How It Works -->
-<section class="relative py-20 bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
-  <div class="container mx-auto px-6 text-center">
-    <h2 class="text-4xl md:text-5xl font-extrabold text-gray-700 dark:text-white mb-6 animate-fadeIn">
-      How It Works
-    </h2>
-    <p class="text-lg text-gray-700 dark:text-gray-300 mb-16 max-w-2xl mx-auto animate-fadeIn delay-100">
-      A simple 3-step journey to connect with trusted professionals or share your own skills effortlessly.
-    </p>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 animate-fadeIn delay-200">
-      <!-- Step 1 -->
-      <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-8 rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition duration-300">
-        <div class="text-blue-600 dark:text-blue-400 text-4xl mb-4">
-          <i class="fas fa-search"></i>
-        </div>
-        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Browse</h3>
-        <p class="text-gray-600 dark:text-gray-300">
-          Explore thousands of services tailored to your needs by category, keywords, or location.
-        </p>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-8 rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition duration-300">
-        <div class="text-blue-600 dark:text-blue-400 text-4xl mb-4">
-          <i class="fas fa-calendar-check"></i>
-        </div>
-        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Book</h3>
-        <p class="text-gray-600 dark:text-gray-300">
-          Choose your provider, check availability, and book your appointment in just a few clicks.
-        </p>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-8 rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition duration-300">
-        <div class="text-blue-600 dark:text-blue-400 text-4xl mb-4">
-          <i class="fas fa-star"></i>
-        </div>
-        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Review</h3>
-        <p class="text-gray-600 dark:text-gray-300">
-          Share your experience and help build a trusted community by rating your service.
-        </p>
-      </div>
     </div>
-  </div>
 </section>
 
 
 
-    <!-- Popular Categories -->
+<!-- Popular Categories -->
 <section class="py-20 bg-gradient-to-b from-gray-100 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
     <div class="container mx-auto px-4">
 
@@ -297,8 +297,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center">
         <!-- Image -->
         <div class="md:w-1/2 mb-10 md:mb-0">
-                            <img src="{{ asset('images/about.png') }}" alt="About Ingilzy" class="rounded-lg">
-                        </div>
+            <img src="{{ asset('images/about.png') }}" alt="About Ingilzy" class="rounded-lg">
+        </div>
 
         <!-- Text Content -->
         <div class="md:w-1/2 md:pl-12 text-gray-800 dark:text-gray-200">
@@ -348,7 +348,7 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div class="mb-10">
-        <h2 class="text-4xl font-bold mb-4 text-blue-600 dark:text-blue-400">Flexible & Secure Payments</h2>
+            <h2 class="text-4xl font-bold mb-4 text-blue-600 dark:text-blue-400">Flexible & Secure Payments</h2>
 
             <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 We support trusted payment gateways so your transactions stay safe and smooth. Whether you're booking a service or getting paid, we’ve got you covered.
@@ -391,7 +391,7 @@
 
 
 
-    <!-- Contact Section -->
+<!-- Contact Section -->
 <section id="contact" class="py-16 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
         <!-- Title -->
@@ -575,21 +575,21 @@
     </div>
 </footer>
 
-    <!-- Theme Switcher Logic -->
-    <script>
-        function themeSwitcher() {
-            return {
-                darkMode: false,
-                init() {
-                    this.darkMode = localStorage.getItem('theme') === 'dark';
-                },
-                toggleTheme() {
-                    this.darkMode = !this.darkMode;
-                    localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
-                }
+<!-- Theme Switcher Logic -->
+<script>
+    function themeSwitcher() {
+        return {
+            darkMode: false,
+            init() {
+                this.darkMode = localStorage.getItem('theme') === 'dark';
+            },
+            toggleTheme() {
+                this.darkMode = !this.darkMode;
+                localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
             }
         }
-    </script>
+    }
+</script>
 @stack('scripts')
 
 </body>

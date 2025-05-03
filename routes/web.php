@@ -36,6 +36,7 @@ use App\Http\Controllers\Auth\OtpController;
 
 //@@ Home
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('/search', [WelcomeController::class, 'search'])->name('home.search');
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-otp', [OtpController::class, 'showForm'])->name('verify.otp.form');
@@ -135,6 +136,7 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::resource('bookings', ProviderBookingsController::class)->names('provider.bookings');
     Route::post('bookings/{order}/start',[ ProviderBookingsController::class, 'startService'])->name('provider.service.start');
     Route::post('bookings/{order}/complete',[ ProviderBookingsController::class, 'completeService'])->name('provider.service.complete');
+
     Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
     Route::get('/wallet/download/{payment}', [ServiceProviderDashboardController::class, 'downloadTransaction'])->name('provider.wallet.download');
 });

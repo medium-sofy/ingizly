@@ -48,11 +48,11 @@ class ProviderBookingsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Order $order)
+    public function show(Order $booking)
     {
-        // dd($order);
-        $order->load(['service', 'service.provider.user']);
-        return view('service_provider.dashboard.bookings.show', compact('order'));
+        $this->authorize('view', $booking);
+        $booking->load('service', 'service.provider.user');
+        return view('service_provider.dashboard.bookings.show', compact('booking'));
     }
 
     /**
