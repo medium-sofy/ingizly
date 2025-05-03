@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('payment_gateway')->nullable();
             $table->decimal('amount', 10, 2);
             $table->string('currency', 10);
-            $table->enum('payment_status', ['successful', 'failed','pending']);
+            $table->enum('payment_status', ['successful', 'failed','pending','refunded']);
             $table->string('transaction_id')->nullable()->unique();
             // Add any other relevant columns you might need
             $table->timestamps();

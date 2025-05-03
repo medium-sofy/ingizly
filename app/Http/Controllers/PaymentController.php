@@ -178,4 +178,32 @@ class PaymentController extends Controller
     {
         return view("paymob.payment-failed");
     }
+    public function refund(Request $request, $paymentId)
+    {
+        $payment = Payment::find($paymentId);
+
+        if (!$payment) {
+            return back()->with('error', 'Payment not found.');
+        }
+        if ($payment->payment_status == 'refunded') {
+            return back()->with('error', 'This payment has already been refunded.');
+        }
+        $request->validate([
+            'transaction_id' => 'required|string',
+            'amount_cents' => 'required|numeric|min:1',
+        ]);
+
+        $result = $this->paymentGateway->refund(
+            $request->transaction_id,
+            $request->amount_cents
+        );
+
+        if ($result['success']) {
+            $payment->payment_status = 'refunded';
+            $payment->save();
+            return back()->with('success', 'Refund successful.');
+        }
+
+        return back()->with('error', 'Refund failed: ' . ($result['message'] ?? 'Unknown error.'));
+    }
 }

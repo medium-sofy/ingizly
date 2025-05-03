@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/select-role', [RegisteredUserController::class, 'selectRole'])->name('select.role');
 
 
-  
+
 
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Payment Export Routes
     Route::get('payments', [PaymentController::class, 'index'])->name('payments');
+    Route::post('/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
     Route::get('payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('payments.export.pdf');
     Route::get('payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('payments.export.csv');
 
