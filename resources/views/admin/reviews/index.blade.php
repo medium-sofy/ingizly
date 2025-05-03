@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <div class="py-4">
@@ -37,7 +37,7 @@
 
                     <!-- Date Range -->
                     <div class="flex items-center">
-                        <input type="date" name="start_date" 
+                        <input type="date" name="start_date"
                                value="{{ request('start_date') }}"
                                class="border border-gray-300 rounded p-2">
                         <span class="px-2">to</span>
@@ -87,7 +87,7 @@
                             <td class="py-4">
                                 <div class="flex items-center">
                                     @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                        <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}"
                                              fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                         </svg>
@@ -110,14 +110,14 @@
                             </td>
                             <td class="py-4">
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('admin.reviews.show', $review->id) }}" 
+                                    <a href="{{ route('admin.reviews.show', $review->id) }}"
                                        class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded">
                                         View
                                     </a>
                                     <form action="{{ route('admin.reviews.update', $review->id) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PUT')
-                                        <select name="status" onchange="this.form.submit()" 
+                                        <select name="status" onchange="this.form.submit()"
                                                 class="border border-gray-300 rounded p-1 text-sm">
                                             <option value="pending" {{ $review->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                             <option value="approved" {{ $review->status == 'approved' ? 'selected' : '' }}>Approved</option>

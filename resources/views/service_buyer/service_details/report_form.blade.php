@@ -3,12 +3,12 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-3xl mx-auto">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <!-- Card Header -->
-            <div class="px-6 py-4 border-b border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-semibold text-gray-800">Report Service: {{ $service->title }}</h3>
-                    <a href="{{ route('service.details', $service->id) }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Report Service: {{ $service->title }}</h3>
+                    <a href="{{ route('service.details', $service->id) }}" class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <i class="fas fa-arrow-left mr-2"></i> Back
                     </a>
                 </div>
@@ -20,8 +20,8 @@
                     @csrf
                     <!-- Reason Type Select -->
                     <div class="mb-6">
-                        <label for="reason_type" class="block text-sm font-medium text-gray-700 mb-2">Reason for Reporting</label>
-                        <select id="reason_type" name="reason_type" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                        <label for="reason_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason for Reporting</label>
+                        <select id="reason_type" name="reason_type" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             <option value="">Select a reason</option>
                             <option value="Inappropriate Content">Inappropriate Content</option>
                             <option value="False Information">False Information</option>
@@ -30,21 +30,21 @@
                             <option value="Other">Other</option>
                         </select>
                         @error('reason_type')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <!-- Detailed Explanation -->
                     <div class="mb-6">
-                        <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Detailed Explanation</label>
+                        <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detailed Explanation</label>
                         <textarea id="reason" name="reason" rows="5" required
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md p-3"
+                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                             placeholder="Please provide detailed information about your report"></textarea>
-                        <p class="mt-2 text-sm text-gray-500">
+                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                             Your report will be reviewed by our team. Please provide as much detail as possible.
                         </p>
                         @error('reason')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -53,21 +53,21 @@
                         <div class="flex items-start">
                             <div class="flex items-center h-5">
                                 <input id="agree_terms" name="agree_terms" type="checkbox" required
-                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 dark:text-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700">
                             </div>
                             <div class="ml-3 text-sm">
-                                <label for="agree_terms" class="font-medium text-gray-700">I confirm that this report is accurate and submitted in good faith</label>
+                                <label for="agree_terms" class="font-medium text-gray-700 dark:text-gray-300">I confirm that this report is accurate and submitted in good faith</label>
                             </div>
                         </div>
                         @error('agree_terms')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <!-- Form Actions -->
-                    <div class="flex justify-between pt-4 border-t border-gray-200">
+                    <div class="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                         <a href="{{ route('service.details', $service->id) }}" 
-                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Cancel
                         </a>
                         <button type="submit" 

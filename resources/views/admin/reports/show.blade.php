@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <div class="py-4">
@@ -75,7 +75,7 @@
                     @csrf
                     @method('PUT')
                     <div class="mb-4">
-                        <textarea name="admin_notes" rows="4" 
+                        <textarea name="admin_notes" rows="4"
                                 class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Add notes about this violation...">{{ $violation->admin_notes }}</textarea>
                     </div>
@@ -94,4 +94,4 @@
             </div>
         </div>
     </div>
-@endsection 
+@endsection

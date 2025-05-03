@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class ServiceController extends Controller
 {
@@ -59,12 +61,25 @@ class ServiceController extends Controller
             }
         }
 
-        return redirect()->route('services.index')->with('success', 'Service created successfully.');
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            DB::table('notifications')->insert([
+                'user_id' => $admin->id,
+                'title' => 'New Service Pending Approval',
+                'content' => 'New service "'.$service->title.'" needs review',
+                'notification_type' => 'system',
+                'is_read' => false,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+    
+        return redirect()->route('provider.services.index')->with('success', 'Service created successfully.');
     }
 
     public function edit(Service $service)
     {
-        $this->authorizeService($service);
+       $this->authorize('update',$service);
 
         $categories = Category::all();
         $service->load('images');
@@ -74,7 +89,7 @@ class ServiceController extends Controller
 
     public function update(Request $request, Service $service)
     {
-        $this->authorizeService($service);
+        $this->authorize('update',$service);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -119,12 +134,12 @@ class ServiceController extends Controller
             'service_type' => $validated['service_type'],
         ]);
 
-        return redirect()->route('services.index')->with('success', 'Service updated successfully.');
+        return redirect()->route('provider.services.index')->with('success', 'Service updated successfully.');
     }
 
     public function destroy(Service $service)
     {
-        $this->authorizeService($service);
+        $this->authorize('delete',$service);
 
         try {
             foreach ($service->images as $image) {
@@ -133,9 +148,9 @@ class ServiceController extends Controller
             }
 
             $service->delete();
-            return redirect()->route('services.index')->with('success', 'Service deleted successfully.');
+            return redirect()->route('provider.services.index')->with('success', 'Service deleted successfully.');
         } catch (QueryException $e) {
-            return redirect()->route('services.index')->with(
+            return redirect()->route('provider.services.index')->with(
                 'error',
                 $e->getCode() === '23000'
                     ? 'This service cannot be deleted because it has existing bookings.'
@@ -156,9 +171,7 @@ class ServiceController extends Controller
     {
         $image = ServiceImage::findOrFail($id);
 
-        if ($image->service->provider_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('delete',$image->service);
 
         Storage::disk('public')->delete($image->image_url);
         $image->delete();

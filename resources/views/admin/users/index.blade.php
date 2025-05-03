@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sidbar')
 
 @section('content')
     <div class="py-4">
@@ -159,12 +159,12 @@
     </div>
 
     {{-- Hidden Delete Forms (Keep as is) --}}
-    {{-- @foreach($users as $user)
+     @foreach($users as $user)
         <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
             @csrf
             @method('DELETE')
         </form>
-    @endforeach --}}
+    @endforeach
 
 @endsection
 
@@ -184,7 +184,7 @@
 
         // Vanilla JS (or jQuery if you have it) for resetting filters
         // Using a simple link redirect for reset is often easiest:
-        // The "Reset" anchor tag <a href="{{ route('admin.users.index') }}"> already handles this.
+{{--        // The "Reset" anchor tag <a href="{{ route('admin.users.index') }}"> already handles this.--}}
 
         // If you wanted to keep the JS approach for the Reset button:
         // document.addEventListener('DOMContentLoaded', function() {

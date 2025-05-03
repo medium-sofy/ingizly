@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use App\Models\Notification;
 
 class PaymentController extends Controller
 {
@@ -23,19 +24,20 @@ class PaymentController extends Controller
         $query = Payment::query();
 
         // Apply Search Filter
-        if ($search = $request->input('search')) {
+        if ($search = $request->input("search")) {
             $query->where(function ($query) use ($search) {
-                $query->where('transaction_id', 'like', '%' . $search . '%')
-                    ->orWhere('order_id', 'like', '%' . $search . '%') // Assuming order_id can be searched as string
-                    ->orWhere('payment_gateway', 'like', '%' . $search . '%');
+                $query
+                    ->where("transaction_id", "like", "%" . $search . "%")
+                    ->orWhere("order_id", "like", "%" . $search . "%") // Assuming order_id can be searched as string
+                    ->orWhere("payment_gateway", "like", "%" . $search . "%");
             });
         }
 
         // Apply Status Filter
-        if ($status = $request->input('payment_status')) {
+        if ($status = $request->input("payment_status")) {
             // Check if status is not 'All Statuses' or empty (handled by the default empty value)
-            if ($status !== '') {
-                $query->where('payment_status', $status);
+            if ($status !== "") {
+                $query->where("payment_status", $status);
             }
         }
 
@@ -46,106 +48,134 @@ class PaymentController extends Controller
         //     }
         // }
 
-
         // Apply Date Range Filter (based on created_at)
-        if ($dateFrom = $request->input('date_from')) {
-            $query->whereDate('created_at', '>=', $dateFrom);
+        if ($dateFrom = $request->input("date_from")) {
+            $query->whereDate("created_at", ">=", $dateFrom);
         }
-        if ($dateTo = $request->input('date_to')) {
-            $query->whereDate('created_at', '<=', $dateTo);
+        if ($dateTo = $request->input("date_to")) {
+            $query->whereDate("created_at", "<=", $dateTo);
         }
 
         // Order by creation date, latest first
-        $query->orderBy('created_at', 'asc');
+        $query->orderBy("created_at", "desc");
 
         // Paginate the results
         $payments = $query->paginate(10); // You can adjust the number per page
 
         // Return the view, passing the payments data
-        return view('admin.payments.index', [ // Make sure the view path is correct
-            'payments' => $payments,
+        return view("admin.payments.index", [
+            // Make sure the view path is correct
+            "payments" => $payments,
             // Optionally pass request parameters back to pre-fill the form
-            'request' => $request,
+            "request" => $request,
         ]);
     }
     public function paymentProcess(Request $request)
     {
-        $data = $request->only(['amount_cents', 'currency', 'first_name', 'last_name', 'phone_number', 'email','order_id']);
+        $data = $request->only([
+            "amount_cents",
+            "currency",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "email",
+            "order_id",
+        ]);
 
-        $order = Order::findOrFail($data['order_id']);
+        $order = Order::findOrFail($data["order_id"]);
 
-        $payment = Payment::where('order_id', $order->id)
-            ->where('payment_status', 'pending')
+        $payment = Payment::where("order_id", $order->id)
+            ->where("payment_status", "pending")
             ->first();
 
         if ($payment) {
             // If a pending payment exists, update its details if necessary
             $payment->update([
-                'amount' => $order->total_amount, // Ensure amount is correct
-                'currency' => $data['currency'], // Ensure currency is correct
+                "amount" => $order->total_amount, // Ensure amount is correct
+                "currency" => $data["currency"], // Ensure currency is correct
             ]);
         } else {
             // If no pending payment exists, create a new one
             $payment = Payment::create([
-                'order_id' => $order->id,
-                'payment_gateway' => 'Paymob',
-                'amount' => $order->total_amount,
-                'currency' => $data['currency'],
-                'payment_status' => 'pending',
+                "order_id" => $order->id,
+                "payment_gateway" => "Paymob",
+                "amount" => $order->total_amount,
+                "currency" => $data["currency"],
+                "payment_status" => "pending",
                 // transaction_id will be added in the callback
             ]);
         }
 
-        Cookie::queue('pending_payment_id', $payment->id, 60); // Cookie will expire in 60 minutes
+        Cookie::queue("pending_payment_id", $payment->id, 60); // Cookie will expire in 60 minutes
 
         $response = $this->paymentGateway->sendPayment($data);
 
-        if ($response['success']) {
-            return redirect()->away($response['url']);
+        if ($response["success"]) {
+            $order->update(["status" => "in_progress"]);
+            // Notify the provider that the service has been paid for
+            Notification::create([
+                'user_id' => $order->service->provider->user->id,
+                'title' => "The service '{$order->service->title}'  has been paid for. order #" . $order->id,
+                'content' => json_encode([
+                    'message' =>  "The buyer '{$order->buyer->user->name}' has paid for the service '{$order->service->title}', you can now start working on it. (Service ID: {$order->service_id})",
+                    'source' => 'dashboard'
+                ]),
+                'is_read' => false,
+                'notification_type' => 'order_update'
+            ]);
+            // Notify the buyer that the service has been paid for successfully
+            Notification::create([
+                'user_id' => $order->buyer_id,
+                'title' => "Payment successful for service '{$order->service->title}'. order #" . $order->id,
+                'content' => json_encode([
+                    'message' =>  "A notification was sent to the provider '{$order->service->provider->user->name}', for service '{$order->service->title}', he should be working on it. (Service ID: {$order->service_id})",
+                    'source' => 'dashboard'
+                ]),
+                'is_read' => false,
+                'notification_type' => 'order_update'
+            ]);
+
+            return redirect()->away($response["url"]);
         }
 
         // If sending payment fails immediately, mark the payment as failed
         if ($payment) {
-            $payment->update(['payment_status' => 'failed']);
-            Cookie::forget('pending_payment_id'); // Clear cookie if payment failed immediately
+            $payment->update(["payment_status" => "failed"]);
+            Cookie::forget("pending_payment_id"); // Clear cookie if payment failed immediately
         }
 
-
-        return redirect()->route('payment.failed');
+        return redirect()->route("payment.failed");
     }
 
-    public function callBack(Request $request): \Illuminate\Http\RedirectResponse
-    {
+    public function callBack(
+        Request $request
+    ): \Illuminate\Http\RedirectResponse {
         $response = $this->paymentGateway->callBack($request);
         if ($response) {
-
-
-            $pendingPaymentId = Cookie::get('pending_payment_id'); // Retrieve from cookie
+            $pendingPaymentId = Cookie::get("pending_payment_id"); // Retrieve from cookie
             $payment = Payment::findOrFail($pendingPaymentId);
             $payment->update([
-                'payment_status' => 'successful',
-                'transaction_id' => $request->get('id'),
+                "payment_status" => "successful",
+                "transaction_id" => $request->get("id"),
             ]);
-            Cookie::forget('pending_payment_id');
-            return redirect()->route('payment.success');
+            Cookie::forget("pending_payment_id");
+            return redirect()->route("payment.success");
         } else {
-            $pendingPaymentId = Cookie::get('pending_payment_id'); // Retrieve from cookie
+            $pendingPaymentId = Cookie::get("pending_payment_id"); // Retrieve from cookie
             if ($pendingPaymentId) {
                 $payment = Payment::findOrFail($pendingPaymentId);
-                $payment->update(['payment_status' => 'failed']);
-
+                $payment->update(["payment_status" => "failed"]);
             }
         }
-        return redirect()->route('payment.failed');
-
+        return redirect()->route("payment.failed");
     }
     public function success()
     {
-        return view('paymob.payment-success');
+        return view("paymob.payment-success");
     }
 
     public function failed()
     {
-        return view('paymob.payment-failed');
+        return view("paymob.payment-failed");
     }
 }

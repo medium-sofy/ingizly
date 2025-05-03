@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Provider;
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Order;
 use App\Models\Review;
+use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -22,15 +25,17 @@ class ServiceProviderDashboardController extends Controller
         // Basic statistics
         $totalServices = $services->count();
         $totalViews = $services->sum('view_count');
-        $pendingBookings = \App\Models\Order::whereIn('service_id', $services->pluck('id'))
-        ->whereIn('status', ['pending', 'accepted']) // adjust based on your app logic
+        $pendingBookings = Order::whereIn('service_id', $services->pluck('id'))
+        ->whereIn('status', ['pending', 'accepted'])
         ->count();
         $averageRating = Review::whereIn('service_id', $services->pluck('id'))->avg('rating');
 
         // Recent Bookings
         $recentOrders = Order::with(['service', 'buyer.user'])
             ->whereIn('service_id', $services->pluck('id'))
+            ->where('status',  'pending')
             ->latest()
+            ->orderBy('created_at', 'ASC')
             ->take(5)
             ->get();
 
@@ -40,6 +45,7 @@ class ServiceProviderDashboardController extends Controller
             ->latest()
             ->take(5)
             ->get();
+//        $reviewDate = Carbon::timestamp($-)
 
         return view('service_provider.dashboard.index', compact(
             'services',
@@ -52,33 +58,66 @@ class ServiceProviderDashboardController extends Controller
         ));
     }
 
-    public function create()
+
+    public function acceptOrder(Order $order)
     {
-        abort(404); // Not used for dashboard
+        $providerName = $order->service->provider->user->name;
+        $order->update(['status' => 'accepted']);
+
+        Notification::create([
+            'user_id' => $order->buyer_id,
+            'title' => 'The provider '. $providerName .' accepted your order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "Please proceed to pay for service '{$order->service->title}' (Service ID: {$order->service_id})",
+                'source' => 'landing'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        return redirect()->back()->with('success', 'Order has been Accepted');
     }
 
-    public function store(Request $request)
+    public function rejectOrder(Order $order)
     {
-        abort(404); // Not used for dashboard
+        $providerName = $order->service->provider->user->name;
+        $order->update(['status' => 'rejected']);
+        Notification::create([
+            'user_id' => $order->buyer_id,
+            'title' => 'The provider '. $providerName .' rejected your order #' . $order->id,
+            'content' => json_encode([
+                'message' =>  "You order #{$order->id} for '{$order->service->title}' has been rejected (Service ID: {$order->service_id})",
+                'source' => 'landing'
+            ]),
+            'is_read' => false,
+            'notification_type' => 'order_update'
+        ]);
+        return redirect()->back()->with('success', 'Order has been Rejected');
     }
 
-    public function show(string $id)
+    public function wallet()
     {
-        abort(404); // Not used for dashboard
+        $providerId = Auth::id(); // Logged-in provider ID
+
+        // Fetch payments with successful status and completed orders
+        $payments = Payment::with(['order.user', 'order.service'])
+            ->whereHas('order', function ($query) use ($providerId) {
+                $query->where('status', 'completed')
+                      ->whereHas('service', function ($query) use ($providerId) {
+                          $query->where('provider_id', $providerId);
+                      });
+            })
+            ->where('payment_status', 'successful')
+            ->get();
+
+        return view('service_provider.wallet', compact('payments'));
     }
 
-    public function edit(string $id)
+    public function downloadTransaction($paymentId)
     {
-        abort(404); // Not used for dashboard
-    }
+        $payment = Payment::with('order.buyer.user')->findOrFail($paymentId);
 
-    public function update(Request $request, string $id)
-    {
-        abort(404); // Not used for dashboard
-    }
-
-    public function destroy(string $id)
-    {
-        abort(404); // Not used for dashboard
+        // Update the view path to 'service_provider.transaction_pdf'
+        $pdf = Pdf::loadView('service_provider.transaction_pdf', compact('payment'));
+        return $pdf->download('transaction_' . $payment->transaction_id . '.pdf');
     }
 }

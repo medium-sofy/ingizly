@@ -18,8 +18,7 @@ class CategoryController extends Controller
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                $q->where('name', 'like', "%{$search}%");
             });
         }
 
@@ -34,7 +33,7 @@ class CategoryController extends Controller
             ->where('id', '!=', $category->id ?? null)
             ->orderBy('name')
             ->get();
-            
+
         return view('admin.categories.create', compact('parentCategories'));
     }
 
@@ -72,7 +71,7 @@ class CategoryController extends Controller
             ->where('id', '!=', $category->id)
             ->orderBy('name')
             ->get();
-            
+
         return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
@@ -92,7 +91,7 @@ class CategoryController extends Controller
             if ($category->icon) {
                 Storage::disk('public')->delete($category->icon);
             }
-            
+
             $path = $request->file('icon')->store('categories', 'public');
             $category->icon = $path;
         }
