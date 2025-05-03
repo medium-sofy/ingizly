@@ -135,7 +135,7 @@
         </div>
 
         <!-- Search Card -->
-        form method="GET" action="{{ route('home.search') }}"
+        <form method="GET" action="{{ route('home.search') }}"
               class="bg-white dark:bg-gray-800 bg-opacity-90 backdrop-blur-lg p-6 sm:p-10 rounded-xl shadow-2xl w-full max-w-4xl mx-auto">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 <!-- Category -->

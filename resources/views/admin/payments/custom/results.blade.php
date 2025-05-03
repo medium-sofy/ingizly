@@ -1,4 +1,4 @@
-    @extends('layouts.app')
+    @extends('layouts.sidbar')
 
     @section('content')
     <div class="container-fluid py-4"> {{-- Added py-4 for vertical padding --}}
@@ -10,7 +10,7 @@
                             {{ ucwords(str_replace('_', ' ', $reportType)) }} Report
                         </h3>
                         <div class="flex space-x-2"> {{-- Replaced card-tools with flex space-x-2 --}}
-                            <a href="{{ route('reports.custom.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm"> {{-- Replaced btn-secondary btn-sm --}}
+                            <a href="{{ route('admin.reports.custom.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm"> {{-- Replaced btn-secondary btn-sm --}}
                                 <i class="fas fa-arrow-left mr-1"></i> Back {{-- Added mr-1 for spacing --}}
                             </a>
                             {{-- Ensure you have a library like SheetJS (XLSX) included globally or via a script tag --}}
@@ -41,6 +41,8 @@
                                                 <th class="p-3 text-left font-semibold text-gray-700">Provider</th>
                                                 <th class="p-3 text-left font-semibold text-gray-700">Service</th>
                                                 <th class="p-3 text-left font-semibold text-gray-700">Order ID</th>
+                                                <th class="p-3 text-left font-semibold text-gray-700">Payment Gateway</th>
+                                                <th class="p-3 text-left font-semibold text-gray-700">TRX ID</th>
                                                 <th class="p-3 text-left font-semibold text-gray-700">Date</th>
                                                 @break
 
@@ -255,7 +257,7 @@
 
     @push('scripts')
     {{-- Include the SheetJS library for Excel export if you haven't already --}}
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         function exportToExcel() {
             const table = document.getElementById('reportTable');

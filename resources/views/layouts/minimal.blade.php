@@ -13,7 +13,7 @@
     <!-- Navbar -->
     <nav class="bg-white shadow py-4">
         <div class="container mx-auto px-6 flex items-center justify-between">
-            <a href="/" class="text-2xl font-bold text-blue-600">Ingilzy</a>
+            <a  class="text-2xl font-bold text-blue-600">Ingilzy</a>
         </div>
     </nav>
 

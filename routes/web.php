@@ -32,10 +32,18 @@ use App\Http\Controllers\PublicCategoryController;
 use App\Http\Controllers\ServiceDetailsController;
 use App\Http\Controllers\ServiceBookingController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\Auth\OtpController;
 
 //@@ Home
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/search', [WelcomeController::class, 'search'])->name('home.search');
+
+Route::middleware('auth')->group(function () {
+    Route::get('verify-otp', [OtpController::class, 'showForm'])->name('verify.otp.form');
+    Route::post('/verify-otp', [OtpController::class, 'verify'])->name('verify.otp');
+    Route::post('/resend-otp', [OtpController::class, 'resend'])->name('resend.otp');
+});
+
 
 //@@ Auth
 require __DIR__.'/auth.php';
@@ -43,6 +51,9 @@ require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
     Route::get('/choose-role', [RegisteredUserController::class, 'showRoleSelection'])->name('choose.role');
     Route::post('/select-role', [RegisteredUserController::class, 'selectRole'])->name('select.role');
+
+
+
 
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
@@ -95,17 +106,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/reports/{violation}', [ReportController::class, 'update'])->name('reports.update');
 
     // Custom Reports Routes
-    Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
-    Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
+    Route::get('payments/reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
+    Route::post('payments/reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
 
     // Show single service details
     // Route::get('/{users}', [ServiceController::class, 'show'])->name('admin.users.show');
     Route::post('services/{id}/approve', [AdminController::class, 'approveService'])->name('services.approve');
     Route::post('services/{id}/reject', [AdminController::class, 'rejectService'])->name('services.reject');
 
-    // Custom Reports Routes
-    Route::get('reports/custom', [CustomReportController::class, 'index'])->name('reports.custom.index');
-    Route::post('reports/custom/generate', [CustomReportController::class, 'generate'])->name('reports.custom.generate');
+
 });
 
 //@@ Service provider

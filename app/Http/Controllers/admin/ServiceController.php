@@ -300,8 +300,12 @@ class ServiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             // Log::error($e->getMessage());
-            return redirect()->route('admin.services.index')
-                ->with('error', 'Failed to delete service. Error: ' . $e->getMessage());
+            return redirect()->route('admin.services.index')->with(
+                'error',
+                $e->getCode() === '23000'
+                    ? 'This service cannot be deleted because it has existing bookings.'
+                    : 'An error occurred while deleting the service.'
+            );
         }
     }
 

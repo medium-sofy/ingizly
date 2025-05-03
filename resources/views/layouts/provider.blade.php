@@ -57,6 +57,7 @@
 
             <!-- Navigation -->
             <ul class="flex-1 p-4 space-y-4 overflow-y-auto">
+                <x-email-verification-alert />
                 <li>
                     <a href="{{ route('provider.dashboard') }}" class="flex items-center px-4 py-3 rounded hover:bg-blue-700">
                         <i class="fas fa-home mr-3"></i> Overview

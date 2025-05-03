@@ -27,6 +27,41 @@
             <h1 class="text-2xl font-semibold">Ingizly | Admin</h1>
         </div>
         <nav class="mt-6 flex-1">
+            {{-- Flash Alerts Inside Sidebar --}}
+            @if (session('success'))
+                <div
+                    x-data="{ show: true }"
+                    x-init="setTimeout(() => show = false, 4000)"
+                    x-show="show"
+                    class="mx-4 mb-4 p-3 bg-green-600 text-white text-sm rounded shadow"
+                >
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div
+                    x-data="{ show: true }"
+                    x-init="setTimeout(() => show = false, 4000)"
+                    x-show="show"
+                    class="mx-4 mb-4 p-3 bg-red-600 text-white text-sm rounded shadow"
+                >
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if (session('info'))
+                <div
+                    x-data="{ show: true }"
+                    x-init="setTimeout(() => show = false, 4000)"
+                    x-show="show"
+                    class="mx-4 mb-4 p-3 bg-blue-600 text-white text-sm rounded shadow"
+                >
+                    {{ session('info') }}
+                </div>
+            @endif
+            <x-email-verification-alert />
+
             {{-- Added check for active route for better UX --}}
             <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 text-white {{ request()->routeIs('dashboard') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }}">
                 <i class="fas fa-chart-bar mr-3"></i>
@@ -62,7 +97,7 @@
     $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
 @endphp
 
-<a href="{{ route('notifications.index') }}" 
+<a href="{{ route('notifications.index') }}"
    class="flex items-center px-6 py-3 text-white {{ request()->routeIs('notifications.index*') ? 'bg-indigo-800' : 'hover:bg-indigo-800' }} relative">
     <div class="relative inline-block">
         <i class="fas fa-bell mr-3"></i>

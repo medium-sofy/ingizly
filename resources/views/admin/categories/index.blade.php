@@ -38,8 +38,6 @@
                     <tr class="border-b border-gray-200">
                         <th class="py-3 text-left font-medium text-gray-700">Name</th>
                         <th class="py-3 text-left font-medium text-gray-700">Parent Category</th>
-                        <th class="py-3 text-left font-medium text-gray-700">Description</th>
-                        <th class="py-3 text-left font-medium text-gray-700">Status</th>
                         <th class="py-3 text-left font-medium text-gray-700">Services Count</th>
                         <th class="py-3 text-left font-medium text-gray-700">Actions</th>
                     </tr>
@@ -65,16 +63,8 @@
                             <td class="py-4">
                                 {{ $category->parent ? $category->parent->name : 'None' }}
                             </td>
-                            <td class="py-4">
-                                <p class="text-sm">{{ Str::limit($category->description, 50) }}</p>
-                            </td>
-                            <td class="py-4">
-                                <span class="inline-block px-2 py-1 text-xs {{
-                                    $category->status == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                }} rounded-full">
-                                    {{ ucfirst($category->status) }}
-                                </span>
-                            </td>
+
+
                             <td class="py-4">
                                 {{ $category->services_count ?? 0 }}
                             </td>
