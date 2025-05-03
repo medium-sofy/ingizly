@@ -194,9 +194,12 @@
             </div>
             <p class="text-gray-700 dark:text-gray-500 text-sm sm:text-base">{{ Carbon\Carbon::parse($review->created_at)->diffForHumans()}}</p>
             <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $review->comment }}</p>
+
     </div>
 
-  
+        @empty
+            <p class="text-gray-500 dark:text-gray-400 text-sm">No reviews found.</p>
+        @endforelse
 
 </div>
 </div>
