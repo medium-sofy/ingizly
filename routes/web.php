@@ -35,6 +35,7 @@ use App\Http\Controllers\WelcomeController;
 
 //@@ Home
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('/search', [WelcomeController::class, 'search'])->name('home.search');
 
 //@@ Auth
 require __DIR__.'/auth.php';
@@ -125,7 +126,7 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::resource('bookings', ProviderBookingsController::class)->names('provider.bookings');
     Route::post('bookings/{order}/start',[ ProviderBookingsController::class, 'startService'])->name('provider.service.start');
     Route::post('bookings/{order}/complete',[ ProviderBookingsController::class, 'completeService'])->name('provider.service.complete');
-    
+
     Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
     Route::get('/wallet/download/{payment}', [ServiceProviderDashboardController::class, 'downloadTransaction'])->name('provider.wallet.download');
 });

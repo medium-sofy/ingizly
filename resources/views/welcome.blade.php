@@ -35,7 +35,7 @@
             <a href="#contact" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Contact</a>
             @auth
                 <!-- Dashboard Button -->
-                <a href="{{ route('dashboard') }}" 
+                <a href="{{ route('dashboard') }}"
                    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-blue-700 transition">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
@@ -47,8 +47,8 @@
             @auth
                 <!-- User Info -->
                 <div class="hidden md:flex items-center gap-2">
-                    <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                         alt="Profile Picture" 
+                    <img src="{{ asset('storage/' . Auth::user()->profile_image) }}"
+                         alt="Profile Picture"
                          class="w-10 h-10 rounded-full object-cover">
                     <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
                 </div>
@@ -91,8 +91,8 @@
 
             <!-- User Info -->
             <div class="flex items-center gap-2 py-2">
-                <img src="{{ asset('storage/' . Auth::user()->profile_image) }}" 
-                     alt="Profile Picture" 
+                <img src="{{ asset('storage/' . Auth::user()->profile_image) }}"
+                     alt="Profile Picture"
                      class="w-8 h-8 rounded-full object-cover">
                 <span class="text-gray-700 dark:text-gray-200 font-medium">{{ Auth::user()->name }}</span>
             </div>
@@ -134,7 +134,7 @@
             </div>
 
             <!-- Search Card -->
-            <form method="GET"
+            <form method="GET" action="{{ route('home.search') }}"
                   class="bg-white dark:bg-gray-800 bg-opacity-90 backdrop-blur-lg p-6 sm:p-10 rounded-xl shadow-2xl w-full max-w-4xl mx-auto">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     <!-- Category -->
@@ -231,7 +231,7 @@
   </div>
 </section>
 
-    
+
 
     <!-- Popular Categories -->
 <section class="py-20 bg-gradient-to-b from-gray-100 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -252,7 +252,7 @@
             @foreach ($popularCategories as $category)
                 <a href="{{ route('categories.show', $category->id) }}"
                    class="group relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl hover:scale-[1.03] hover:shadow-2xl transition-transform duration-300 ease-out transform hover:-translate-y-1">
-                    
+
                     <!-- Category Icon and Tag -->
                     <div class="flex items-center justify-between mb-4">
                         <div class="text-3xl text-blue-600 dark:text-blue-400">
@@ -467,7 +467,7 @@
                 ['question' => 'What payment methods are supported?', 'answer' => 'We support secure payments via credit cards, digital wallets, and bank transfers.']
             ] as $index => $faq)
                 <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow transition-shadow duration-300 hover:shadow-md">
-                    <button 
+                    <button
                         @click="selected === {{ $index }} ? selected = null : selected = {{ $index }}"
                         class="w-full flex justify-between items-center p-5 text-left"
                     >
