@@ -71,4 +71,21 @@ class PaymobPaymentService extends BasePaymentService implements PaymentGatewayI
 
         return isset($response['success']) && $response['success'] === 'true';
     }
+    public function refund(string $transactionId, int $amountCents): array
+    {
+        $token = $this->generateToken();
+
+        $response = $this->buildRequest('POST', '/api/acceptance/void_refund/refund', [
+            'auth_token' => $token,
+            'transaction_id' => $transactionId,
+            'amount_cents' => $amountCents,
+        ]);
+
+        if ($response->getData(true)['success'] === true) {
+            return ['success' => true, 'data' => $response->getData(true)];
+        }
+
+        return ['success' => false, 'message' => $response->getContent()];
+    }
+
 }

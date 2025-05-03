@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use App\Models\Notification;
 
 class PaymentController extends Controller
 {
@@ -110,6 +111,30 @@ class PaymentController extends Controller
         $response = $this->paymentGateway->sendPayment($data);
 
         if ($response["success"]) {
+            $order->update(["status" => "in_progress"]);
+            // Notify the provider that the service has been paid for
+            Notification::create([
+                'user_id' => $order->service->provider->user->id,
+                'title' => "The service '{$order->service->title}'  has been paid for. order #" . $order->id,
+                'content' => json_encode([
+                    'message' =>  "The buyer '{$order->buyer->user->name}' has paid for the service '{$order->service->title}', you can now start working on it. (Service ID: {$order->service_id})",
+                    'source' => 'dashboard'
+                ]),
+                'is_read' => false,
+                'notification_type' => 'order_update'
+            ]);
+            // Notify the buyer that the service has been paid for successfully
+            Notification::create([
+                'user_id' => $order->buyer_id,
+                'title' => "Payment successful for service '{$order->service->title}'. order #" . $order->id,
+                'content' => json_encode([
+                    'message' =>  "A notification was sent to the provider '{$order->service->provider->user->name}', for service '{$order->service->title}', he should be working on it. (Service ID: {$order->service_id})",
+                    'source' => 'dashboard'
+                ]),
+                'is_read' => false,
+                'notification_type' => 'order_update'
+            ]);
+
             return redirect()->away($response["url"]);
         }
 
@@ -152,5 +177,33 @@ class PaymentController extends Controller
     public function failed()
     {
         return view("paymob.payment-failed");
+    }
+    public function refund(Request $request, $paymentId)
+    {
+        $payment = Payment::find($paymentId);
+
+        if (!$payment) {
+            return back()->with('error', 'Payment not found.');
+        }
+        if ($payment->payment_status == 'refunded') {
+            return back()->with('error', 'This payment has already been refunded.');
+        }
+        $request->validate([
+            'transaction_id' => 'required|string',
+            'amount_cents' => 'required|numeric|min:1',
+        ]);
+
+        $result = $this->paymentGateway->refund(
+            $request->transaction_id,
+            $request->amount_cents
+        );
+
+        if ($result['success']) {
+            $payment->payment_status = 'refunded';
+            $payment->save();
+            return back()->with('success', 'Refund successful.');
+        }
+
+        return back()->with('error', 'Refund failed: ' . ($result['message'] ?? 'Unknown error.'));
     }
 }

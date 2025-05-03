@@ -76,9 +76,16 @@ class Order extends Model
     {
         return $this->hasMany(Payment::class);
     }
+    
+    public function hasSuccessfulPayment()
+    {
+        return $this->payments()->where('payment_status', 'successful')->exists();
+    }
 
     public function review()
     {
         return $this->hasOne(Review::class);
     }
+    
+
 }

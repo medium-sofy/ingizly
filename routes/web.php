@@ -24,7 +24,7 @@ use App\Http\Controllers\Buyer\ServiceBuyerProfile;
 
 use App\Http\Controllers\Provider\ServiceController as ServiceProviderCatalogController;
 use App\Http\Controllers\Provider\ServiceProviderDashboardController;
-
+use App\Http\Controllers\Provider\ProviderBookingsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentController;
@@ -36,6 +36,7 @@ use App\Http\Controllers\Auth\OtpController;
 
 //@@ Home
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::get('/search', [WelcomeController::class, 'search'])->name('home.search');
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-otp', [OtpController::class, 'showForm'])->name('verify.otp.form');
@@ -52,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/select-role', [RegisteredUserController::class, 'selectRole'])->name('select.role');
 
 
-  
+
 
     // Service Provider routes
     Route::get('/service-provider/form', [ServiceProviderController::class, 'create'])->name('service_provider.form');
@@ -86,6 +87,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Payment Export Routes
     Route::get('payments', [PaymentController::class, 'index'])->name('payments');
+    Route::post('/payments/{payment}/refund', [PaymentController::class, 'refund'])->name('payments.refund');
     Route::get('payments/export/pdf', [PaymentExportController::class, 'exportPDF'])->name('payments.export.pdf');
     Route::get('payments/export/csv', [PaymentExportController::class, 'exportCSV'])->name('payments.export.csv');
 
@@ -131,6 +133,10 @@ Route::middleware(['auth', 'role:service_provider'])->prefix('provider')->group(
     Route::post('dashboard/orders/{order}/accept', [ServiceProviderDashboardController::class, 'acceptOrder'])->name('provider.dashboard.accept');
     Route::post('dashboard/orders/{order}/reject', [ServiceProviderDashboardController::class, 'rejectOrder'])->name('provider.dashboard.reject');
 
+    Route::resource('bookings', ProviderBookingsController::class)->names('provider.bookings');
+    Route::post('bookings/{order}/start',[ ProviderBookingsController::class, 'startService'])->name('provider.service.start');
+    Route::post('bookings/{order}/complete',[ ProviderBookingsController::class, 'completeService'])->name('provider.service.complete');
+
     Route::get('/wallet', [ServiceProviderDashboardController::class, 'wallet'])->name('provider.wallet');
     Route::get('/wallet/download/{payment}', [ServiceProviderDashboardController::class, 'downloadTransaction'])->name('provider.wallet.download');
 });
@@ -172,6 +178,9 @@ Route::middleware(['auth', 'role:service_buyer'])->group(function () {
     // Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
     //     ->name('service.details');
 });
+Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
+    ->name('service.details');
+
 
 //@@ Dashboard
 Route::get('/dashboard', function () {
@@ -204,6 +213,12 @@ Route::middleware(['auth', 'role:service_buyer'])->group(function () {
     Route::post('/orders/{order}/cancel', [ServiceBookingController::class, 'cancelOrder'])
         ->name('orders.cancel');
 
+    Route::post('/orders/{order}/approve', [ServiceBookingController::class, 'approveService'])
+        ->name('buyer.orders.approve');
+
+    Route::post('/orders/{order}/reject', [ServiceBookingController::class, 'rejectService'])
+        ->name('buyer.orders.reject');
+
     Route::get('/order/payment/{order}', [ServiceBookingController::class, 'showPayment'])
         ->name('order.payment');
 });
@@ -230,6 +245,3 @@ Route::post('/notifications/mark-all-read', [NotificationController::class, 'mar
 Route::get('All/categories', [PublicCategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/{category}', [PublicCategoryController::class, 'show'])->name('categories.show');
 Route::get('/Allservices', [PublicCategoryController::class, 'allServices'])->name('services.all');
-Route::get('/services/{id}', [ServiceDetailsController::class, 'show'])
-        ->name('service.details');
-

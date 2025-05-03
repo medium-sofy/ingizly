@@ -57,9 +57,13 @@ class RegisteredUserController extends Controller
             'smtp' => 1,
             'format' => 1,
         ]);
-        if (!$response->ok() || !$response['smtp_check']) {
+        $responseData = $response->json();
+
+// Check that json() returned an array before accessing keys
+        if (!is_array($responseData) || !$response->ok() || empty($responseData['smtp_check'])) {
             return back()->withErrors(['email' => 'This email address seems invalid or unreachable. Please enter a working email.'])->withInput();
         }
+
         // Handle Image Upload
         $imagePath = null;
         if ($request->hasFile('profile_image')) {

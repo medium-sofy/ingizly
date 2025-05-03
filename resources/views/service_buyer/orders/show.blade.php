@@ -122,10 +122,11 @@
             @endif
             
             @if($order->status == 'completed')
-            <a href="#" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-150 ease-in-out text-center">
-                <i class="fas fa-star mr-2"></i> Leave a Review
-            </a>
-            @endif
+<a href="{{ route('service.details', ['id' => $order->service_id]) }}#reviews" 
+   class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-150 ease-in-out text-center">
+    <i class="fas fa-star mr-2"></i> Leave a Review
+</a>
+@endif
             
             <a href="{{ route('buyer.orders.index') }}" class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition duration-150 ease-in-out text-center">
                 <i class="fas fa-list mr-2"></i> Back to Orders
