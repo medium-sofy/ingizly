@@ -16,6 +16,7 @@ class ServicedetailsController extends Controller
 {
     public function show($id)
 {
+    Service::where('id', $id)->increment('view_count');
     $service = Service::with([
         'provider.user',
         'category',
