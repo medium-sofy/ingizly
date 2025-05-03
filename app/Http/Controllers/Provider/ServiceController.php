@@ -68,7 +68,7 @@ class ServiceController extends Controller
             }
         } else {
             
-            $defaultPath = 'service_images/default.png'; // Make sure this exists in public/storage/service_images/
+            $defaultPath = 'service_images/default.png'; 
             $service->images()->create([
                 'image_url' => $defaultPath,
                 'is_primary' => true,
