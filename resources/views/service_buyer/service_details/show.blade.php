@@ -192,7 +192,7 @@
         </div>
     </div>
 
-                @if($service->reviews && $service->reviews->count() > 0)
+                @if($service->reviews && $service->reviews->count() > 0 && $service->reviews->status = 'approved')
                 <div class="flex flex-wrap items-center gap-4">
                     <div class="flex items-center gap-1">
                         @php $avgRating = $service->reviews->avg('rating'); @endphp
