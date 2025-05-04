@@ -17,24 +17,22 @@
         </div>
     @endif
 
-    <form action="{{ route('provider.services.store') }}" method="POST" class="space-y-5" enctype="multipart/form-data">
+    <form action="{{ route('provider.services.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
         @csrf
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Title</label>
-                <input type="text" name="title" id="title"
-                       class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
-                       value="{{ old('title') }}" required>
+                <input type="text" name="title" id="title" value="{{ old('title') }}" required
+                       class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white">
             </div>
 
             <div>
                 <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                <select name="category_id" id="category_id"
-                        class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
-                        required>
+                <select name="category_id" id="category_id" required
+                        class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white">
                     <option value="">Select a Category</option>
-                    @foreach($categories as $cat)
+                    @foreach($categories ?? [] as $cat)
                         <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
                             {{ $cat->name }}
                         </option>
@@ -46,9 +44,9 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label for="service_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Type</label>
-                <select name="service_type" id="service_type"
-                        class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
-                        required>
+                <select name="service_type" id="service_type" required
+                        class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white">
+                    <option value="">Select Type</option>
                     <option value="on_site" {{ old('service_type') == 'on_site' ? 'selected' : '' }}>On Site</option>
                     <option value="remote" {{ old('service_type') == 'remote' ? 'selected' : '' }}>Remote</option>
                     <option value="bussiness_based" {{ old('service_type') == 'bussiness_based' ? 'selected' : '' }}>Business Based</option>
@@ -57,39 +55,38 @@
 
             <div>
                 <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (EGP)</label>
-                <input type="number" name="price" id="price"
-                       class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
-                       value="{{ old('price') }}" required>
+                <input type="number" name="price" id="price" value="{{ old('price') }}" required
+                       class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white">
             </div>
         </div>
 
         <div>
             <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-            <textarea name="description" id="description" rows="4"
-                      class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
-                      required>{{ old('description') }}</textarea>
+            <textarea name="description" id="description" rows="4" required
+                      class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white">{{ old('description') }}</textarea>
         </div>
 
         <div>
             <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
-            <input type="text" name="location" id="location"
-                   class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
-                   value="{{ old('location') }}">
+            <input type="text" name="location" id="location" value="{{ old('location') }}"
+                   class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white">
         </div>
 
         <div>
             <label for="images" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Images</label>
             <input type="file" name="images[]" id="images" multiple accept="image/*"
-                class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
-                onchange="previewImages(event)">
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">You can upload multiple images. (Max size: 2MB each)</p>
+                   class="w-full border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-green-500 rounded-lg shadow-sm px-4 py-2 transition bg-white dark:bg-gray-700 text-black dark:text-white"
+                   onchange="previewImages(event)">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">You can upload multiple images (Max 2MB each).</p>
 
             <div id="preview-container" class="mt-4 flex flex-wrap gap-4 justify-center"></div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4">
             <a href="{{ route('provider.services.index') }}"
-               class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">Cancel</a>
+               class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
+                Cancel
+            </a>
             <button type="submit"
                     class="bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow">
                 <i class="fas fa-check-circle mr-1"></i> Create Service

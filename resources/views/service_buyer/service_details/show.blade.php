@@ -186,12 +186,14 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">{{ $service->title }}</h1>
         <div class="flex items-center gap-3">
             <span class="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">{{ number_format($service->price, 2) }} EGP</span>
+
             <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full border border-blue-100 dark:border-blue-800 shadow-sm">
                 {{ ucfirst(str_replace('_', ' ', $service->service_type)) }}
             </span>
         </div>
     </div>
 
+    <div class="flex flex-wrap items-center gap-4">
                 @if($service->reviews && $service->reviews->count() > 0 && $service->reviews->status = 'approved')
                 <div class="flex flex-wrap items-center gap-4">
                     <div class="flex items-center gap-1">
@@ -211,31 +213,31 @@
                 </div>
                 @endif
 
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Description</h3>
-                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ $service->description }}</p>
-                </div>
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Description</h3>
+        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ $service->description }}</p>
+    </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex items-start gap-3">
-                        <span class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
-                            <i class="fas fa-map-marker-alt text-blue-600 dark:text-blue-400"></i>
-                        </span>
-                        <div>
-                            <h4 class="font-medium text-gray-900 dark:text-gray-100">Location</h4>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $service->location ?? $service->provider->location }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
-                            <i class="fas fa-tag text-blue-600 dark:text-blue-400"></i>
-                        </span>
-                        <div>
-                            <h4 class="font-medium text-gray-900 dark:text-gray-100">Category</h4>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $service->category->name }}</p>
-                        </div>
-                    </div>
-                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex items-start gap-3">
+            <span class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
+                <i class="fas fa-map-marker-alt text-blue-600 dark:text-blue-400"></i>
+            </span>
+            <div>
+                <h4 class="font-medium text-gray-900 dark:text-gray-100">Location</h4>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $service->location ?? $service->provider->location }}</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3">
+            <span class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800">
+                <i class="fas fa-tag text-blue-600 dark:text-blue-400"></i>
+            </span>
+            <div>
+                <h4 class="font-medium text-gray-900 dark:text-gray-100">Category</h4>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $service->category->name }}</p>
+            </div>
+        </div>
+    </div>
 
                 @auth
     @if(auth()->user()->role === 'service_buyer')
@@ -386,7 +388,7 @@
 
             <!-- Reviews Section -->
             @if($service->reviews && $service->reviews->count() > 0)
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6"  id="reviews">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Customer Reviews</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div class="text-center border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 pb-8 md:pb-0 pr-0 md:pr-8">
@@ -468,7 +470,7 @@
                             ->exists();
                     @endphp
                     @if($hasCompletedOrder)
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mt-8">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 mt-8  id="reviews">
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Write a Review</h3>
                             <form action="{{ route('service.review.submit', $service->id) }}" method="POST" id="reviewForm">
                                 @csrf
