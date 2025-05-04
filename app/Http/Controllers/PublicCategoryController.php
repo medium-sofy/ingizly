@@ -40,7 +40,7 @@ class PublicCategoryController extends Controller
         }
 
         // Paginate results
-        $services = $query->paginate(12)->appends($request->all()); // Keep query parameters in pagination links
+        $services = $query->orderBy('created_at', 'desc')->paginate(12)->appends($request->all()); // Keep query parameters in pagination links
         $categories = \App\Models\Category::all();
 
         return view('services.all', compact('services', 'categories'));
