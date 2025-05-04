@@ -50,7 +50,7 @@
                                     <div>{{ $order->scheduled_date ? date('M d, Y', strtotime($order->scheduled_date)) : 'Not scheduled' }}</div>
                                     <div class="text-xs text-gray-500">{{ $order->scheduled_time ? date('h:i A', strtotime($order->scheduled_time)) : '' }}</div>
                                 </td>
-                                <td class="px-6 py-4 font-semibold">{{ $order->total_amount }}</td>
+                                <td class="px-6 py-4 font-semibold">{{ $order->total_amount }} EGP</td>
                                 <td class="px-6 py-4">
                                     <div class="flex space-x-2">
                                         @if($order->status == 'pending')

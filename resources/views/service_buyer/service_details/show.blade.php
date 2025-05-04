@@ -180,17 +180,17 @@
     </div>
 </div>
 
-            <!-- Service Details -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 space-y-6">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">{{ $service->title }}</h1>
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">${{ number_format($service->price, 2) }}</span>
-                        <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full border border-blue-100 dark:border-blue-800 shadow-sm">
-                            {{ ucfirst(str_replace('_', ' ', $service->service_type)) }}
-                        </span>
-                    </div>
-                </div>
+         <!-- Service Details -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">{{ $service->title }}</h1>
+        <div class="flex items-center gap-3">
+            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">{{ number_format($service->price, 2) }} EGP</span>
+            <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full border border-blue-100 dark:border-blue-800 shadow-sm">
+                {{ ucfirst(str_replace('_', ' ', $service->service_type)) }}
+            </span>
+        </div>
+    </div>
 
                 @if($service->reviews && $service->reviews->count() > 0)
                 <div class="flex flex-wrap items-center gap-4">
