@@ -105,7 +105,7 @@
                                     <p class="text-sm text-gray-500">{{ $service->provider?->location ?? 'N/A' }}</p>
                                 </div>
                             </td>
-                            <td class="py-4">${{ number_format($service->price) }}</td>
+                            <td class="py-4">{{ number_format($service->price) }} EGP</td>
                             <td class="py-4">{{ number_format($service->views) }}</td>
                             <td class="py-4">{{ $service->category->name ?? 'No Category' }}</td>
                             <td class="py-4">

@@ -185,7 +185,8 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">{{ $service->title }}</h1>
         <div class="flex items-center gap-3">
-            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">${{ number_format($service->price, 2) }}</span>
+            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">{{ number_format($service->price, 2) }} EGP</span>
+
             <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full border border-blue-100 dark:border-blue-800 shadow-sm">
                 {{ ucfirst(str_replace('_', ' ', $service->service_type)) }}
             </span>
@@ -193,23 +194,24 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-4">
-        @if($service->reviews && $service->reviews->count() > 0)
-            <div class="flex items-center gap-1">
-                @php $avgRating = $service->reviews->avg('rating'); @endphp
-                @for($i = 1; $i <= 5; $i++)
-                    @if($i <= floor($avgRating))
-                        <i class="fas fa-star text-yellow-400"></i>
-                    @elseif($i - 0.5 <= $avgRating)
-                        <i class="fas fa-star-half-alt text-yellow-400"></i>
-                    @else
-                        <i class="far fa-star text-yellow-400"></i>
-                    @endif
-                @endfor
-            </div>
-            <span class="text-gray-600 dark:text-gray-300 text-sm">{{ number_format($avgRating, 1) }} ({{ $service->reviews->count() }} reviews)</span>
-        @endif
-        <span class="text-gray-400 text-xs"><i class="fas fa-eye mr-1"></i>{{ $service->view_count }} views</span>
-    </div>
+                @if($service->reviews && $service->reviews->count() > 0 && $service->reviews->status = 'approved')
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-1">
+                        @php $avgRating = $service->reviews->avg('rating'); @endphp
+                        @for($i = 1; $i <= 5; $i++)
+                            @if($i <= floor($avgRating))
+                                <i class="fas fa-star text-yellow-400"></i>
+                            @elseif($i - 0.5 <= $avgRating)
+                                <i class="fas fa-star-half-alt text-yellow-400"></i>
+                            @else
+                                <i class="far fa-star text-yellow-400"></i>
+                            @endif
+                        @endfor
+                    </div>
+                    <span class="text-gray-600 dark:text-gray-300 text-sm">{{ number_format($avgRating, 1) }} ({{ $service->reviews->count() }} reviews)</span>
+                    <span class="text-gray-400 text-xs"><i class="fas fa-eye mr-1"></i>{{ $service->view_count }} views</span>
+                </div>
+                @endif
 
     <div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Description</h3>

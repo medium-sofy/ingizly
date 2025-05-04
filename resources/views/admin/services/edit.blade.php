@@ -96,7 +96,7 @@
                             Price <span class="text-red-600">*</span>
                         </label>
                         <div class="flex">
-                            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">$</span>
+                            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">EGP</span>
                             <input type="number" id="price" name="price" value="{{ old('price', $service->price) }}" step="0.01" min="0" required
                                    class="w-full border p-2 rounded-none rounded-r-md border-gray-300 flex-1 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                    placeholder="0.00">

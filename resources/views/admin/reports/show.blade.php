@@ -29,7 +29,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Price</label>
-                            <p class="mt-1">${{ number_format($violation->service->price) }}</p>
+                            <p class="mt-1">{{ number_format($violation->service->price) }} EGP</p>
                         </div>
                     </div>
                 </div>
